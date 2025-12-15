@@ -7,7 +7,11 @@
 if(!defined('ABSPATH')){echo'Look your sister';exit;}
 ?>
 <?php if(get_boxmoe('boxmoe_blog_layout')=='two'): ?>
-    <div class="col-lg-4 blog-sidebar">
+    <?php 
+    $article_layout = get_boxmoe('boxmoe_article_layout_style');
+    $sidebar_class = ($article_layout == 'three') ? 'col-lg-3' : 'col-lg-4';
+    ?>
+    <div class="<?php echo $sidebar_class; ?> blog-sidebar">
           <div class="position-sticky top">
             <div class="offcanvas-lg offcanvas-end" id="blog-sidebar" tabindex="-1" aria-labelledby="blog-sidebar">
               <div class="offcanvas-header">

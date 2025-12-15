@@ -1,0 +1,499 @@
+/* 🎨 Markdown编辑器工具栏样式 */
+.boxmoe-md-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0; /* ⬅️ 上下增加间距 */
+    padding: 10px;
+    position: relative;
+    z-index: 200;
+    background: #f8f9fa; /* ⬅️ 浅灰背景 */
+    border: 1px solid #e2e8f0; /* ⬅️ 边框颜色 */
+    border-radius: 8px; /* ⬅️ 圆角 */
+    box-sizing: border-box;
+    width: 100%;
+    clear: both; /* ⬅️ 清除浮动，防止被上方元素遮挡或重叠 */
+    align-items: center; /* ⬅️ 垂直居中对齐 */
+}
+
+/* 🔘 工具栏按钮样式 */
+/* 当按钮在 .boxmoe-md-toolbar 内部时 */
+.boxmoe-md-toolbar .md-btn {
+    padding: 6px 12px;
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    border-radius: 6px; /* ⬅️ 按钮圆角 */
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    transition: all 0.2s ease;
+    display: inline-block;
+    height: auto;
+    line-height: normal;
+    margin: 0;
+}
+
+/* 🖱️ 按钮悬停效果 */
+.boxmoe-md-toolbar .md-btn:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+    color: #111827;
+}
+
+/* 视图切换按钮激活状态 */
+.boxmoe-md-toolbar .md-btn.active {
+    background: #e0f2fe;
+    border-color: #3b82f6;
+    color: #1e40af;
+    font-weight: 600;
+}
+
+/* 分隔符样式 */
+.md-separator {
+    color: #d1d5db;
+    margin: 0 4px;
+    font-size: 14px;
+}
+
+/* 预览按钮特殊样式（可选） */
+.md-btn.md-preview {
+    font-weight: 600;
+}
+
+/* 👁️ 预览区域样式 */
+.boxmoe-md-preview {
+    display: none;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    clear: both; /* ⬅️ 清除浮动 */
+    min-height: 300px;
+}
+
+/* 🌓 分屏模式布局 */
+#wp-content-editor-container.mode-split {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: flex-start;
+}
+
+#wp-content-editor-container.mode-split textarea#content {
+    width: 50% !important; /* 强制宽度 */
+    min-height: 500px;
+    resize: vertical;
+}
+
+#wp-content-editor-container.mode-split .boxmoe-md-preview {
+    display: block !important;
+    width: 50%;
+    margin-top: 0;
+    height: auto;
+    min-height: 500px;
+    overflow-y: auto;
+    max-height: 800px; /* 防止过长 */
+}
+
+/* 📄 纯预览模式 */
+#wp-content-editor-container.mode-preview textarea#content {
+    display: none;
+}
+#wp-content-editor-container.mode-preview .boxmoe-md-preview {
+    display: block !important;
+    margin-top: 0;
+}
+
+/* ✏️ 纯编辑模式 */
+#wp-content-editor-container.mode-edit textarea#content {
+    display: block;
+    width: 100% !important;
+}
+#wp-content-editor-container.mode-edit .boxmoe-md-preview {
+    display: none;
+}
+
+/* 内容样式 */
+.boxmoe-md-preview h1,
+.boxmoe-md-preview h2,
+.boxmoe-md-preview h3,
+.boxmoe-md-preview h4,
+.boxmoe-md-preview h5,
+.boxmoe-md-preview h6 {
+    margin: 15px 0 10px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.boxmoe-md-preview pre {
+    background: #1f2937;
+    color: #f3f4f6;
+    padding: 15px;
+    border-radius: 8px;
+    overflow: auto;
+    font-family: monospace;
+    margin: 10px 0;
+}
+
+.boxmoe-md-preview blockquote {
+    border-left: 4px solid #3b82f6; /* ⬅️ 引用左边框 */
+    padding-left: 15px;
+    color: #4b5563;
+    margin: 10px 0;
+    background: #eff6ff;
+    padding: 10px 15px;
+    border-radius: 0 4px 4px 0;
+}
+
+.boxmoe-md-preview ul,
+.boxmoe-md-preview ol {
+    padding-left: 25px;
+    margin: 10px 0;
+}
+
+/* 📝 任务清单样式 - 漫画圆角风 */
+.boxmoe-md-preview .md-task-list {
+    list-style: none;
+    padding-left: 20px;
+    margin: 15px 0;
+}
+
+.boxmoe-md-preview .md-task-item {
+    margin: 12px 0;
+    display: flex;
+    align-items: center;
+    position: relative;
+    line-height: 1.5;
+}
+
+.boxmoe-md-preview .md-task-emoji {
+    margin-right: 12px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.boxmoe-md-preview .md-task-emoji:hover {
+    transform: scale(1.3);
+}
+
+.boxmoe-md-preview .md-task-item[data-task-status="completed"] .md-task-text {
+    text-decoration: line-through;
+    color: #6b7280;
+    opacity: 0.8;
+}
+
+/* 进行中状态样式 */
+.boxmoe-md-preview .md-task-item[data-task-status="in-progress"] {
+    background: rgba(255, 235, 59, 0.1);
+    border-left: 4px solid #ffeb3b;
+}
+
+.boxmoe-md-preview .md-task-item[data-task-status="in-progress"] .md-task-text {
+    color: #ff6b35;
+    font-weight: 500;
+}
+
+/* 前端页面任务清单样式 - 漫画圆角风 */
+.single-content .md-task-list {
+    list-style: none;
+    padding-left: 20px;
+    margin: 20px 0;
+}
+
+.single-content .md-task-item {
+    margin: 15px 0;
+    display: flex;
+    align-items: center;
+    line-height: 1.6;
+    position: relative;
+    padding: 10px 15px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* 静态任务清单（非作者用户） */
+.single-content .md-task-item-static {
+    cursor: default;
+}
+
+.single-content .md-task-item-static:hover {
+    transform: none;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.single-content .md-task-item-static .md-task-emoji {
+    cursor: default;
+}
+
+.single-content .md-task-item-static:hover .md-task-emoji {
+    transform: none;
+}
+
+/* 可交互任务清单（作者用户） */
+.single-content .md-task-item-interactive {
+    cursor: pointer;
+}
+
+.single-content .md-task-item-interactive:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.15);
+}
+
+.single-content .md-task-emoji {
+    margin-right: 15px;
+    font-size: 22px;
+    transition: all 0.3s ease;
+}
+
+.single-content .md-task-item-interactive .md-task-emoji {
+    cursor: pointer;
+}
+
+.single-content .md-task-item-interactive:hover .md-task-emoji {
+    transform: scale(1.35);
+}
+
+.single-content .md-task-item[data-task-status="completed"] .md-task-text {
+    text-decoration: line-through;
+    color: #6b7280;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.boxmoe-md-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+/* 🔌 短代码选择器样式 */
+.md-shortcode-select {
+    padding: 6px 10px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.boxmoe-md-shortcodes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    z-index: 210;
+}
+
+.boxmoe-md-shortcodes .md-sc-label {
+    font-weight: 600;
+    color: #4b5563;
+    font-size: 13px;
+}
+
+/* 🎨 卡片式内容样式 - 漫画风 */
+/* 编辑器预览中的卡片样式 */
+.boxmoe-md-preview .md-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 15px;
+    margin: 12px auto;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    max-width: 400px;
+    width: 100%;
+}
+
+.boxmoe-md-preview .md-card-avatar {
+    flex-shrink: 0;
+    position: relative;
+}
+
+.boxmoe-md-preview .md-card-avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: 2px solid #f3e8ff;
+    box-shadow: 0 2px 6px rgba(139, 61, 255, 0.3);
+    object-fit: cover;
+}
+
+/* 勋章样式 */
+.boxmoe-md-preview .md-card-badge {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #333;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 2px 5px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    transform: rotate(-10deg);
+    border: 1px solid white;
+}
+
+.boxmoe-md-preview .md-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.boxmoe-md-preview .md-card-title {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: #8b3dff;
+    line-height: 1.3;
+}
+
+.boxmoe-md-preview .md-card-desc {
+    margin: 0;
+    font-size: 12px;
+    color: #4b5563;
+    line-height: 1.4;
+}
+
+/* 卡片链接包裹样式 */
+.boxmoe-md-preview .md-card-link-wrap {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+.boxmoe-md-preview .md-card-link-wrap:hover .md-card {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(139, 61, 255, 0.25);
+}
+
+/* 移除卡片上下的虚线 */
+.boxmoe-md-preview .blog-lines .md-card-link-wrap::before,
+.boxmoe-md-preview .blog-lines .md-card-link-wrap::after {
+    display: none !important;
+}
+
+.boxmoe-md-preview .md-card {
+    position: relative;
+    z-index: 1;
+}
+
+/* 确保卡片不受.blog-lines虚线影响 */
+.boxmoe-md-preview .blog-lines .md-card {
+    background: #ffffff;
+}
+
+/* 前端页面中的卡片样式 - 漫画风 */
+.single-content .md-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #f3e8ff;
+    border-radius: 24px;
+    padding: 25px;
+    margin: 25px 0;
+    box-shadow: 0 6px 16px rgba(139, 61, 255, 0.15);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.single-content .md-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #8b3dff, #a855f7, #c084fc);
+    border-radius: 24px 24px 0 0;
+}
+
+.single-content .md-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 24px rgba(139, 61, 255, 0.25);
+}
+
+.single-content .md-card-avatar {
+    flex-shrink: 0;
+}
+
+.single-content .md-card-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 4px solid #fdf4ff;
+    box-shadow: 0 4px 12px rgba(139, 61, 255, 0.4);
+    object-fit: cover;
+    transition: all 0.3s ease;
+}
+
+.single-content .md-card:hover .md-card-avatar img {
+    transform: scale(1.05);
+    box-shadow: 0 6px 16px rgba(139, 61, 255, 0.5);
+}
+
+.single-content .md-card-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.single-content .md-card-title {
+    margin: 0 0 12px 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #7a20ff;
+    line-height: 1.3;
+    font-family: 'Public Sans', sans-serif;
+}
+
+.single-content .md-card-desc {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+.single-content .md-card-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #8b3dff, #a855f7);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 8px rgba(139, 61, 255, 0.3);
+    border: none;
+    cursor: pointer;
+    font-family: 'Public Sans', sans-serif;
+}
+
+.single-content .md-card-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(139, 61, 255, 0.45);
+    background: linear-gradient(135deg, #a855f7, #c084fc);
+    color: white;
+    text-decoration: none;
+}
+
+.single-content .md-card-link:active {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(139, 61, 255, 0.35);
+}

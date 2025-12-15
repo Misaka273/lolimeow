@@ -24,10 +24,51 @@ class widget_userinfo extends WP_Widget {
 	public function widget( $args, $instance ) {
 		extract($args);
 		$title = apply_filters('widget_name', $instance['title']);
-		$nickname = isset($instance['nickname']) ? $instance['nickname'] : '昵称在这里';
-		$bio = isset($instance['bio']) ? $instance['bio'] : '个人简介文字';
-		$avatarid = isset($instance['avatarid']) ? $instance['avatarid'] : 1;
-		$avatar_url = boxmoe_get_avatar_url($avatarid, 100);
+		
+		// 获取用户ID设置
+		$avatarid = isset($instance['avatarid']) ? $instance['avatarid'] : '';
+		
+		// 获取自定义头像链接
+		$custom_avatar_url = isset($instance['avatar_url']) ? $instance['avatar_url'] : '';
+		
+		// 根据用户ID获取用户信息
+		$use_user_id = 0;
+		if (!empty($avatarid)) {
+			// 使用指定的用户ID
+			$user = get_user_by('ID', $avatarid);
+			if ($user) {
+				// 如果用户存在，使用用户资料作为默认值
+				$default_nickname = $user->display_name;
+				$default_bio = $user->description;
+				$default_email = $user->user_email;
+				$user_avatar_url = get_avatar_url($user->ID, array('size' => 100));
+				$use_user_id = $user->ID;
+			} else {
+				// 如果用户不存在，使用默认值
+				$default_nickname = '昵称在这里';
+				$default_bio = '个人简介文字';
+				$default_email = '';
+				$user_avatar_url = get_avatar_url(0, array('size' => 100));
+			}
+		} else {
+			// 如果没有设置用户ID，使用默认值
+			$default_nickname = '昵称在这里';
+			$default_bio = '个人简介文字';
+			$default_email = '';
+			$user_avatar_url = get_avatar_url(0, array('size' => 100));
+		}
+		
+		// 头像优先级：自定义头像链接 > 主题自定义头像函数获取的头像
+		$avatar_url = !empty($custom_avatar_url) ? $custom_avatar_url : (function_exists('boxmoe_get_avatar_url') ? boxmoe_get_avatar_url($use_user_id, 100) : $user_avatar_url);
+		
+		// 获取用户填写的信息，优先级：自定义填写 > 用户资料 > 默认值
+		$nickname = isset($instance['nickname']) && !empty($instance['nickname']) ? $instance['nickname'] : $default_nickname;
+		$bio = isset($instance['bio']) && !empty($instance['bio']) ? $instance['bio'] : $default_bio;
+		$qq = isset($instance['qq']) ? $instance['qq'] : '';
+		$email = isset($instance['email']) && !empty($instance['email']) ? $instance['email'] : $default_email;
+		$github = isset($instance['github']) ? $instance['github'] : '';
+		$gitee = isset($instance['gitee']) ? $instance['gitee'] : '';
+		$wechat = isset($instance['wechat']) ? $instance['wechat'] : '';
 		echo $before_widget;
 		echo $before_title . $title . $after_title;
 		echo '<div class="widget-content">';	
@@ -39,43 +80,91 @@ class widget_userinfo extends WP_Widget {
 			<h3 class="profile-name">'. esc_html($nickname) .'</h3>
 			<p class="profile-desc">'. esc_html($bio) .'</p>
 			<div class="profile-social">';
-			if(!empty($instance['show_qq'])) {
-				echo '<a href="#social-links" class="social-link"><i class="fa fa-qq"></i></a>';
+			// 显示QQ图标（如果填写了QQ号）
+			if(!empty($qq)) {
+				echo '<a href="javascript:void(0);" class="social-link copy-btn" data-copy-text="'.esc_attr($qq).'" title="点击复制QQ号"><i class="fa fa-qq"></i></a>';
 			}
-			if(!empty($instance['show_weibo'])) {
-				echo '<a href="#social-links" class="social-link"><i class="fa fa-weibo"></i></a>';
+			// 显示邮箱图标（如果填写了邮箱）
+			if(!empty($email)) {
+				// 统一使用邮箱图标，不再根据域名显示不同图标
+				$email_icon = 'fa-envelope';
+				echo '<a href="javascript:void(0);" class="social-link copy-btn" data-copy-text="'.esc_attr($email).'" title="点击复制邮箱"><i class="fa '.esc_attr($email_icon).'"></i></a>';
 			}
-			if(!empty($instance['show_email'])) {
-				echo '<a href="#social-links" class="social-link"><i class="fa fa-envelope"></i></a>';
+			// 显示GitHub图标（如果填写了GitHub链接）
+			if(!empty($github)) {
+				echo '<a href="'.esc_url($github).'" class="social-link" target="_blank" rel="noopener noreferrer" title="访问GitHub"><i class="fa fa-github"></i></a>';
 			}
-			if(!empty($instance['show_github'])) {
-				echo '<a href="#social-links" class="social-link"><i class="fa fa-github"></i></a>';
+			// 显示Gitee图标（如果填写了Gitee链接）
+			if(!empty($gitee)) {
+				echo '<a href="'.esc_url($gitee).'" class="social-link" target="_blank" rel="noopener noreferrer" title="访问Gitee"><img src="https://gitee.com/static/images/gitee-logos/logo_gitee_g_red.svg" alt="Gitee" style="width: 16px; height: 16px;"></a>';
 			}
-			if(!empty($instance['show_telegram'])) {
-				echo '<a href="#social-links" class="social-link"><i class="fa fa-telegram"></i></a>';
+			// 显示微信图标（如果填写了微信号）
+			if(!empty($wechat)) {
+				echo '<a href="javascript:void(0);" class="social-link copy-btn" data-copy-text="'.esc_attr($wechat).'" title="点击复制微信"><i class="fa fa-weixin"></i></a>';
 			}
-			if(!empty($instance['show_weixin'])) {
-				echo '<a href="#social-links" class="social-link"><i class="fa fa-weixin"></i></a>';
+			echo '</div>';
+			
+			// 添加CSS动画样式
+			echo '<style>';
+			echo '.social-link {';
+			echo '    position: relative;';
+			echo '    transition: transform 0.3s ease;';
+			echo '    overflow: hidden;';
+			echo '}';
+			echo '.social-link:hover {';
+			echo '    transform: translateY(-3px);';
+			echo '}';
+			echo '.social-link::after {';
+			echo '    content: "";';
+			echo '    position: absolute;';
+			echo '    top: -50%;';
+			echo '    left: -50%;';
+			echo '    width: 200%;';
+			echo '    height: 200%;';
+			echo '    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);';
+			echo '    transform: rotate(45deg);';
+			echo '    transition: left 0.5s ease, opacity 0.3s ease;';
+			echo '    opacity: 0;';
+			echo '    pointer-events: none;';
+			echo '}';
+			echo '.social-link:hover::after {';
+			echo '    left: 150%;';
+			echo '    opacity: 1;';
+			echo '}';
+			echo '</style>';
+			
+			// 显示统计数据
+			echo '<div class="profile-stats">';
+			
+			// 显示文章数量
+			if (!empty($instance['show_posts_count'])) {
+				echo '<div class="stat-item">
+						<div class="stat-value">'. wp_count_posts('post')->publish .'</div>
+						<div class="stat-label">文章</div>
+					</div>';
 			}
-			echo '</div>
-			<div class="profile-stats">
-				<div class="stat-item">
-					<div class="stat-value">'. wp_count_posts('post')->publish .'</div>
-					<div class="stat-label">文章</div>
-				</div>
-				<div class="stat-item">
-					<div class="stat-value">'. $this->get_admin_comments_count() .'</div>
-					<div class="stat-label">评论</div>
-				</div>
-				<div class="stat-item">
-					<div class="stat-value">'. $this->format_number(get_user_count()) .'</div>
-					<div class="stat-label">用户</div>
-				</div>
-			</div>
-		</div>';
-		
+			
+			// 显示评论数量
+			if (!empty($instance['show_comments_count'])) {
+				echo '<div class="stat-item">
+						<div class="stat-value">'. $this->get_admin_comments_count() .'</div>
+						<div class="stat-label">评论</div>
+					</div>';
+			}
+			
+			// 显示用户数量
+			if (!empty($instance['show_users_count'])) {
+				echo '<div class="stat-item">
+						<div class="stat-value">'. $this->format_number(get_user_count()) .'</div>
+						<div class="stat-label">用户</div>
+					</div>';
+			}
+			echo '</div>';
+			echo '</div>';
 		echo '</div>';
 		echo $after_widget;
+		
+
 	}
 
 	// 后台表单
@@ -84,13 +173,16 @@ class widget_userinfo extends WP_Widget {
 			'title' => __('个人信息', 'boxmoe-com'),
 			'nickname' => '',
 			'bio' => '',
-			'avatarid' => '1',
-			'show_qq' => false,
-			'show_weibo' => false,
-			'show_email' => false,
-			'show_github' => false,
-			'show_telegram' => false,
-			'show_weixin' => false
+			'avatarid' => '',
+			'avatar_url' => '',
+			'qq' => '',
+			'email' => '',
+			'github' => '',
+			'gitee' => '',
+			'wechat' => '',
+			'show_posts_count' => true,
+			'show_comments_count' => true,
+			'show_users_count' => true
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		?>
@@ -127,68 +219,97 @@ class widget_userinfo extends WP_Widget {
 		</p>
 		<p>
 			<label>
-				<input type="checkbox" id="<?php echo $this->get_field_id('show_qq'); ?>"
-					name="<?php echo $this->get_field_name('show_qq'); ?>"
-					<?php checked($instance['show_qq']); ?> />
-				<?php echo __('显示QQ图标', 'boxmoe-com') ?>
+				<?php echo __('头像链接：', 'boxmoe-com') ?>
+				<input class="widefat" id="<?php echo $this->get_field_id('avatar_url'); ?>" 
+					name="<?php echo $this->get_field_name('avatar_url'); ?>" type="url" 
+					value="<?php echo esc_attr($instance['avatar_url']); ?>" placeholder="留空则使用用户默认头像" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input type="checkbox" id="<?php echo $this->get_field_id('show_weibo'); ?>"
-					name="<?php echo $this->get_field_name('show_weibo'); ?>"
-					<?php checked($instance['show_weibo']); ?> />
-				<?php echo __('显示微博图标', 'boxmoe-com') ?>
+				<?php echo __('QQ号：', 'boxmoe-com') ?>
+				<input class="widefat" id="<?php echo $this->get_field_id('qq'); ?>" 
+					name="<?php echo $this->get_field_name('qq'); ?>" type="text" 
+					value="<?php echo esc_attr($instance['qq']); ?>" placeholder="请输入QQ号" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input type="checkbox" id="<?php echo $this->get_field_id('show_email'); ?>"
-					name="<?php echo $this->get_field_name('show_email'); ?>"
-					<?php checked($instance['show_email']); ?> />
-				<?php echo __('显示邮箱图标', 'boxmoe-com') ?>
+				<?php echo __('邮箱：', 'boxmoe-com') ?>
+				<input class="widefat" id="<?php echo $this->get_field_id('email'); ?>" 
+					name="<?php echo $this->get_field_name('email'); ?>" type="email" 
+					value="<?php echo esc_attr($instance['email']); ?>" placeholder="请输入邮箱地址" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input type="checkbox" id="<?php echo $this->get_field_id('show_github'); ?>"
-					name="<?php echo $this->get_field_name('show_github'); ?>"
-					<?php checked($instance['show_github']); ?> />
-				<?php echo __('显示GitHub图标', 'boxmoe-com') ?>
+				<?php echo __('GitHub链接：', 'boxmoe-com') ?>
+				<input class="widefat" id="<?php echo $this->get_field_id('github'); ?>" 
+					name="<?php echo $this->get_field_name('github'); ?>" type="url" 
+					value="<?php echo esc_attr($instance['github']); ?>" placeholder="请输入GitHub链接" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input type="checkbox" id="<?php echo $this->get_field_id('show_telegram'); ?>"
-					name="<?php echo $this->get_field_name('show_telegram'); ?>"
-					<?php checked($instance['show_telegram']); ?> />
-				<?php echo __('显示Telegram图标', 'boxmoe-com') ?>
+				<?php echo __('Gitee链接：', 'boxmoe-com') ?>
+				<input class="widefat" id="<?php echo $this->get_field_id('gitee'); ?>" 
+					name="<?php echo $this->get_field_name('gitee'); ?>" type="url" 
+					value="<?php echo esc_attr($instance['gitee']); ?>" placeholder="<?php echo __('请输入Gitee链接', 'boxmoe-com'); ?>" />
 			</label>
 		</p>
 		<p>
 			<label>
-				<input type="checkbox" id="<?php echo $this->get_field_id('show_weixin'); ?>"
-					name="<?php echo $this->get_field_name('show_weixin'); ?>"
-					<?php checked($instance['show_weixin']); ?> />
-				<?php echo __('显示微信图标', 'boxmoe-com') ?>
+				<?php echo __('微信号：', 'boxmoe-com') ?>
+				<input class="widefat" id="<?php echo $this->get_field_id('wechat'); ?>" 
+					name="<?php echo $this->get_field_name('wechat'); ?>" type="text" 
+					value="<?php echo esc_attr($instance['wechat']); ?>" placeholder="请输入微信号" />
 			</label>
 		</p>
-	<?php
-	}
+		<p>
+			<label>
+				<input type="checkbox" id="<?php echo $this->get_field_id('show_posts_count'); ?>" 
+					name="<?php echo $this->get_field_name('show_posts_count'); ?>" 
+					<?php checked($instance['show_posts_count']); ?> />
+				<?php echo __('显示文章数量', 'boxmoe-com') ?>
+			</label>
+		</p>
+		<p>
+			<label>
+				<input type="checkbox" id="<?php echo $this->get_field_id('show_comments_count'); ?>" 
+					name="<?php echo $this->get_field_name('show_comments_count'); ?>" 
+					<?php checked($instance['show_comments_count']); ?> />
+				<?php echo __('显示评论数量', 'boxmoe-com') ?>
+			</label>
+		</p>
+		<p>
+			<label>
+				<input type="checkbox" id="<?php echo $this->get_field_id('show_users_count'); ?>" 
+					name="<?php echo $this->get_field_name('show_users_count'); ?>" 
+					<?php checked($instance['show_users_count']); ?> />
+				<?php echo __('显示用户数量', 'boxmoe-com') ?>
+			</label>
+		</p>
 
+		<?php
+	}
+	
 	// 更新小工具设置
 	public function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['nickname'] = sanitize_text_field( $new_instance['nickname'] );
 		$instance['bio'] = sanitize_textarea_field( $new_instance['bio'] );
-		$instance['avatarid'] = absint( $new_instance['avatarid'] );
-		$instance['show_qq'] = !empty($new_instance['show_qq']);
-		$instance['show_weibo'] = !empty($new_instance['show_weibo']);
-		$instance['show_email'] = !empty($new_instance['show_email']);
-		$instance['show_github'] = !empty($new_instance['show_github']);
-		$instance['show_telegram'] = !empty($new_instance['show_telegram']);
-		$instance['show_weixin'] = !empty($new_instance['show_weixin']);
+		// 当用户ID为空时保持为空字符串，而不是转换为0
+		$instance['avatarid'] = !empty($new_instance['avatarid']) ? absint( $new_instance['avatarid'] ) : '';
+		$instance['avatar_url'] = esc_url_raw( $new_instance['avatar_url'] );
+		$instance['qq'] = sanitize_text_field( $new_instance['qq'] );
+		$instance['email'] = sanitize_email( $new_instance['email'] );
+		$instance['github'] = esc_url_raw( $new_instance['github'] );
+		$instance['gitee'] = esc_url_raw( $new_instance['gitee'] );
+		$instance['wechat'] = sanitize_text_field( $new_instance['wechat'] );
+		$instance['show_posts_count'] = !empty($new_instance['show_posts_count']);
+		$instance['show_comments_count'] = !empty($new_instance['show_comments_count']);
+		$instance['show_users_count'] = !empty($new_instance['show_users_count']);
 		return $instance;
 	}
 

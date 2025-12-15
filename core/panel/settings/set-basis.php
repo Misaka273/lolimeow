@@ -27,6 +27,15 @@ $options[] = array(
 			'two' => __('双栏布局', 'ui_boxmoe_com')
 		)); 
     $options[] = array(
+		'name' => __('文章布局风格', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_article_layout_style',
+		'std' => "single",
+		'type' => "radio",
+		'options' => array(
+			'single' => __('单排布局', 'ui_boxmoe_com'),
+			'three' => __('一排三个布局', 'ui_boxmoe_com')
+		)); 
+    $options[] = array(
 		'name' => __('布局边框', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_blog_border',
 		'std' => "default",
@@ -55,10 +64,31 @@ $options[] = array(
 		'id' => 'boxmoe_sakura_switch',
 		'type' => "checkbox",
 		'std' => false,
-		);           
+		); 
+    $options[] = array(
+        'name' => __('后台所有链接新窗口打开', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_admin_all_links_new_tab',
+        'type' => "checkbox",
+        'std' => false,
+        'desc' => __('开启后，后台所有a标签链接将在新窗口打开', 'ui_boxmoe_com'),
+        );
+    $options[] = array(
+        'name' => __('导航栏链接新窗口打开', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_nav_target_blank',
+        'type' => "checkbox",
+        'std' => false,
+        'desc' => __('开启后，前台顶部导航菜单链接将在新窗口打开', 'ui_boxmoe_com'),
+        );
+    $options[] = array(
+        'name' => __('文章编辑按钮新窗口打开', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_article_edit_target_blank',
+        'type' => "checkbox",
+        'std' => false,
+        'desc' => __('开启后，文章页/页面内的编辑按钮（包括顶部工具栏编辑）将在新窗口打开', 'ui_boxmoe_com'),
+        );          
     $options[] = array(
         'group' => 'end',
-		'name' => __('悼念模式-全站变灰', 'ui_boxmoe_com'),
+        'name' => __('悼念模式-全站变灰', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_body_grey_switch',
 		'type' => "checkbox",
 		'std' => false,
@@ -107,6 +137,12 @@ $options[] = array(
 		'std' => $image_path.'favicon.ico',
 		'type' => 'upload'); 
     $options[] = array(
+		'name' => __( '自定义背景装饰图', 'ui_boxmoe_com' ),
+		'desc' => __('设置全站背景装饰图，留空则不显示', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_background_image',
+		'std' => $image_path.'background.svg',
+		'type' => 'upload');
+    $options[] = array(
 		'name' => __('分类链接去除category标识', 'ui_boxmoe_com'),
 		'desc' => __('（需主机伪静态，开关都需要 后台导航的 设置>固定链接 点保存一次）', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_no_categoty',
@@ -115,25 +151,51 @@ $options[] = array(
 		);       
     $options[] = array(
         'group' => 'start',
-		'group_title' => '网页右侧看板开关',
+		'group_title' => '网页右侧看板开关「点击可回到顶部」',
 		'id' => 'boxmoe_lolijump_switch',
 		'type' => "checkbox",
 		'std' => false,
 		); 
-	$options[] = array(
-        'group' => 'end',
-		'name' => __('选择前端看板形象', 'ui_boxmoe_com'),
-		'id' => 'boxmoe_lolijump_img',
-		'type' => "radio",
-		'std' => 'lolisister1',
-		'options' => array(
+    $lolijump_custom_list = array();
+    if(function_exists('get_boxmoe')){
+        $lolijump_custom_list = get_boxmoe('boxmoe_lolijump_custom_list');
+    }
+    
+    $lolijump_options = array(
 			'lolisister1' => __(' 看板萝莉-姐姐 ', 'ui_boxmoe_com'),
 			'lolisister2' => __(' 看板萝莉-妹妹', 'ui_boxmoe_com'),
 			'dance' => __(' 看板娘-舞娘娘', 'ui_boxmoe_com'),
 			'meow' => __(' 看板娘-喵小娘', 'ui_boxmoe_com'),
 			'lemon' => __(' 看板妹-柠檬妹', 'ui_boxmoe_com'),			
 			'bear' => __(' 看板熊-熊宝宝', 'ui_boxmoe_com'),
-		));
+    );
+    if(is_array($lolijump_custom_list) && !empty($lolijump_custom_list)){
+        $i = 1;
+        foreach($lolijump_custom_list as $item){
+            // Check if it's the new format (array with url)
+            if(is_array($item) && isset($item['url']) && !empty($item['url'])){
+                $name = isset($item['name']) && !empty($item['name']) ? $item['name'] : __(' 自定义看板 ', 'ui_boxmoe_com') . $i;
+                $lolijump_options[$item['url']] = $name;
+                $i++;
+            }
+        }
+    }
+
+	$options[] = array(
+        'group' => 'end',
+		'name' => __('选择前端看板形象', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_lolijump_img',
+		'type' => "radio",
+		'std' => 'lolisister1',
+		'options' => $lolijump_options);
+
+    $options[] = array(
+        'name' => __('自定义看板列表', 'ui_boxmoe_com'),
+        'desc' => __('新增后以首页风格的列表显示在下方，点击替换按钮、删除按钮进行管理。', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_lolijump_custom_list',
+        'type' => 'custom_board_list',
+        'std' => array()
+    );
 
 	$options[] = array(
         'group' => 'start',
@@ -144,6 +206,13 @@ $options[] = array(
 		'type' => "checkbox",
 		'std' => false,
 		);	
+	$options[] = array(
+		'name' => __('底部隐藏 Copyright 文字', 'ui_boxmoe_com'),
+		'desc' => __('（开启后只显示 ©）', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_footer_copyright_hidden',
+		'type' => "checkbox",
+		'std' => false,
+		);
 	$options[] = array(
 		'name' => __('网站底部导航链接', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_footer_seo',
@@ -157,6 +226,13 @@ $options[] = array(
 		'std' => '本站使用Wordpress创作'."\n",
 		'settings' => array('rows' => 3),
 		'type' => 'textarea');	
+	$options[] = array(
+		'name' => __('底部版权信息自定义', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_footer_theme_by_text',
+		'std' => 'Theme by <a href="https://www.boxmoe.com" target="_blank">Boxmoe</a>',
+		'desc' => __('自定义底部 Theme by 信息，支持HTML', 'ui_boxmoe_com'),
+		'type' => 'textarea',
+		'settings' => array('rows' => 2));
     $options[] = array(
 		'name' => __('统计代码', 'ui_boxmoe_com'),
 		'desc' => __('（底部第三方流量数据统计代码）', 'ui_boxmoe_com'),
@@ -195,10 +271,31 @@ $options[] = array(
 			'std' => '本站已稳定运行了',
 		);
 		$options[] = array(
-			'group' => 'end',
 			'name' => __('运行天数自定义文字后缀', 'ui_boxmoe_com'),
 			'id' => 'boxmoe_footer_running_days_suffix',
 			'type' => 'text',
 			'class' => 'small',
 			'std' => '天',
+		);
+		$options[] = array(
+			'name' => __('运行（时）自定义文字后缀', 'ui_boxmoe_com'),
+			'id' => 'boxmoe_footer_running_days_suffix_hours',
+			'type' => 'text',
+			'class' => 'small',
+			'std' => '时',
+		);
+		$options[] = array(
+			'name' => __('运行（分）自定义文字后缀', 'ui_boxmoe_com'),
+			'id' => 'boxmoe_footer_running_days_suffix_minutes',
+			'type' => 'text',
+			'class' => 'small',
+			'std' => '分',
+		);
+		$options[] = array(
+			'group' => 'end',
+			'name' => __('运行（秒）自定义文字后缀', 'ui_boxmoe_com'),
+			'id' => 'boxmoe_footer_running_days_suffix_seconds',
+			'type' => 'text',
+			'class' => 'small',
+			'std' => '秒',
 		);

@@ -2,6 +2,8 @@
 /**
  * @link https://www.boxmoe.com
  * @package lolimeow
+ * @author 专收爆米花
+ * @author 白木 <https://gl.baimu.live/864> (二次创作)
  */
 //boxmoe.com===安全设置=阻止直接访问主题文件
 if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
@@ -9,6 +11,16 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
         </section>
 <footer class="mt-7">
     <hr class="horizontal dark">
+    <!-- 🎪 底部栏小部件区域 -->
+    <div class="footer-widgets py-5">
+      <div class="container">
+        <?php if (is_active_sidebar('widget_footer_widgets')) : ?>
+          <div class="row footer-widgets-row">
+            <?php dynamic_sidebar('widget_footer_widgets'); ?>
+          </div>
+        <?php endif; ?>
+      </div>
+    </div>
       <div class="container pb-4">
         <div class="row align-items-center">
         <?php echo boxmoe_load_assets_footer(); ?>
@@ -26,11 +38,25 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
           </li>
           <?php endif; ?>
           <?php if(get_boxmoe('boxmoe_lolijump_switch')): ?>
-          <li>
             <a id="lolijump" href="#" title="返回顶部">
-              <img src="<?php echo boxmoe_theme_url(); ?>/assets/images/top/<?php echo get_boxmoe('boxmoe_lolijump_img'); ?>.gif" alt="返回顶部"></a>
-          </li>
+                <?php
+                $lolijump_img = get_boxmoe('boxmoe_lolijump_img');
+                $lolijump_src = '';
+                if (strpos($lolijump_img, 'http') === 0 || strpos($lolijump_img, '//') === 0) {
+                    $lolijump_src = $lolijump_img;
+                } else {
+                    $lolijump_src = boxmoe_theme_url() . '/assets/images/top/' . $lolijump_img . '.gif';
+                }
+                ?>
+              <img src="<?php echo $lolijump_src; ?>" alt="返回顶部"></a>
           <?php endif; ?>
+
+          <!-- 🎬 视频播放器看板娘配置 -->
+          <script>
+            // 传递看板娘配置到前端
+            window.boxmoe_lolijump_switch = '<?php echo get_boxmoe('boxmoe_lolijump_switch') ? 1 : 0; ?>';
+            window.boxmoe_lolijump_img = '<?php echo get_boxmoe('boxmoe_lolijump_img'); ?>';
+          </script>
         </ul>
       </nav>
     </div>

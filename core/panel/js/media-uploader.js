@@ -39,7 +39,11 @@ jQuery(document).ready(function($){
 				if ( attachment.attributes.type == 'image' ) {
 					optionsframework_selector.find('.screenshot').empty().hide().append('<img src="' + attachment.attributes.url + '"><a class="remove-image">Remove</a>').slideDown('fast');
 				}
-				optionsframework_selector.find('.upload-button').unbind().addClass('remove-file').removeClass('upload-button').val(optionsframework_l10n.remove);
+				if (optionsframework_selector.attr('id') === 'section-boxmoe_background_image') {
+					optionsframework_selector.find('.upload-button').val('替换');
+				} else {
+					optionsframework_selector.find('.upload-button').unbind().addClass('remove-file').removeClass('upload-button').val(optionsframework_l10n.remove);
+				}
 				optionsframework_selector.find('.of-background-properties').slideDown();
 				optionsframework_selector.find('.remove-image, .remove-file').on('click', function() {
 					optionsframework_remove_file( $(this).parents('.section') );
@@ -57,7 +61,11 @@ jQuery(document).ready(function($){
 		selector.find('.upload').val('');
 		selector.find('.of-background-properties').hide();
 		selector.find('.screenshot').slideUp();
-		selector.find('.remove-file').unbind().addClass('upload-button').removeClass('remove-file').val(optionsframework_l10n.upload);
+		if (selector.attr('id') === 'section-boxmoe_background_image') {
+			selector.find('.upload-button').unbind().val(optionsframework_l10n.upload);
+		} else {
+			selector.find('.remove-file').unbind().addClass('upload-button').removeClass('remove-file').val(optionsframework_l10n.upload);
+		}
 		// We don't display the upload button if .upload-notice is present
 		// This means the user doesn't have the WordPress 3.5 Media Library Support
 		if ( $('.section-upload .upload-notice').length > 0 ) {

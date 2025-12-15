@@ -2,6 +2,8 @@
 /**
  * @link https://www.boxmoe.com
  * @package lolimeow
+ * @author 专收爆米花
+ * @author 白木 <https://gl.baimu.live/864> (二次创作)
  */
 
 //boxmoe.com===安全设置=阻止直接访问主题文件
@@ -24,6 +26,8 @@ require_once  get_stylesheet_directory() . '/core/module/fun-optimize.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-gravatar.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-navwalker.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-user.php';
+require_once  get_stylesheet_directory() . '/core/module/fun-role-manager.php'; // ⬅️ 引入角色管理功能
+require_once  get_stylesheet_directory() . '/core/module/fun-context-menu.php'; // ⬅️ 引入右键菜单功能
 require_once  get_stylesheet_directory() . '/core/module/fun-user-center.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-comments.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-seo.php';
@@ -32,6 +36,401 @@ require_once  get_stylesheet_directory() . '/core/module/fun-smtp.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-msg.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-no-category.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-shortcode.php';
+require_once  get_stylesheet_directory() . '/core/module/fun-fonts.php';
+require_once  get_stylesheet_directory() . '/core/module/fun-markdown.php';
+require_once  get_stylesheet_directory() . '/core/module/fun-submenu.php'; // ⬅️ 引入子菜单整合功能
 //boxmoe.com===自定义代码
+add_filter('protected_title_format', function($format){return '%s';});
+add_filter('private_title_format', function($format){return '%s';});
 
+//自定义文章密码保护表单
+function custom_password_protected_form($form) {
+    global $post;
+    $label = 'pwbox-' . ( empty( $post->ID ) ? rand() : $post->ID );
+    $output = '<div class="password-protected-form">';
+    $output .= '<h3 class="password-form-title">该文章受密码保护</h3>';
+    $output .= '<form action="' . esc_url( site_url( 'wp-login.php?action=postpass', 'login_post' ) ) . '" method="post">';
+    $output .= '<div class="form-group password-form-group">';
+    $output .= '<input name="post_password" id="' . $label . '" type="password" class="form-control password-input" size="20" maxlength="20" placeholder="" />';
+    $output .= '<label for="' . $label . '" class="password-input-label">请输入密码查看本文内容</label>';
+    $output .= '</div>';
+    $output .= '<button type="submit" name="Submit" class="btn btn-primary password-submit"><i class="fa fa-lock"></i> 确认</button>';
+    $output .= '</form>';
+    $output .= '</div>';
+    return $output;
+}
+add_filter('the_password_form', 'custom_password_protected_form');
 
+// 🎉 主题激活时自动创建页面
+function lolimeow_create_pages_on_activation() {
+    // 定义需要创建的页面数组
+    $pages = array(
+        array(
+            'title' => '友链',
+            'content' => '',
+            'template' => 'page/p-links.php',
+            'slug' => 'links'
+        ),
+        array(
+            'title' => '友情链接',
+            'content' => '',
+            'template' => 'page/p-links.php',
+            'slug' => 'friends'
+        ),
+        array(
+            'title' => '外链提示版',
+            'content' => '',
+            'template' => 'page/p-goto.php',
+            'slug' => 'goto'
+        ),
+        array(
+            'title' => '外链直跳版',
+            'content' => '',
+            'template' => 'page/p-go.php',
+            'slug' => 'go'
+        ),
+        array(
+            'title' => '注册页面',
+            'content' => '',
+            'template' => 'page/p-signup.php',
+            'slug' => 'signup'
+        ),
+        array(
+            'title' => '用户中心',
+            'content' => '',
+            'template' => 'page/p-user_center.php',
+            'slug' => 'user-center'
+        ),
+        array(
+            'title' => '登录页面',
+            'content' => '',
+            'template' => 'page/p-signin.php',
+            'slug' => 'signin'
+        ),
+        array(
+            'title' => '重置密码页面',
+            'content' => '',
+            'template' => 'page/p-reset_password.php',
+            'slug' => 'reset-password'
+        )
+    );
+    
+    // 循环创建每个页面
+    foreach ($pages as $page) {
+        // 检查页面是否已存在
+        $page_exists = get_page_by_path($page['slug'], OBJECT, 'page');
+        
+        if (!$page_exists) {
+            // 创建页面
+            $page_id = wp_insert_post(array(
+                'post_title' => $page['title'],
+                'post_content' => $page['content'],
+                'post_status' => 'publish',
+                'post_type' => 'page',
+                'post_author' => 1,
+                'post_slug' => $page['slug'],
+                'page_template' => $page['template']
+            ));
+            
+            // 如果页面创建成功，添加模板
+            if ($page_id && !is_wp_error($page_id)) {
+                update_post_meta($page_id, '_wp_page_template', $page['template']);
+            }
+        }
+    }
+}
+
+// 主题激活时触发函数
+add_action('after_switch_theme', 'lolimeow_create_pages_on_activation');
+
+// 将书签小部件标题从"书签"改为"链接"
+function lolimeow_change_bookmark_title($args) {
+    $args['title_li'] = __('链接');
+    return $args;
+}
+add_filter('widget_links_args', 'lolimeow_change_bookmark_title');
+
+// 🎨 美化注销提示页面 - 重新实现
+function lolimeow_custom_logout_page() {
+    // 直接检查当前页面是否为注销页面
+    $is_logout_page = isset($_SERVER['REQUEST_URI']) && 
+                      strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false && 
+                      strpos($_SERVER['REQUEST_URI'], 'action=logout') !== false;
+    
+    if ($is_logout_page) {
+        // 避免重复定义常量
+        if (!defined('DONOTCACHEPAGE')) {
+            define('DONOTCACHEPAGE', true);
+        }
+        
+        // 获取favicon URL的正确方式
+        ob_start();
+        boxmoe_favicon();
+        $favicon_url = ob_get_clean();
+        
+        // 获取语言属性的正确方式
+        ob_start();
+        language_attributes();
+        $lang_attr = ob_get_clean();
+        
+        // 获取logo HTML的正确方式
+        ob_start();
+        if (function_exists('boxmoe_logo')) {
+            boxmoe_logo();
+        } else {
+            echo '<img src="' . get_site_icon_url() . '" alt="' . get_bloginfo('name') . '" class="logo">';
+        }
+        $logo_html = ob_get_clean();
+        
+        // 获取banner图片URL，绑定后台主题设置
+        ob_start();
+        if (function_exists('boxmoe_banner_image')) {
+            boxmoe_banner_image();
+        } else {
+            echo boxmoe_theme_url() . '/assets/images/banner.jpg';
+        }
+        $banner_url = ob_get_clean();
+        
+        // 输出完整的自定义HTML页面
+        $html = '<!DOCTYPE html>
+<html ' . $lang_attr . '>
+<head>
+    <meta charset="' . get_bloginfo('charset') . '">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>确认注销 - ' . get_bloginfo('name') . '</title>
+    <link rel="icon" href="' . $favicon_url . '" type="image/x-icon">
+    <style>
+        /* 重置样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        /* 主题颜色变量 */
+        :root {
+            --primary-color: #8b3dff;
+            --secondary-color: #f0f2f5;
+            --dark-color: #0f172a;
+            --light-color: #ffffff;
+            --gray-color: #64748b;
+            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+            --border-radius: 24px;
+        }
+        
+        /* 基础样式 - 使用主题Banner背景 */
+        body {
+            font-family: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-image: url("' . $banner_url . '");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            overflow: hidden;
+            /* 添加背景遮罩，提升文字可读性 */
+            position: relative;
+        }
+        
+        /* 背景遮罩 */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        
+        /* 玻璃拟态卡片 */
+        .logout-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 460px;
+            padding: 3rem 2.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logout-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+        }
+        
+        /* Logo区域 */
+        .logo-section {
+            margin-bottom: 2rem;
+        }
+        
+        .logo-section .logo {
+            max-width: 100px;
+            height: auto;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+        
+        /* 标题和消息 */
+        h1 {
+            font-size: 1.75rem;
+            font-weight: bold;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+        }
+        
+        .logout-message {
+            font-size: 1rem;
+            color: var(--gray-color);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        /* 按钮样式 */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+            min-width: 120px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            box-shadow: 0 4px 12px rgba(139, 61, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background-color: #7a20ff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(139, 61, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        
+        /* 底部版权 */
+        .footer {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .footer-text {
+            font-size: 0.875rem;
+            color: var(--gray-color);
+        }
+        
+        .footer-text a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .footer-text a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 576px) {
+            .logout-container {
+                padding: 2rem 1.5rem;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="logo-section">
+            ' . $logo_html . '
+            <h1>确认注销</h1>
+            <p class="logout-message">
+                您试图要从 ' . get_bloginfo('name') . ' 注销登录。确定要注销当前的登录？
+            </p>
+        </div>
+        
+        <div class="button-group">
+            <!-- 注销按钮 - 使用WordPress标准注销机制 -->
+            <form method="post" action="' . esc_url(site_url('wp-login.php')) . '" style="margin: 0;">
+                <input type="hidden" name="action" value="logout">
+                <input type="hidden" name="_wpnonce" value="' . esc_attr($_GET['_wpnonce']) . '">
+                <input type="hidden" name="redirect_to" value="' . esc_url(home_url()) . '">
+                <button type="submit" class="btn btn-primary">是的，注销</button>
+            </form>
+            <!-- 取消按钮 -->
+            <a href="' . home_url() . '" class="btn btn-secondary">取消</a>
+        </div>
+        
+        <div class="footer">
+            <p class="footer-text">
+                Copyright © ' . date('Y') . ' <a href="' . home_url() . '">' . get_bloginfo('name') . '</a><br>
+                Theme by <a href="https://www.boxmoe.com">Boxmoe</a> powered by WordPress
+            </p>
+        </div>
+    </div>
+</body>
+</html>';
+        
+        // 输出HTML并立即退出，完全绕过WordPress默认登录页面
+        echo $html;
+        exit;
+    }
+}
+
+// 使用最高优先级挂载，确保在WordPress处理登录页面之前执行
+add_action('login_init', 'lolimeow_custom_logout_page', 1);
+
+// 移除默认的注销表单（双重保险）
+function lolimeow_remove_default_logout_form() {
+    remove_action('login_form_logout', 'wp_login_form_logout');
+}
+add_action('login_head', 'lolimeow_remove_default_logout_form', 1);
+
+// 确保WordPress不会缓存注销页面
+function lolimeow_disable_cache_for_logout() {
+    if (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], 'action=logout') !== false) {
+        if (!defined('DONOTCACHEPAGE')) {
+            define('DONOTCACHEPAGE', true);
+        }
+    }
+}
+add_action('init', 'lolimeow_disable_cache_for_logout');

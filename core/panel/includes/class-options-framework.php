@@ -76,15 +76,21 @@ class Options_Framework {
 
 		if ( !$options ) {
 	        // Load options from options.php file (if it exists)
-	        $location = apply_filters( 'options_framework_location', array( 'options.php' ) );
-	        if ( $optionsfile = locate_template( $location ) ) {
-	            $maybe_options = require_once $optionsfile;
-	            if ( is_array( $maybe_options ) ) {
-					$options = $maybe_options;
-	            } else if ( function_exists( 'optionsframework_options' ) ) {
-					$options = optionsframework_options();
-				}
-	        }
+        $location = apply_filters( 'options_framework_location', array( 'options.php' ) );
+        if ( $optionsfile = locate_template( $location ) ) {
+            // 首先尝试包含 options.php 文件，即使它可能已经被包含过
+            include_once $optionsfile;
+            
+            // 优先使用 optionsframework_options() 函数获取选项数组
+            if ( function_exists( 'optionsframework_options' ) ) {
+                $options = optionsframework_options();
+            }
+        }
+        
+        // 确保 options 是数组，避免后续操作出错
+        if ( ! is_array( $options ) ) {
+            $options = array();
+        }
 
 	        // Allow setting/manipulating options via filters
 	        $options = apply_filters( 'of_options', $options );

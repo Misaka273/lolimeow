@@ -5,7 +5,7 @@
 		QTags.addButton( 'H2', 'H2标题', '<h2 class="h-title">内容</h2>','' );
 		QTags.addButton( 'H3', 'H3标题', '<h3 class="h-title">内容</h3>','' );
 		QTags.addButton( 'H4', 'H4标题', '<h4>内容</h4>','' );
-		QTags.addButton( 'codepre', '代码高亮', '<pre class="prettyprint linenums">代码</pre>','' );
+		QTags.addButton( 'codepre', '代码高亮', '[precode lang=\'\' linenums=\'1\']代码[/precode]','' );
 		QTags.addButton( 'nextpage', '分页', '<!--nextpage-->','' );
 		QTags.addButton( 'H2pen', 'H2毛笔标', '<h2 class="section-title"><span><i class="fa fa-paint-brush"></i>文字</span></h2>', '','','H2pen' ); 
 		QTags.addButton( 'H2set', 'H2设置标', '<h2 class="section-title"><span><i class="fa fa-gear"></i>文字</span></h2>', '','','H2set' ); 

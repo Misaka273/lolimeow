@@ -105,34 +105,64 @@ function boxmoe_title_link(){
 
 
 
-// 网站标题--------------------------boxmoe.com--------------------------
+// 🎯 网站标题--------------------------boxmoe.com--------------------------
 function boxmoe_theme_title(){
 	global $new_title;
 	if( $new_title ) return $new_title;
-	global $paged;
+	global $paged, $post;
 	$html = '';
-	$t = trim(wp_title('', false));
-	if( (is_single() || is_page()) && get_the_subtitle(false) ){
-		$t .= get_the_subtitle(false);
-	}
-	if ($t) {
-		$html .= $t . boxmoe_title_link();
-	}
-	$html .= get_bloginfo('name');
-
-	if (is_home()) {
-		if ($paged > 1) {
-			$html .= boxmoe_title_link() . '最新发布';
-		}else{
-			$html .= boxmoe_title_link() . get_option('blogdescription');
+	$site_name = get_bloginfo('name');
+	$site_description = get_bloginfo('description');
+	$title_sep = boxmoe_title_link();
+	
+	// 获取当前页面标题
+	if (is_single() || is_page()) {
+		$t = get_the_title();
+		// 处理文章/页面副标题
+		$subtitle = get_the_subtitle(false);
+		if ($subtitle) {
+			$t .= $title_sep . $subtitle;
 		}
-
+	} elseif (is_home() || is_front_page()) {
+		$t = '';
+	} elseif (is_category()) {
+		$t = single_cat_title('', false);
+	} elseif (is_tag()) {
+		$t = single_tag_title('', false);
+	} elseif (is_author()) {
+		$t = get_the_author();
+	} elseif (is_search()) {
+		$t = sprintf(__('搜索结果：%s', 'boxmoe'), get_search_query());
+	} elseif (is_404()) {
+		$t = __('404页面未找到', 'boxmoe');
+	} elseif (is_archive()) {
+		$t = post_type_archive_title('', false);
+	} else {
+		$t = trim(wp_title('', false));
 	}
-	if ($paged > 1) {
-		$html .= boxmoe_title_link() . '第' . $paged . '页';
+	
+	// 构建最终标题
+	if ($t && !(is_home() && !$paged)) {
+		$html .= $t . $title_sep . $site_name;
+		// 首页不显示副标题，其他页面可以考虑添加
+	} else {
+		$html .= $site_name;
 	}
+	
+	// 首页显示副标题
+	if (is_home() || is_front_page()) {
+		if ($site_description && !$paged) {
+			$html .= $title_sep . $site_description;
+		} elseif ($paged > 1) {
+			$html .= $title_sep . '第' . $paged . '页';
+		}
+	} 
+	// 分页显示
+	elseif ($paged > 1) {
+		$html .= $title_sep . '第' . $paged . '页';
+	}
+	
 	return $html;
-
 }
 
 // 获取文章副标题--------------------------boxmoe.com--------------------------

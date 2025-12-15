@@ -47,15 +47,29 @@ get_header();
                                         <li class="text-reveal">
                                             <a class="on" href="<?php echo esc_url($link->link_url); ?>" target="_blank">
                                                 <div class="icon">
-                                                    <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                                    <?php if (!empty($link->link_image) && filter_var($link->link_image, FILTER_VALIDATE_URL)) : ?>
+                                                        <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                                    <?php else : ?>
+                                                        <!-- 默认图标，使用站点图标或文字首字母 -->
+                                                        <div class="default-icon" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
+                                                            <?php echo esc_html(strtoupper(substr($link->link_name, 0, 1))); ?>
+                                                        </div>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div class="info">
-                                                    <h3><?php echo esc_html($link->link_name); ?></h3>
-                                                    <p title="<?php echo esc_attr($link->link_description); ?>"><?php echo esc_html($link->link_description); ?></p>
+                                                    <h3>
+                                                        <span class="link-title"><?php echo esc_html($link->link_name); ?></span>
+                                                        <span class="link-count">0</span>
+                                                    </h3>
+                                                    <?php if (!empty($link->link_description)) : ?>
+                                                        <p title="<?php echo esc_attr($link->link_description); ?>"><?php echo esc_html($link->link_description); ?></p>
+                                                    <?php endif; ?>
                                                 </div>
                                                 <div class="profile">
                                                     <div class="imgbox">
-                                                        <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                                        <?php if (!empty($link->link_image) && filter_var($link->link_image, FILTER_VALIDATE_URL)) : ?>
+                                                            <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                                        <?php endif; ?>
                                                     </div>
                                                 </div>
                                             </a>
@@ -94,15 +108,29 @@ get_header();
                                 <li class="text-reveal">
                                     <a class="on" href="<?php echo esc_url($link->link_url); ?>" target="_blank">
                                         <div class="icon">
-                                            <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                            <?php if (!empty($link->link_image) && filter_var($link->link_image, FILTER_VALIDATE_URL)) : ?>
+                                                <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                            <?php else : ?>
+                                                <!-- 默认图标，使用站点图标或文字首字母 -->
+                                                <div class="default-icon" style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
+                                                    <?php echo esc_html(strtoupper(substr($link->link_name, 0, 1))); ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="info">
-                                            <h3><?php echo esc_html($link->link_name); ?></h3>
-                                            <p title="<?php echo esc_attr($link->link_description); ?>"><?php echo esc_html($link->link_description); ?></p>
+                                            <h3>
+                                                <span class="link-title"><?php echo esc_html($link->link_name); ?></span>
+                                                <span class="link-count">0</span>
+                                            </h3>
+                                            <?php if (!empty($link->link_description)) : ?>
+                                                <p title="<?php echo esc_attr($link->link_description); ?>"><?php echo esc_html($link->link_description); ?></p>
+                                            <?php endif; ?>
                                         </div>
                                         <div class="profile">
                                             <div class="imgbox">
-                                                <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                                <?php if (!empty($link->link_image) && filter_var($link->link_image, FILTER_VALIDATE_URL)) : ?>
+                                                    <img src="<?php echo esc_url($link->link_image); ?>" alt="<?php echo esc_attr($link->link_name); ?>">
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                     </a>

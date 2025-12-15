@@ -21,34 +21,38 @@ function h2down_shortcode( $attr , $content = '') {
 
 //下载按钮
 add_shortcode('downloadbtn', 'downloadbtn_shortcode');  
-function downloadbtn_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('link' => ''), $attr ) );
-    $out ='<a href="'.esc_attr($attr['link']).'" rel="noopener" target="_blank" class="download_btn btn-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="该资源来源于网络如有侵权,请联系删除." data-container="body" data-animation="true">'.$content.'</a>';  
-    return $out;  
+function downloadbtn_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array( 'link' => '' ), $attr );
+    $link = isset( $atts['link'] ) ? $atts['link'] : '';
+    $out = '<a href="'.esc_url( $link ).'" rel="noopener" target="_blank" class="download_btn btn-tooltip" data-bs-toggle="tooltip" data-bs-placement="top" title="该资源来源于网络如有侵权,请联系删除." data-container="body" data-animation="true">'.$content.'</a>';
+    return $out;
 }
 
 //链接按钮
 add_shortcode('linksbtn', 'linksbtn_shortcode');  
-function linksbtn_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('link' => ''), $attr ) );
-    $out ='<a href="'.esc_attr($attr['link']).'" rel="noopener" target="_blank" class="links_btn" >'.$content.'</a>';  
-    return $out;  	
+function linksbtn_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array( 'link' => '' ), $attr );
+    $link = isset( $atts['link'] ) ? $atts['link'] : '';
+    $out = '<a href="'.esc_url( $link ).'" rel="noopener" target="_blank" class="links_btn">'.$content.'</a>';
+    return $out;
 }
 
 //blockquote1
 add_shortcode('blockquote1', 'blockquote1_shortcode');  
-function blockquote1_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('name' => ''), $attr ) );
-    $out ='<div class="quote"><blockquote><p>'.$content.'</p><cite>'.esc_attr($attr['name']).'</cite></blockquote></div>';  
-    return $out;  	
+function blockquote1_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array( 'name' => '' ), $attr );
+    $name = isset( $atts['name'] ) ? $atts['name'] : '';
+    $out = '<div class="quote"><blockquote><p>'.$content.'</p><cite>'.esc_attr( $name ).'</cite></blockquote></div>';
+    return $out;
 }
 
 //blockquote2
 add_shortcode('blockquote2', 'blockquote2_shortcode');  
-function blockquote2_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('name' => ''), $attr ) );
-    $out ='<div class="animated-border-quote"><blockquote><p>'.$content.'</p><cite>'.esc_attr($attr['name']).'</cite></blockquote></div>';  
-    return $out;  	
+function blockquote2_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array( 'name' => '' ), $attr );
+    $name = isset( $atts['name'] ) ? $atts['name'] : '';
+    $out = '<div class="animated-border-quote"><blockquote><p>'.$content.'</p><cite>'.esc_attr( $name ).'</cite></blockquote></div>';
+    return $out;
 }
 
 //OL列表
@@ -76,74 +80,70 @@ function rollin_shortcode( $attr , $content = '') {
 //药丸
 add_shortcode('yaowan', 'yaowan_shortcode');  
 function yaowan_shortcode( $atts , $content = '') {
-	extract( shortcode_atts( array('style' => '0'), $atts ) );
-	$out = '';
-	if($style=='1'){
-        $out = '<span class="badge badge-primary mb-1 mt-1">'.$content.'</span>';
-    }else 
-	if($style=='2'){
-		$out = '<span class="badge badge-secondary mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='3'){
-		$out = '<span class="badge badge-info mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='4'){
-		$out = '<span class="badge badge-success mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='5'){
-		$out = '<span class="badge badge-danger mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='6'){
-		$out = '<span class="badge badge-warning mb-1 mt-1">'.$content.'</span>';
-	}else	
-	if($style=='7'){
-		$out = '<span class="badge badge-light mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='8'){
-		$out = '<span class="badge badge-dark mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='9'){
-		$out = '<span class="badge bg-gradient-primary mb-1 mt-1">'.$content.'</span>';
-	}else	
-	if($style=='10'){
-		$out = '<span class="badge bg-gradient-secondary mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='11'){
-		$out = '<span class="badge bg-gradient-info mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='12'){
-		$out = '<span class="badge bg-gradient-success mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='13'){
-		$out = '<span class="badge bg-gradient-danger mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='14'){
-		$out = '<span class="badge bg-gradient-warning mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='15'){
-		$out = '<span class="badge bg-gradient-light mb-1 mt-1">'.$content.'</span>';
-	}else
-	if($style=='16'){
-		$out = '<span class="badge bg-gradient-dark mb-1 mt-1">'.$content.'</span>';
-	}else{
-		$out = '<span class="badge bg-gradient-dark mb-1 mt-1">'.$content.'</span>';	
-	}	
-    return $out;  
+    $style = isset($atts['style']) ? intval($atts['style']) : 0;
+    $map = array(
+        1 => 'badge text-bg-primary',
+        2 => 'badge text-bg-secondary',
+        3 => 'badge text-bg-info',
+        4 => 'badge text-bg-success',
+        5 => 'badge text-bg-danger',
+        6 => 'badge text-bg-warning',
+        7 => 'badge text-bg-light',
+        8 => 'badge text-bg-dark',
+        9 => 'badge text-bg-primary bg-gradient',
+        10 => 'badge text-bg-secondary bg-gradient',
+        11 => 'badge text-bg-info bg-gradient',
+        12 => 'badge text-bg-success bg-gradient',
+        13 => 'badge text-bg-danger bg-gradient',
+        14 => 'badge text-bg-warning bg-gradient',
+        15 => 'badge text-bg-light bg-gradient',
+        16 => 'badge text-bg-dark bg-gradient'
+    );
+    $classes = isset($map[$style]) ? $map[$style] : 'badge text-bg-dark';
+    return '<span class="'.$classes.' mb-1 mt-1">'.wp_kses_post($content).'</span>';
 }
 
 //代码高亮
 add_shortcode('precode', 'precode_shortcode');  
-function precode_shortcode( $attr , $content = ' ') {
-    $out ='<pre class="prettyprint linenums">'.$content.'</pre>';  
-    return $out;  	
+function precode_shortcode( $attr , $content = '' ) {
+    $defaults = array(
+        'linenums' => '1',
+        'lang'     => '',
+    );
+    $attr = shortcode_atts( $defaults, $attr );
+    $code = (string) $content;
+    $code = shortcode_unautop( $code );
+    $code = str_replace(array("\r\n","\r"), "\n", $code);
+    $code = preg_replace( '~<br\s*/?>~i', "\n", $code );
+    $code = preg_replace( '~<(p|div|section|article)[^>]*>~i', '', $code );
+    $code = preg_replace( '~</(p|div|section|article)>~i', "\n", $code );
+    $code = preg_replace( '~<span[^>]*>~i', '', $code );
+    $code = preg_replace( '~</span>~i', '', $code );
+    $code = preg_replace( "/\n{2,}/", "\n", $code );
+    $code = trim( $code );
+    $classes = array( 'prettyprint' );
+    if ( $attr['linenums'] === '1' || $attr['linenums'] === 'true' ) {
+        $classes[] = 'linenums';
+    }
+    if ( ! empty( $attr['lang'] ) ) {
+        $classes[] = 'lang-' . preg_replace( '/[^\w\-\.]/', '', $attr['lang'] );
+    }
+    $out = '<pre class="' . esc_attr( implode( ' ', $classes ) ) . '"><code>' . esc_html( $code ) . '</code></pre>';
+    return $out;  
 }
+
+add_filter( 'no_texturize_shortcodes', function( $shortcodes ) {
+    $shortcodes[] = 'precode';
+    return $shortcodes;
+});
 
 //Iframe
 add_shortcode('iframe', 'iframe_shortcode');  
-function iframe_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('link' => ''), $attr ) );
-    $out ='<a href="javascript:;" data-fancybox data-type="iframe" data-src="'.esc_attr($attr['link']).'">'.$content.'</a>';  
-    return $out;  	
+function iframe_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array( 'link' => '' ), $attr );
+    $link = isset( $atts['link'] ) ? $atts['link'] : '';
+    $out = '<a href="javascript:;" data-fancybox data-type="iframe" data-src="'.esc_url( $link ).'">'.$content.'</a>';
+    return $out;
 }
 
 //警告框
@@ -218,17 +218,118 @@ function password_protected_post($atts, $content=null){
 }
 //音频
 add_shortcode('audio', 'audio_shortcode');  
-function audio_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('link' => ''), $attr ) );
-    $out ='<audio preload="none" controls="controls"><source type="audio/mpeg" src="'.esc_attr($attr['link']).'"></audio>';  
-    return $out;  	
+function audio_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array( 'link' => '' ), $attr );
+    $link = isset( $atts['link'] ) ? $atts['link'] : '';
+    $out = '<audio preload="none" controls="controls"><source type="audio/mpeg" src="'.esc_url( $link ).'"></audio>';
+    return $out;
 }
-//音频preload=metadata
 add_shortcode('video', 'video_shortcode');  
-function video_shortcode( $attr , $content = ' ') {
-	extract( shortcode_atts( array('link' => ''), $attr ) );
-    $out ='<video preload="none" controls="controls" width="1080" height="1920"><source type="video/mp4" src="'.esc_attr($attr['link']).'"></video>';  
-    return $out;  	
+function video_shortcode( $attr , $content = ' ' ) {
+    $atts = shortcode_atts( array(
+        'link' => '',
+        'mp4' => '',
+        'src' => '',
+        'url' => '',
+        'poster' => '',
+        'autoplay' => '0',
+        'loop' => '0',
+        'muted' => '0',
+        'playsinline' => '1',
+        'width' => '',
+        'height' => ''
+    ), $attr );
+
+    $candidates = array($atts['link'], $atts['mp4'], $atts['src'], $atts['url']);
+    $link = '';
+    foreach ($candidates as $cand) {
+        $cand = is_string($cand) ? trim($cand) : '';
+        if ($cand !== '') { $link = $cand; break; }
+    }
+    $link = trim($link, " \t\n\r\0\x0B`\"'" );
+
+    if ($link === '') {
+        $raw = trim($content);
+        if (stripos($raw, '<iframe') !== false) {
+            return $raw;
+        }
+        if (preg_match('/href=["\']([^"\']+)["\']/', $raw, $m)) {
+            $link = trim($m[1]);
+        } else {
+            $link = trim(strip_tags($raw));
+        }
+        $link = trim($link, " \t\n\r\0\x0B`\"'");
+    }
+    if ($link === '') return '';
+
+    $lower = strtolower($link);
+    $is_youtube = (bool) preg_match('#(youtube\.com|youtu\.be)#i', $lower);
+    $is_bilibili = (bool) preg_match('#bilibili\.com/video/#i', $lower);
+    $is_mp4 = ($atts['mp4'] !== '' ) || (bool) preg_match('/\.mp4(\?.*)?$/i', $lower);
+
+    if ($is_youtube) {
+        $video_id = '';
+        if (preg_match('#youtu\.be/([\w-]+)#i', $link, $m)) {
+            $video_id = $m[1];
+        } elseif (preg_match('#v=([\w-]+)#i', $link, $m)) {
+            $video_id = $m[1];
+        } elseif (preg_match('#/embed/([\w-]+)#i', $link, $m)) {
+            $video_id = $m[1];
+        }
+        if ($video_id !== '') {
+            $src = 'https://www.youtube.com/embed/' . esc_attr($video_id);
+            return '<div class="ratio ratio-16x9"><iframe src="'.esc_url($src).'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        } else {
+            return '<div class="ratio ratio-16x9"><iframe src="'.esc_url($link).'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        }
+    }
+
+    if ($is_bilibili) {
+        $bvid = '';
+        if (preg_match('#/video/(BV[\w]+)#i', $link, $m)) {
+            $bvid = $m[1];
+        }
+        if ($bvid !== '') {
+            $src = 'https://player.bilibili.com/player.html?bvid=' . esc_attr($bvid) . '&page=1';
+            return '<div class="ratio ratio-16x9"><iframe src="'.esc_url($src).'" allow="autoplay; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        } else {
+            return '<div class="ratio ratio-16x9"><iframe src="'.esc_url($link).'" allow="autoplay; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
+        }
+    }
+
+    $attrs = array();
+    $attrs[] = 'preload="metadata"';
+    $attrs[] = 'controls';
+    if ($atts['playsinline'] === '1') {
+        $attrs[] = 'playsinline';
+        $attrs[] = 'webkit-playsinline';
+    }
+    if ($atts['autoplay'] === '1') {
+        $attrs[] = 'autoplay';
+    }
+    if ($atts['loop'] === '1') {
+        $attrs[] = 'loop';
+    }
+    if ($atts['muted'] === '1') {
+        $attrs[] = 'muted';
+    }
+    if (!empty($atts['poster'])) {
+        $attrs[] = 'poster="' . esc_url($atts['poster']) . '"';
+    }
+
+    $size = '';
+    $w = is_string($atts['width']) ? preg_replace('/[^0-9\.]/', '', $atts['width']) : '';
+    $h = is_string($atts['height']) ? preg_replace('/[^0-9\.]/', '', $atts['height']) : '';
+    $wh_attr = '';
+    if ($w !== '') { $wh_attr .= ' width="' . esc_attr($w) . '"'; }
+    if ($h !== '') { $wh_attr .= ' height="' . esc_attr($h) . '"'; }
+    if ($w !== '' || $h !== '') { $size = ' style="' . ($w !== '' ? 'width:' . esc_attr($w) . 'px;' : '') . ($h !== '' ? 'height:' . esc_attr($h) . 'px;' : '') . '"'; }
+
+    $video_open = '<video ' . implode(' ', $attrs) . ' class="post-video"' . $wh_attr . $size . '>';
+    $source_type = 'video/mp4';
+    $source = '<source src="' . esc_url($link) . '" type="' . esc_attr($source_type) . '">';
+    $fallback = esc_html__('您的浏览器不支持 HTML5 视频播放。', 'boxmoe');
+    return $video_open . $source . $fallback . '</video>';
 }
 
 //会员查看内容
@@ -327,4 +428,3 @@ function html_code_button() {
     wp_enqueue_script( 'html_code_button', get_template_directory_uri() . '/assets/js/quicktags.js', array( 'jquery', 'quicktags' ), '1.0.0', true );
 }
 add_action('admin_print_footer_scripts', 'html_code_button' );
-

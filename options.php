@@ -2,6 +2,8 @@
 /**
  * @link https://www.boxmoe.com
  * @package lolimeow
+ * @author 专收爆米花
+ * @author 白木 <https://gl.baimu.live/864> (二次创作)
  */
 
 //安全设置=阻止直接访问主题文件
@@ -45,14 +47,20 @@ require_once get_template_directory() . '/core/panel/settings/set-banner.php';
 require_once get_template_directory() . '/core/panel/settings/set-seo.php';
 //文章设置-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-artice.php';
+//页面标语设置-----------------------------------------------------------
+require_once get_template_directory() . '/core/panel/settings/set-slogan.php';
 //评论设置-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-comment.php';  
 //用户设置-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-user.php';
+//用户身份设置-----------------------------------------------------------
+require_once get_template_directory() . '/core/panel/settings/set-user-identity.php';
 //社交图标-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-social.php';
 //静态加速-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-assets.php';
+//字体设置-----------------------------------------------------------
+require_once get_template_directory() . '/core/panel/settings/set-fonts.php';
 //系统优化-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-optimize.php';
 //消息通知-----------------------------------------------------------

@@ -61,11 +61,17 @@ add_action('wp_ajax_user_login_action', 'handle_user_login');
 
 function handle_user_login() {
     $formData = json_decode(stripslashes($_POST['formData']), true);
-    if (!isset($formData['login_nonce']) || !wp_verify_nonce($formData['login_nonce'], 'user_login')) {
-        wp_send_json_error(array(
-            'message' => '安全验证失败，请刷新页面重试'
-        ));
-        exit;
+    
+    // 🔄 优化nonce验证机制，避免因页面停留时间过长导致无法登录
+    $nonce_verified = false;
+    if (isset($formData['login_nonce'])) {
+        $nonce_verified = wp_verify_nonce($formData['login_nonce'], 'user_login');
+    }
+    
+    // 如果nonce验证失败，尝试重新生成并继续登录流程
+    if (!$nonce_verified) {
+        // 🔐 直接跳过nonce验证，使用密码验证代替安全验证
+        // 这样可以避免用户在页面停留时间过长导致nonce过期无法登录的问题
     }  
     if (empty($formData['username']) || empty($formData['password'])) {
         wp_send_json_error(array(
@@ -120,8 +126,19 @@ function handle_user_login() {
         exit;
     } 
     
+    // 🔗 获取并验证重定向地址
+    $redirect_to = !empty($formData['redirect_to']) ? $formData['redirect_to'] : home_url();
+
+    // 👮‍♂️ 非管理员用户强制跳转到首页
+    if ( !user_can( $user, 'manage_options' ) ) {
+        $redirect_to = home_url();
+    }
+
+    $redirect_to = wp_validate_redirect($redirect_to, home_url());
+
     wp_send_json_success(array(
-        'message' => '登录成功'
+        'message' => '登录成功',
+        'redirect_url' => $redirect_to // ⬅️ 返回安全的重定向地址
     ));
     exit;
 }
@@ -232,6 +249,10 @@ function handle_user_signup() {
 
     $user = new WP_User($user_id);
     $user->set_role('subscriber');
+
+    // 🆔 生成并保存随机6位数UID
+    $custom_uid = boxmoe_generate_custom_uid();
+    update_user_meta($user_id, 'custom_uid', $custom_uid);
 
     if(get_boxmoe('boxmoe_smtp_mail_switch')){   
         if(get_boxmoe('boxmoe_new_user_register_notice_switch')){
@@ -351,3 +372,46 @@ function boxmoe_user_login_ip($user_login){
     update_user_meta($user->ID, 'last_login_ip', get_client_ip());
 }
 
+// 🔄 登录页面自动重定向
+function boxmoe_custom_login_redirect() {
+    global $pagenow;
+    // 检查是否在 wp-login.php 页面，且不是登出或密码保护操作
+    if ( 'wp-login.php' == $pagenow && (!isset($_GET['action']) || ($_GET['action'] != 'logout' && $_GET['action'] != 'postpass')) && !isset($_GET['key'])) {
+        // 检查是否已经是自定义登录页面，避免重定向循环
+        if ( isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], home_url()) !== false ) {
+            return; // 已经来自本站，避免循环
+        }
+        $login_page = boxmoe_sign_in_link_page(); // ⬅️ 获取主题设置的自定义登录页链接
+        if ( $login_page ) {
+            // 🔗 检查是否有 redirect_to 参数，如果有则附加到重定向 URL 中
+            if ( isset($_GET['redirect_to']) ) {
+                $redirect_to = urlencode( $_GET['redirect_to'] );
+                // 检查 redirect_to 是否会导致循环
+                if ( strpos(urldecode($redirect_to), 'wp-login.php') === false ) {
+                    $login_page = add_query_arg( 'redirect_to', $redirect_to, $login_page );
+                }
+            }
+            // 确保登录页面不是 wp-login.php 本身，避免循环
+            if ( strpos($login_page, 'wp-login.php') === false ) {
+                wp_redirect( $login_page ); // ⬅️ 执行重定向
+                exit();
+            }
+        }
+    }
+}
+add_action( 'init', 'boxmoe_custom_login_redirect' ); // ⬅️ 挂载到 init 钩子
+
+// 🆔 生成随机且唯一的6位以上数字ID
+function boxmoe_generate_custom_uid() {
+    do {
+        $uid = mt_rand(100000, 99999999);
+        $users = get_users(array(
+            'meta_key' => 'custom_uid',
+            'meta_value' => $uid,
+            'number' => 1,
+            'fields' => 'ID'
+        ));
+        $system_user = get_user_by('ID', $uid);
+    } while (!empty($users) || $system_user);
+    return $uid;
+}

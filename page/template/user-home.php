@@ -109,6 +109,13 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
                               <label for="user_email" class="form-label">邮箱<small class="text-muted">（不可修改）</small></label>
                               <input type="text" disabled class="form-control" id="user_email" value="<?php echo $current_user->user_email; ?>" >
                            </div>
+                           <div class="col-lg-6 col-md-12">
+                              <label for="custom_uid" class="form-label">用户ID<small class="text-muted">（<?php echo current_user_can('manage_options') ? '可自定义修改' : '不可修改'; ?>）</small></label>
+                              <input type="text" class="form-control" id="custom_uid" value="<?php echo get_user_meta($current_user->ID, 'custom_uid', true) ?: $current_user->ID; ?>" <?php echo current_user_can('manage_options') ? '' : 'disabled'; ?> >
+                              <?php if(current_user_can('manage_options')) { ?>
+                              <div class="invalid-feedback">请输入用户ID。</div>
+                              <?php } ?>
+                           </div>
                            <div class="col-lg-6">
                               <label for="display_name" class="form-label">昵称</label>
                               <input type="text" class="form-control input-phone" id="display_name" value="<?php echo $current_user->display_name; ?>">

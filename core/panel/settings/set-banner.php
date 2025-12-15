@@ -28,7 +28,7 @@ $options[] = array(
 		'name' => __('banner一言开关', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_banner_hitokoto_switch',
 		'type' => "checkbox",
-		'std' => false,
+		'std' => true,
 		);
         $hitokoto_array = array(
 			'a' => __('动画', 'ui_boxmoe_com'),
@@ -72,7 +72,7 @@ $options[] = array(
     $options[] = array(
 		'name' => __('自定义Banner背景图', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_banner_url',
-		'std' => $image_path.'/banner/assets/images/banner.jpg',
+		'std' => $image_path.'banner.jpg',
 		'type' => 'upload');
     $options[] = array(
 		'group' => 'start',

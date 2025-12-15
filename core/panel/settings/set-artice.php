@@ -19,7 +19,7 @@ $options[] = array(
         'name' => __('文章新窗口打开开关', 'ui_boxmoe_com'),
         'id' => 'boxmoe_article_new_window_switch',
         'type' => "checkbox",
-        'std' => false,
+        'std' => true,
         'desc' => __('若开启则文章新窗口打开', 'ui_boxmoe_com'),
         );
     $options[] = array(
@@ -28,6 +28,13 @@ $options[] = array(
         'type' => "checkbox",
         'std' => false,
         'desc' => __('若开启则开启所有文章形式支持', 'ui_boxmoe_com'),
+        );
+    $options[] = array(
+        'name' => __('首页文章仅显示分类', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_home_article_categories',
+        'type' => "text",
+        'std' => '',
+        'desc' => __('设置后，首页只显示指定的分类内的所有文章，请输入分类ID，多个分类用<span style="display:inline-block;background-color:#ff4d4f;color:#fff;font-size:12px;padding:2px 6px;border-radius:10px;margin:0 2px;text-align:center;vertical-align:middle;line-height:1;">，</span><span style="display:inline-block;background-color:#ff4d4f;color:#fff;font-size:12px;padding:2px 6px;border-radius:10px;margin:0 2px;text-align:center;vertical-align:middle;line-height:1;">、</span><span style="display:inline-block;background-color:#ff4d4f;color:#fff;font-size:12px;padding:2px 6px;border-radius:10px;margin:0 2px;text-align:center;vertical-align:middle;line-height:1;">,</span>三个标点符号做区分，不输入则显示所有分类', 'ui_boxmoe_com'),
         );
     $options[] = array(
         'group' => 'start',
@@ -70,6 +77,33 @@ $options[] = array(
         'std' => 'https://api.boxmoe.com/random.php?size=small',
         'desc' => __('文章缩略图随机API URL', 'ui_boxmoe_com'),
         );  
+        $options[] = array(
+            'type' => 'info',
+            'group' => 'start',
+            'group_title' => '文章页左下角看板娘设置',
+        );
+        $options[] = array(
+            'name' => __('文章卡片看板娘图片', 'ui_boxmoe_com'),
+            'id' => 'boxmoe_article_card_kanban_image',
+            'type' => 'upload',
+            'std' => get_template_directory_uri() . '/assets/images/post-list.png',
+            'desc' => __('上传文章页左下角看板娘图片，支持JPG、PNG、GIF格式，留空则不显示', 'ui_boxmoe_com') . '<br><span style="color: #17a2b8;">【建议分辨率160x75为最佳尺寸】</span>',
+        );
+        $options[] = array(
+            'name' => __('文章卡片看板娘显示范围', 'ui_boxmoe_com'),
+            'id' => 'boxmoe_article_card_kanban_scope',
+            'std' => 'all',
+            'type' => "radio",
+            'options' => array(
+                'home' => __('仅在首页生效', 'ui_boxmoe_com'),
+                'all' => __('全站生效', 'ui_boxmoe_com'),
+            ),
+            'desc' => __('设置看板娘图片的显示范围', 'ui_boxmoe_com'),
+        );
+        $options[] = array(
+            'type' => 'info',
+            'group' => 'end',
+        );
     $options[] = array(
 	    'name' => __('文章列表分页模式', 'ui_boxmoe_com'),
 	    'id' => 'boxmoe_article_paging_type',
@@ -80,6 +114,13 @@ $options[] = array(
 		    'multi' => __('页码  1 2 3 ', 'ui_boxmoe_com'),
             //'loadmore' => __('点击加载更多(未使用)', 'ui_boxmoe_com'),
 	    ));
+    $options[] = array(
+        'name' => __('密码保护文章摘要文案', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_article_password_excerpt_text',
+        'type' => 'text',
+        'std' => '无法提供摘要。这是一篇受保护的文章。',
+        'desc' => __('用于受密码保护的文章在列表中的摘要说明', 'ui_boxmoe_com'),
+    );
     $options[] = array(    
         'group' => 'start',
         'group_title' => '文章打赏&点赞设置',
@@ -103,7 +144,7 @@ $options[] = array(
         'std' => '',
         'desc' => __('打赏二维码-微信二维码地址', 'ui_boxmoe_com'),
         );
-    $options[] = array(    
+    $options[] = array(
         'group' => 'end',
         'name' => __('打赏二维码-支付宝', 'ui_boxmoe_com'),
         'id' => 'boxmoe_reward_qrcode_alipay',
@@ -111,4 +152,5 @@ $options[] = array(
         'std' => '',
         'desc' => __('打赏二维码-支付宝二维码地址', 'ui_boxmoe_com'),
         );
-
+    
+    

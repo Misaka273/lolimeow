@@ -85,10 +85,10 @@ class Options_Framework_Admin {
 		$menu = array(
 
 			// Modes: submenu, menu
-            'mode' => 'submenu',
+			'mode' => 'menu',
 
-            // Submenu default settings
-            'page_title' => __( '盒子萌主题设置', 'textdomain' ),
+			// Submenu default settings
+			'page_title' => __( '盒子萌主题设置', 'textdomain' ),
 			'menu_title' => __('盒子萌主题设置', 'textdomain'),
 			'capability' => 'edit_theme_options',
 			'menu_slug' => 'boxmoe_options',
@@ -208,8 +208,13 @@ class Options_Framework_Admin {
 			<div id="optionsframework-metabox" class="metabox-holder">
 		<div class="header-set-title">
 		<h2 class="themes-name "><i class="navon"></i><?php echo esc_html( $menu['page_title'] ); ?></h2>
-		<a href="https://www.boxmoe.com/706.html" target="_blank" rel="external nofollow" class="el-button">
-		<i class="cx cx-begin"></i> 在线文档 | <span id="dbox"></span></a>
+		<div class="of-search"><input type="search" id="of-search-input" placeholder="搜索设置名称" /></div>
+		<div class="el-button" style="padding: 8px 16px; line-height: 1.5; display: inline-block; text-align: center;">
+			<a href="https://www.boxmoe.com/706.html" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: none;">📃在线文档</a>  
+			🚀V<?php echo THEME_VERSION; ?>  
+			🎉更新日期：2025-12-16<br>
+			🥰本主题二次创作 <a href="https://gl.baimu.live/864" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: underline;">白木</a>
+		</div>
 		</div>			
 				<div id="optionsframework" class="postbox">
 					<form action="options.php" method="post">
@@ -224,9 +229,30 @@ class Options_Framework_Admin {
 			<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( '保存设置', 'textdomain' ); ?>" />
 			<input type="submit" class="reset-button button-secondary" name="reset" value="<?php esc_attr_e( '重置所有设置', 'textdomain' ); ?>" onclick="return confirm( '<?php print esc_js( __( '警告：点击确定，之前所有设置修改都将丢失！', 'textdomain' ) ); ?>' );" />
 			<div class="clear"></div>
-		</div>		
+		</div>
+		<div id="of-slogan-modal-mask" class="of-modal-mask" style="display:none">
+			<div id="of-slogan-modal" class="of-modal">
+				<div class="of-modal-header"><?php esc_html_e('重置页面标语','textdomain'); ?></div>
+				<div class="of-modal-body"><?php esc_html_e('仅重置“页面标语设置”，其他设置不受影响。是否继续？','textdomain'); ?></div>
+				<div class="of-modal-actions">
+					<button type="button" id="of-slogan-cancel" class="of-btn of-btn-secondary"><?php esc_html_e('取消','textdomain'); ?></button>
+					<button type="button" id="of-slogan-confirm" class="of-btn of-btn-primary"><?php esc_html_e('确定','textdomain'); ?></button>
+				</div>
+			</div>
+		</div>
 					</form>
-		</div> 
+</div> 
+<style id="of-slogan-modal-style">
+.of-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;z-index:100000}
+.of-modal{background:#fff;border-radius:12px;max-width:420px;width:90%;box-shadow:0 12px 24px rgba(0,0,0,.08);padding:20px;font-size:14px}
+.of-modal-header{font-weight:600;margin-bottom:8px}
+.of-modal-actions{margin-top:16px;display:flex;gap:8px;justify-content:flex-end}
+.of-btn{border:none;border-radius:999px;padding:8px 14px;cursor:pointer}
+.of-btn-primary{background:#2271b1;color:#fff}
+.of-btn-secondary{background:#f0f0f1;color:#1d2327}
+.boxmoe_tab_header{position:relative;min-height:32px;padding-right:96px}
+#of-reset-slogan-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);height:28px;line-height:26px;padding:0 10px;font-size:12px;z-index:10}
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var navon = document.querySelector('.navon');
@@ -245,21 +271,43 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// 📡 获取并更新最新版本信息
 var boxmoe_version = function () {
-    var dboxElement = document.getElementById("dbox");
-    dboxElement.innerHTML = "获取中...";
     fetch("https://doc.boxmoe.com/wp-json/themes/v1/version/lolimeow")
         .then(response => response.json())
         .then(data => {
-            dboxElement.innerHTML = `版本:${data.data.version} 更新日期:${data.data.date}`;
-            document.getElementById("vbox").innerHTML = data.data.version;
+            var vboxElement = document.getElementById("vbox");
+            if (vboxElement) {
+                vboxElement.innerHTML = data.data.version;
+            }
         })
         .catch(error => {
-            console.error('Error:', error);
-            dboxElement.innerHTML = "获取失败";
+            console.error('Error fetching version:', error);
         });
 };
 boxmoe_version();
+
+var ofResetBtn=document.getElementById('of-reset-slogan-btn');
+var mask=document.getElementById('of-slogan-modal-mask');
+var confirmBtn=document.getElementById('of-slogan-confirm');
+var cancelBtn=document.getElementById('of-slogan-cancel');
+if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
+  ofResetBtn.addEventListener('click',function(){mask.style.display='flex'});
+  cancelBtn.addEventListener('click',function(){mask.style.display='none'});
+  confirmBtn.addEventListener('click',function(){
+    var form=document.querySelector('#optionsframework form');
+    if(form){
+      var hidden=document.createElement('input');
+      hidden.type='hidden';
+      hidden.name='reset_slogan';
+      hidden.value='1';
+      form.appendChild(hidden);
+      form.submit();
+    }
+    mask.style.display='none';
+  });
+}
 </script>
 	<?php
 	}
@@ -274,6 +322,10 @@ boxmoe_version();
 	 */
 	function validate_options( $input ) {
 
+		// 🥳 增加资源限制，防止保存时出现 502 错误
+		@set_time_limit( 300 );
+		@ini_set( 'memory_limit', '512M' );
+
 		/*
 		 * Restore Defaults.
 		 *
@@ -285,6 +337,37 @@ boxmoe_version();
 		if ( isset( $_POST['reset'] ) ) {
 			add_settings_error( 'options-framework', 'restore_defaults', __( '已恢复默认选项!', 'textdomain' ), 'updated fade' );
 			return $this->get_default_values();
+		}
+
+		/*
+		 * Reset only Page Slogan options
+		 */
+		if ( isset( $_POST['reset_slogan'] ) ) {
+			$options_framework = new Options_Framework;
+			$name = $options_framework->get_option_name();
+			$current = get_option( $name );
+			$defaults = $this->get_default_values();
+			$slogan_keys = array(
+				'boxmoe_slogan_home_text',
+				'boxmoe_slogan_category_text',
+				'boxmoe_slogan_tag_text',
+				'boxmoe_slogan_search_text',
+				'boxmoe_slogan_404_text',
+				'boxmoe_slogan_author_text',
+				'boxmoe_slogan_date_text',
+				'boxmoe_slogan_archive_text',
+				'boxmoe_slogan_post_text',
+				'boxmoe_slogan_page_text',
+				'boxmoe_slogan_page_links_text',
+				'boxmoe_slogan_page_user_center_text',
+			);
+			foreach ( $slogan_keys as $key ) {
+				if ( isset( $defaults[$key] ) ) {
+					$current[$key] = $defaults[$key];
+				}
+			}
+			add_settings_error( 'options-framework', 'restore_slogan_defaults', __( '页面标语已恢复默认值！', 'textdomain' ), 'updated fade' );
+			return $current;
 		}
 
 		/*

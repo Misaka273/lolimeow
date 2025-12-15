@@ -46,6 +46,11 @@ class Options_Framework_Interface {
 	static function optionsframework_fields() {
 
 		global $allowedtags;
+		// 允许在描述中使用span标签，用于样式化
+		$allowedtags['span'] = array(
+			'class' => array(),
+			'style' => array()
+		);
 
 		$options_framework = new Options_Framework;
 		$option_name = $options_framework->get_option_name();
@@ -97,9 +102,14 @@ class Options_Framework_Interface {
 				if ($group_opened) {
 				$output .= '<div class="boxmoe_group_opened">' . "\n";
 				}		
-				if ( isset( $value['name'] ) ) {
-					$output .= '<h4 class="heading"><span class="dashicons dashicons-shortcode"></span> ' . esc_html( $value['name'] ) . '</h4>' . "\n";
-				}
+                if ( isset( $value['name'] ) ) {
+                    $heading = '<h4 class="heading"><span class="dashicons dashicons-shortcode"></span> ' . esc_html( $value['name'] );
+                    if ( isset($value['type']) && $value['type'] === 'fonts_table' ) {
+                        $heading .= ' <button type="button" id="boxmoe-fonts-add-btn" class="btn-pill btn-blue fonts-add-btn">新增</button>';
+                    }
+                    $heading .= '</h4>' . "\n";
+                    $output .= $heading;
+                }
 				if ( $value['type'] != 'editor' ) {
 					$output .= '<div class="option">' . "\n" . '<div id="'.$value['id'].'-controls" class="controls">' . "\n";
 				}
@@ -374,6 +384,46 @@ class Options_Framework_Interface {
 
 				break;
 
+			// Custom Board List
+			case 'custom_board_list':
+				$output .= '<div class="custom-board-list-wrap" id="custom-board-list-' . esc_attr( $value['id'] ) . '">';
+				$output .= '<div class="custom-board-items" style="display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px;">';
+				
+				$current_lolijump_img = get_boxmoe('boxmoe_lolijump_img');
+
+				if ( is_array( $val ) && ! empty( $val ) ) {
+					foreach ( $val as $k => $item ) {
+						$url = isset($item['url']) ? $item['url'] : '';
+						$name = isset($item['name']) ? $item['name'] : '';
+						if(empty($url)) continue;
+						
+						$isActive = ($url == $current_lolijump_img);
+						$btnText = $isActive ? __('已启动', 'ui_boxmoe_com') : __('启动', 'ui_boxmoe_com');
+						$btnClass = $isActive ? 'button-primary disabled' : 'button-secondary';
+						
+						$output .= '<div class="custom-board-item" style="width:150px;border:1px solid #ddd;padding:10px;border-radius:5px;background:#fff;text-align:center;">';
+						$output .= '<div class="custom-board-preview" style="margin-bottom:10px;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;">';
+						$output .= '<img src="' . esc_url( $url ) . '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+						$output .= '</div>';
+						$output .= '<input type="hidden" name="' . esc_attr( $option_name . '[' . $value['id'] . '][' . $k . '][url]' ) . '" value="' . esc_attr( $url ) . '" class="custom-board-url">';
+						$output .= '<div class="custom-board-input-group">';
+						$output .= '<input type="text" name="' . esc_attr( $option_name . '[' . $value['id'] . '][' . $k . '][name]' ) . '" value="' . esc_attr( $name ) . '" class="custom-board-name" placeholder=" ">';
+						$output .= '<span class="custom-board-floating-label" data-normal="' . __('请输入名称', 'ui_boxmoe_com') . '" data-active="' . __('名称', 'ui_boxmoe_com') . '"></span>';
+						$output .= '</div>';
+						$output .= '<div class="actions" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;">';
+						$output .= '<button type="button" class="button custom-board-enable ' . $btnClass . '" data-url="' . esc_attr($url) . '" style="width:100%;margin-bottom:5px;">' . $btnText . '</button>';
+						$output .= '<button type="button" class="button custom-board-replace" data-update="' . __('选择图片', 'ui_boxmoe_com') . '" data-choose="' . __('选择看板图片', 'ui_boxmoe_com') . '" style="flex:1;">' . __('替换', 'ui_boxmoe_com') . '</button>';
+						$output .= '<button type="button" class="button custom-board-delete" style="color:#b32d2e;border-color:#b32d2e;flex:1;">' . __('删除', 'ui_boxmoe_com') . '</button>';
+						$output .= '</div>';
+						$output .= '</div>';
+					}
+				}
+				
+				$output .= '</div>';
+				$output .= '<button type="button" class="button button-primary custom-board-add" data-name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '">' . __('新增看板形象', 'ui_boxmoe_com') . '</button>';
+				$output .= '</div>';
+				break;
+
 			// Editor
 			case 'editor':
 				$output .= '<div class="explain">' . wp_kses( $explain_value, $allowedtags ) . '</div>'."\n";
@@ -426,9 +476,14 @@ class Options_Framework_Interface {
 				$class = '';
 				$class = ! empty( $value['id'] ) ? $value['id'] : $value['name'];
 				$class = preg_replace('/[^a-zA-Z0-9._\-]/', '', strtolower($class) );
-				$output .= '<div id="options-group-' . $counter . '" class="group ' . $class . '">';
-				$output .= '<div class="boxmoe_tab_header"><span class="dashicons dashicons-wordpress"></span> ' . esc_html( $value['name'] ) . '</div>' . "\n";
-				break;
+                $output .= '<div id="options-group-' . $counter . '" class="group ' . $class . '">';
+                $header  = '<div class="boxmoe_tab_header"><span class="dashicons dashicons-wordpress"></span> ' . esc_html( $value['name'] );
+                if ( isset($value['name']) && $value['name'] === '页面标语设置' ) {
+                    $header .= ' <input type="button" id="of-reset-slogan-btn" class="button-secondary" name="reset_slogan" value="' . esc_attr__( '重置标语', 'textdomain' ) . '" />';
+                }
+                $header .= '</div>' . "\n";
+                $output .= $header;
+                break;
 			}
 
 			if ( ( $value['type'] != "heading" ) && ( $value['type'] != "info" ) ) {

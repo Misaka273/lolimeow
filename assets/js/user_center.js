@@ -26,13 +26,18 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('display_name', document.getElementById('display_name').value);
             formData.append('user_url', document.getElementById('user_url').value);
             formData.append('description', document.getElementById('user_description').value);
+            // 🆔 添加自定义UID字段
+            const customUidInput = document.getElementById('custom_uid');
+            if (customUidInput) {
+                formData.append('custom_uid', customUidInput.value);
+            }
             formData.append('nonce', ajax_object.nonce);
 
             try {
                 const response = await fetch(ajax_object.ajaxurl, {
                     method: 'POST',
                     body: formData,
-                    credentials: 'same-origin'
+                credentials: 'same-origin'
                 });
 
                 const data = await response.json();
@@ -40,7 +45,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.success) {
                     showToast(data.data.message);
                 } else {
-                    showToast(data.data.message, false);
+                    // 🛑 如果ID已存在，显示扁平圆角弹窗
+                    if (data.data.message === 'ID_EXISTS') {
+                        showErrorPopup('该ID已存在，无法保存自定义ID！');
+                    } else {
+                        showToast(data.data.message, false);
+                    }
                 }
             } catch (error) {
                 showToast('保存失败，请重试', false);
@@ -457,5 +467,64 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // 🛑 显示扁平圆角弹窗错误提示
+    function showErrorPopup(message) {
+        // 移除已存在的弹窗
+        const existingPopup = document.getElementById('custom-error-popup');
+        const existingOverlay = document.getElementById('custom-popup-overlay');
+        if (existingPopup) existingPopup.remove();
+        if (existingOverlay) existingOverlay.remove();
+
+        const popupHtml = `
+        <div id="custom-popup-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9998; backdrop-filter: blur(2px);"></div>
+        <div id="custom-error-popup" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fff; padding: 25px 50px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 9999; text-align: center; min-width: 320px; animation: popupFadeIn 0.3s ease-out;">
+            <div style="margin-bottom: 15px; color: #ff4757; font-size: 20px; font-weight: bold; display: flex; align-items: center; justify-content: center;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-exclamation-circle-fill" viewBox="0 0 16 16" style="margin-right: 10px;">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                </svg>
+                提示
+            </div>
+            <div style="margin-bottom: 25px; color: #555; font-size: 16px;">${message}</div>
+            <button id="close-custom-popup" style="background: linear-gradient(45deg, #ff4757, #ff6b81); color: #fff; border: none; padding: 10px 35px; border-radius: 25px; cursor: pointer; transition: all 0.3s; font-weight: 500; box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);">关闭</button>
+        </div>
+        <style>
+            @keyframes popupFadeIn {
+                from { opacity: 0; transform: translate(-50%, -60%); }
+                to { opacity: 1; transform: translate(-50%, -50%); }
+            }
+            #close-custom-popup:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 71, 87, 0.4); }
+        </style>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', popupHtml);
+
+        const popup = document.getElementById('custom-error-popup');
+        const overlay = document.getElementById('custom-popup-overlay');
+        const closeBtn = document.getElementById('close-custom-popup');
+        let autoCloseTimer;
+
+        const removePopup = () => {
+            if (popup) {
+                popup.style.opacity = '0';
+                popup.style.transform = 'translate(-50%, -60%)';
+                popup.style.transition = 'all 0.3s ease-in';
+            }
+            if (overlay) {
+                overlay.style.opacity = '0';
+                overlay.style.transition = 'all 0.3s ease-in';
+            }
+            setTimeout(() => {
+                if (popup) popup.remove();
+                if (overlay) overlay.remove();
+            }, 300);
+            if (autoCloseTimer) clearTimeout(autoCloseTimer);
+        };
+
+        closeBtn.addEventListener('click', removePopup);
+        overlay.addEventListener('click', removePopup);
+
+        // 🕒 3秒后自动关闭
+        autoCloseTimer = setTimeout(removePopup, 3000);
+    }
 
 });

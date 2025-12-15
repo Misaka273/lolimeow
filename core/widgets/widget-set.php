@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {echo'Look your sister';exit;}
 add_action('widgets_init','unregister_d_widget');
 function unregister_d_widget(){
     unregister_widget('WP_Widget_Recent_Comments');
+    // 恢复 WordPress 默认搜索小部件，注释掉下面这行
+    // unregister_widget('WP_Widget_Search');
 }
 
 $widgets = array(
@@ -19,7 +21,9 @@ $widgets = array(
 	'archive',
 	'tags',
 	'userinfo',
+	'currentuser',
 	'search',
+	'postauthor',
 
 );
 
@@ -33,4 +37,27 @@ function widget_ui_loader() {
 	foreach ($widgets as $widget) {
 		register_widget( 'widget_'.$widget );
 	}
+}
+
+// 📋 加载统一的复制功能脚本
+add_action('wp_enqueue_scripts', 'load_copy_function_script');
+function load_copy_function_script() {
+    // 只在前端加载脚本
+    if (!is_admin()) {
+        // 获取脚本的绝对路径和URL
+        $script_path = get_template_directory() . '/core/widgets/copy-function.js';
+        $script_url = get_template_directory_uri() . '/core/widgets/copy-function.js';
+        
+        // 检查脚本文件是否存在
+        if (file_exists($script_path)) {
+            // 加载复制功能脚本，确保只加载一次
+            wp_enqueue_script(
+                'boxmoe-copy-function',
+                $script_url,
+                array(),
+                filemtime($script_path), // 使用文件修改时间作为版本号，确保缓存更新
+                true // 在页脚加载，确保DOM已完全加载
+            );
+        }
+    }
 }

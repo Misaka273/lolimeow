@@ -87,6 +87,32 @@ function boxmoe_update_user_profile() {
     $user_url = esc_url_raw($_POST['user_url']);
     $description = sanitize_textarea_field($_POST['description']);
 
+    // 🆔 处理自定义UID更新 (仅管理员)
+    if (current_user_can('manage_options') && isset($_POST['custom_uid'])) {
+        $custom_uid = sanitize_text_field($_POST['custom_uid']);
+        $current_custom_uid = get_user_meta($user_id, 'custom_uid', true);
+        
+        if ($custom_uid != $current_custom_uid) {
+             // 🔍 检查ID是否已存在 (检查自定义UID和系统ID)
+             $users = get_users(array(
+                 'meta_key' => 'custom_uid',
+                 'meta_value' => $custom_uid,
+                 'exclude' => array($user_id),
+                 'number' => 1,
+                 'fields' => 'ID'
+             ));
+             
+             // 检查是否与现有用户的系统ID冲突
+             $system_user = get_user_by('ID', $custom_uid);
+
+             if (!empty($users) || ($system_user && $system_user->ID != $user_id)) {
+                 wp_send_json_error(['message' => 'ID_EXISTS']);
+                 return;
+             }
+             update_user_meta($user_id, 'custom_uid', $custom_uid);
+        }
+    }
+
     if (empty($display_name)) {
         wp_send_json_error(['message' => '昵称不能为空']);
         return;

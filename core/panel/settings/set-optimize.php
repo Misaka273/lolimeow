@@ -21,8 +21,15 @@ $options[] = array(
         'name' => __('关闭古腾堡编辑器', 'ui_boxmoe_com'),
         'id' => 'boxmoe_gutenberg_switch',
         'type' => "checkbox",
-        'std' => false,
+        'std' => true,
         'desc' => __('若开启则关闭古腾堡编辑器', 'ui_boxmoe_com'),
+        );
+    $options[] = array(
+        'name' => __('启用MD语法编辑器', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_md_editor_switch',
+        'type' => "checkbox",
+        'std' => false,
+        'desc' => __('若开启，则使用Markdown语法编辑器并替换现有编辑器', 'ui_boxmoe_com'),
         );
     $options[] = array(
         'name' => __('禁用文章自动保存', 'ui_boxmoe_com'),

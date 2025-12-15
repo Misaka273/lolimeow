@@ -12,35 +12,9 @@ if(!defined('ABSPATH')){
 
 
 // Gravatar头像--------------------------boxmoe.com--------------------------
-function boxmoe_getavatar_host() {
-    $gravatar_Url = 'cravatar.cn/avatar';
-
-    switch (get_boxmoe('boxmoe_gravatar_url')) {
-        case 'cn':
-            $gravatar_Url = 'cn.gravatar.com/avatar';
-            break;
-        case 'ssl':
-            $gravatar_Url = 'secure.gravatar.com/avatar';
-            break;
-        case 'v2excom':
-            $gravatar_Url = 'cdn.v2ex.com/gravatar';
-            break;
-        case 'qiniu':
-            $gravatar_Url = 'dn-qiniu-avatar.qbox.me/avatar';
-            break;
-        case 'geekzu':
-            $gravatar_Url = 'fdn.geekzu.org/avatar';
-            break;
-        case 'cravatar':
-            $gravatar_Url = 'cravatar.cn/avatar';
-            break;
-        case 'wavatar':
-            $gravatar_Url = 'wavatar.com/avatar';
-            break;
-        default:
-            $gravatar_Url = 'dn-qiniu-avatar.qbox.me/avatar';
-    }
-    return $gravatar_Url;
+// 🖼️ 本地默认头像地址
+function boxmoe_default_avatar_url() {
+    return get_stylesheet_directory_uri() . '/assets/images/touxiang.jpg'; // ⬅️ 返回主题内默认头像路径
 }
 
 
@@ -65,6 +39,7 @@ function boxmoe_qqavatar_host() {
 }
 
 
+// 🔧 统一头像策略：自定义 > QQ 头像 > 本地默认
 function boxmoe_get_avatar($avatar, $id_or_email, $size = 96, $default = '', $alt = '', $args = array()) {
     $email = '';
     $user_id = '';
@@ -89,9 +64,6 @@ function boxmoe_get_avatar($avatar, $id_or_email, $size = 96, $default = '', $al
     } else {
         $email = $id_or_email;
     }
-    $hash       = md5(strtolower(trim($email)));
-    $gavatarurl = 'https://' . boxmoe_getavatar_host() . '/' . $hash;
-
     $class = isset($args['class']) 
         ? array_merge(['avatar'], is_array($args['class']) ? $args['class'] : explode(' ', $args['class'])) 
         : ['avatar'];
@@ -101,33 +73,34 @@ function boxmoe_get_avatar($avatar, $id_or_email, $size = 96, $default = '', $al
     if (isset($user_id)) {
         $user_avatar_url = get_user_meta($user_id, 'user_avatar', true);
         if ($user_avatar_url) { 
-            return '<img src="' . $user_avatar_url . '" class="' . $class . '" alt="avatar" />';
+            return '<img src="' . esc_url($user_avatar_url) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ 优先使用用户自定义上传头像
         } elseif (stripos($email, "@qq.com"))  {
             $qq = str_ireplace("@qq.com", "", $email);
             if (preg_match("/^\d+$/", $qq)) {
                 $qqavatar = "https://" . boxmoe_qqavatar_host() . "/headimg_dl?dst_uin=" . $qq . "&spec=100";
-                return '<img src="' . $qqavatar . '" class="' . $class . '" alt="avatar" />';
+                return '<img src="' . esc_url($qqavatar) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ QQ 邮箱且为纯数字，使用 QQ 头像
             } else {
-                return '<img src="' . $gavatarurl . '" class="' . $class . '" alt="avatar" />';
+                return '<img src="' . esc_url(boxmoe_default_avatar_url()) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ 非纯数字 QQ 邮箱，回退到本地默认头像
             }
         } else {
-            return '<img src="' . $gavatarurl . '" class="' . $class . '" alt="avatar" />';
+            return '<img src="' . esc_url(boxmoe_default_avatar_url()) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ 无自定义头像时统一使用本地默认头像
         }
     } elseif (stripos($email, "@qq.com"))  {
         $qq = str_ireplace("@qq.com", "", $email);
         if (preg_match("/^\d+$/", $qq)) {
             $qqavatar = "https://" . boxmoe_qqavatar_host() . "/headimg_dl?dst_uin=" . $qq . "&spec=100";
-            return '<img src="' . $qqavatar . '" class="' . $class . '" alt="avatar" />';
+            return '<img src="' . esc_url($qqavatar) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ 访客 QQ 邮箱为纯数字，使用 QQ 头像
         } else {
-            return '<img src="' . $gavatarurl . '" class="' . $class . '" alt="avatar" />';
+            return '<img src="' . esc_url(boxmoe_default_avatar_url()) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ 其他访客邮箱，使用本地默认头像
         }
     } else {
-        return '<img src="' . $gavatarurl . '" class="' . $class . '" alt="avatar" />';
+        return '<img src="' . esc_url(boxmoe_default_avatar_url()) . '" class="' . $class . '" width="' . $size . '" height="' . $size . '" alt="avatar" />'; // ⬅️ 无邮箱信息时统一使用本地默认头像
     }
 }
 add_filter('get_avatar', 'boxmoe_get_avatar', 10, 6);
 
 // 提取头像地址--------------------------boxmoe.com--------------------------
+// 🔎 提取头像地址（同策略：自定义 > QQ > 本地默认）
 function boxmoe_get_avatar_url($id_or_email, $size = 100) {
     $email = '';
     $user_id = '';
@@ -147,18 +120,24 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
     if ($user_id) {
         $user_avatar_url = get_user_meta($user_id, 'user_avatar', true);
         if ($user_avatar_url) {
-            return $user_avatar_url;
+            return $user_avatar_url; // ⬅️ 返回用户自定义头像地址
         }
     }
     if (stripos($email, "@qq.com")) {
         $qq = str_ireplace("@qq.com", "", $email);
         if (preg_match("/^\d+$/", $qq)) {
-            return "https://" . boxmoe_qqavatar_host() . "/headimg_dl?dst_uin=" . $qq . "&spec=100";
+            return "https://" . boxmoe_qqavatar_host() . "/headimg_dl?dst_uin=" . $qq . "&spec=100"; // ⬅️ 返回 QQ 头像地址
         }
     }
-    $hash = md5(strtolower(trim($email)));
-    return 'https://' . boxmoe_getavatar_host() . '/' . $hash;
+    return boxmoe_default_avatar_url(); // ⬅️ 最终统一回落到本地默认头像地址
 }
+
+// ⚙️ 后台默认头像选项追加
+add_filter('avatar_defaults', function($defaults) {
+    $url = boxmoe_default_avatar_url();
+    $defaults[$url] = 'Lolimeow 默认头像'; // ⬅️ 在“设置→讨论”默认头像列表中显示
+    return $defaults;
+});
 
 
 

@@ -2,6 +2,8 @@
 /**
  * @link https://www.boxmoe.com
  * @package lolimeow
+ * @author 专收爆米花
+ * @author 白木 <https://gl.baimu.live/864> (二次创作)
  */
 //boxmoe.com===安全设置=阻止直接访问主题文件
 if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
@@ -16,6 +18,13 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
     <?php boxmoe_description(); ?>
     <?php ob_start();wp_head();$wp_head_output = ob_get_clean();echo preg_replace('/\n/', "\n    ", trim($wp_head_output))."\n    ";?>
     <?php if (get_boxmoe('boxmoe_banner_height_switch')){ boxmoe_banner_height_load(); }?>
+    <?php 
+    // 🖼️ 自定义背景装饰图
+    $bg_image = get_boxmoe('boxmoe_background_image');
+    if (!empty($bg_image)) {
+        echo '<style>.body-background:after,.body-background:before {background-image: url("'.esc_url($bg_image).'") !important;}</style>';
+    }
+    ?>
 </head>
   <body>
   <?php if(get_boxmoe('boxmoe_page_loading_switch')): ?>  
@@ -74,11 +83,13 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
           <a class="navbar-brand mx-auto" href="<?php echo home_url(); ?>">
             <?php boxmoe_logo(); ?></a>
           <div class="d-flex d-lg-none align-items-center">
-            <form class="mobile-search-form" role="search" method="get" action="<?php echo home_url( '/' ) ?>"  >
-              <input type="search" class="mobile-search-input" placeholder="搜索..." aria-label="Search" name="s" value="<?php echo get_search_query(); ?>">
-              <button type="submit" class="mobile-search-btn">
-                <i class="fa fa-search"></i>
-              </button>
+            <form class="mobile-search-form search-form" role="search" method="get" action="<?php echo home_url( '/' ) ?>"  >
+              <div class="search-wrap">
+                <input type="search" class="search-input mobile-search-input" placeholder="搜索..." aria-label="Search" name="s" value="<?php echo get_search_query(); ?>">
+                <button type="submit" class="search-submit mobile-search-btn">
+                  <i class="fa fa-search"></i>
+                </button>
+              </div>
             </form>
             <button class="mobile-user-btn ms-2" type="button">
               <i class="fa fa-user"></i>
@@ -147,9 +158,9 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
               <?php endif; ?>
               <div class="lighting d-lg-none ">
             <ul>
-              <li data-bs-theme-value="light" aria-pressed="false" class="active">Light</li>
-              <li data-bs-theme-value="dark" aria-pressed="false">Dark</li>
-              <li data-bs-theme-value="auto" aria-pressed="true">Auto</li>
+              <li data-bs-theme-value="light" aria-pressed="false" class="active">亮色</li>
+              <li data-bs-theme-value="dark" aria-pressed="false">暗色</li>
+              <li data-bs-theme-value="auto" aria-pressed="true">跟随系统</li>
             </ul>
           </div>
             <div class="offcanvas-body pt-0 align-items-center">
@@ -177,19 +188,19 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
                     <li>
                         <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
                             <i class="fa fa-sun-o"></i>
-                            <span class="ms-2">Light</span>
+                            <span class="ms-2">亮色</span>
                         </button>
                     </li>
                     <li>
                         <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
                             <i class="fa fa-moon-o"></i>
-                            <span class="ms-2">Dark</span>
+                            <span class="ms-2">暗色</span>
                         </button>
                     </li>
                     <li>
                         <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
                             <i class="fa fa-adjust"></i>
-                            <span class="ms-2">Auto</span>
+                            <span class="ms-2">跟随系统</span>
                         </button>
                     </li>
                 </ul>
@@ -249,7 +260,10 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
       <div class="boxmoe_header_banner_img">
         <img src="<?php  boxmoe_banner_image(); ?>" alt="boxmoe_header_banner_img">
         <div class="site-main">
-          <h2 class="text-gradient"><?php echo boxmoe_banner_welcome(); ?></h2>
+          <?php $welcome_text = boxmoe_banner_welcome(true); 
+          if($welcome_text): ?>
+          <h2 class="boxmoe-typing-animation" data-text="<?php echo esc_attr($welcome_text); ?>"></h2>
+          <?php endif; ?>
           <?php echo boxmoe_banner_hitokoto(); ?>
         </div>
       </div>
@@ -273,33 +287,33 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
           <i class="fa fa-home"></i>
           <?php 
           if(is_home()) {
-              echo 'HOME';
+              echo get_boxmoe('boxmoe_slogan_home_text') ?: 'HOME';
           } elseif(is_category()) {
-              echo 'CATEGORY';
+              echo get_boxmoe('boxmoe_slogan_category_text') ?: 'CATEGORY';
           } elseif(is_tag()) {
-              echo 'TAG';
+              echo get_boxmoe('boxmoe_slogan_tag_text') ?: 'TAG';
           } elseif(is_search()) {
-              echo 'SEARCH';
+              echo get_boxmoe('boxmoe_slogan_search_text') ?: 'SEARCH';
           } elseif(is_404()) {
-              echo '404';
+              echo get_boxmoe('boxmoe_slogan_404_text') ?: '404';
           } elseif(is_author()) {
-              echo 'AUTHOR';
+              echo get_boxmoe('boxmoe_slogan_author_text') ?: 'AUTHOR';
           } elseif(is_date()) {
-              echo 'DATE';
+              echo get_boxmoe('boxmoe_slogan_date_text') ?: 'DATE';
           } elseif(is_archive()) {
-              echo 'ARCHIVE';
+              echo get_boxmoe('boxmoe_slogan_archive_text') ?: 'ARCHIVE';
           } elseif(is_single()){
-              echo 'POST';
+              echo get_boxmoe('boxmoe_slogan_post_text') ?: 'POST';
           } elseif(is_page()){
               $template_names = array(
-                  'page/p-links.php' => 'MY friend',
-                  'page/p-user_center.php' => 'user center',
+                  'page/p-links.php' => get_boxmoe('boxmoe_slogan_page_links_text') ?: 'MY friend',
+                  'page/p-user_center.php' => get_boxmoe('boxmoe_slogan_page_user_center_text') ?: 'user center',
               );
               $template = get_page_template_slug();
               if($template && isset($template_names[$template])) {
                   echo $template_names[$template];
               } else {
-                  echo 'PAGE';
+                  echo get_boxmoe('boxmoe_slogan_page_text') ?: 'PAGE';
               }
           } ?>
         </span>

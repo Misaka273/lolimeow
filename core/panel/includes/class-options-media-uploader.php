@@ -59,12 +59,17 @@ class Options_Framework_Media_Uploader {
 		if ( $value ) {
 			$class = ' has-file';
 		}
-		$output .= '<input id="' . $id . '" class="upload' . $class . '" type="text" name="'.$name.'" value="' . $value . '" placeholder="' . __('No file chosen', 'textdomain') .'" />' . "\n";
+		$output .= '<input id="' . $id . '" class="upload' . $class . '" type="text" name="'.$name.'" value="' . $value . '" placeholder="' . __('空空如也😂', 'textdomain') .'" />' . "\n";
 		if ( function_exists( 'wp_enqueue_media' ) ) {
 			if ( ( $value == '' ) ) {
 				$output .= '<input id="upload-' . $id . '" class="upload-button button" type="button" value="' . __( '上传', 'textdomain' ) . '" />' . "\n";
 			} else {
-				$output .= '<input id="remove-' . $id . '" class="remove-file button" type="button" value="' . __( '删除', 'textdomain' ) . '" />' . "\n";
+				if ($id == 'boxmoe_background_image' || $id == 'boxmoe_article_card_kanban_image') {
+					$output .= '<input id="upload-' . $id . '" class="upload-button button" type="button" value="' . __( '替换', 'textdomain' ) . '" />' . "\n";
+					$output .= '<input id="remove-' . $id . '" class="remove-file button" type="button" value="' . __( '删除', 'textdomain' ) . '" />' . "\n";
+				} else {
+					$output .= '<input id="remove-' . $id . '" class="remove-file button" type="button" value="' . __( '删除', 'textdomain' ) . '" />' . "\n";
+				}
 			}
 		} else {
 			$output .= '<p><i>' . __( 'Upgrade your version of WordPress for full media support.', 'textdomain' ) . '</i></p>';
@@ -78,7 +83,8 @@ class Options_Framework_Media_Uploader {
 
 		if ( $value != '' ) {
 			$remove = '<a class="remove-image">Remove</a>';
-			$image = preg_match( '/(^.*\.jpg|jpeg|png|gif|ico*)/i', $value );
+			// 🖼️ 支持SVG图片预览
+			$image = preg_match( '/(^.*\.jpg|jpeg|png|gif|ico|svg*)/i', $value );
 			if ( $image ) {
 				$output .= '<img src="' . $value . '" alt="" />' . $remove;
 			} else {

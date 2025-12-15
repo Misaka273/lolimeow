@@ -12,6 +12,10 @@ function optionscheck_change_santiziation() {
     add_filter( 'of_sanitize_textarea', 'custom_sanitize_textarea' );
 }
 function custom_sanitize_textarea($input) {
+    // 🥳 优化：如果有权限，跳过耗时的 wp_kses 检查，避免 502
+    if ( current_user_can( 'unfiltered_html' ) ) {
+        return $input;
+    }
     global $allowedposttags;
     $custom_allowedtags["embed"] = array(
         "src" => array(),
@@ -189,6 +193,9 @@ function of_sanitize_enum( $input, $option ) {
 	$output = '';
 	if ( array_key_exists( $input, $option['options'] ) ) {
 		$output = $input;
+	} elseif ( isset($option['id']) && $option['id'] == 'boxmoe_lolijump_img' ) {
+		// Allow custom values for boxmoe_lolijump_img to support newly added items
+		$output = $input;
 	}
 	return $output;
 }
@@ -217,6 +224,23 @@ function of_sanitize_background( $input ) {
 	return $output;
 }
 add_filter( 'of_sanitize_background', 'of_sanitize_background' );
+
+/**
+ * Sanitization for custom board list
+ */
+function of_sanitize_custom_board_list( $input ) {
+	$output = array();
+	if ( is_array( $input ) ) {
+		foreach ( $input as $key => $value ) {
+			if ( isset( $value['url'] ) && is_string($value['url']) && ! empty( $value['url'] ) ) {
+				$output[$key]['url'] = esc_url_raw( $value['url'] );
+				$output[$key]['name'] = isset($value['name']) ? sanitize_text_field($value['name']) : '';
+			}
+		}
+	}
+	return $output;
+}
+add_filter( 'of_sanitize_custom_board_list', 'of_sanitize_custom_board_list' );
 
 /**
  * Sanitization for background repeat
@@ -287,6 +311,27 @@ function of_sanitize_typography( $input, $option ) {
 	return $output;
 }
 add_filter( 'of_sanitize_typography', 'of_sanitize_typography', 10, 2 );
+
+function of_sanitize_fonts_table( $input, $option ) {
+    $output = array();
+    if ( is_array( $input ) ) {
+        foreach ( $input as $row ) {
+            $name = isset($row['name']) ? sanitize_text_field($row['name']) : '';
+            $woff2 = isset($row['woff2']) ? esc_url_raw($row['woff2']) : '';
+            $url = isset($row['url']) ? esc_url_raw($row['url']) : '';
+            if ($woff2 && $url) { $url = ''; }
+            if ( $name && ($woff2 || $url) ) {
+                $output[] = array(
+                    'name' => $name,
+                    'woff2' => $woff2,
+                    'url' => $url,
+                );
+            }
+        }
+    }
+    return $output;
+}
+add_filter( 'of_sanitize_fonts_table', 'of_sanitize_fonts_table', 10, 2 );
 
 /**
  * Sanitization for font size
