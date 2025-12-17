@@ -80,8 +80,8 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
             <span class="navbar-toggler-bar"></span>
             <span class="navbar-toggler-bar"></span>
           </button>
-          <a class="navbar-brand mx-auto" href="<?php echo home_url(); ?>">
-            <?php boxmoe_logo(); ?></a>
+          <a class="navbar-brand" href="<?php echo home_url(); ?>">
+              <?php boxmoe_logo(); ?></a>
           <div class="d-flex d-lg-none align-items-center">
             <form class="mobile-search-form search-form" role="search" method="get" action="<?php echo home_url( '/' ) ?>"  >
               <div class="search-wrap">

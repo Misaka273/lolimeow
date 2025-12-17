@@ -438,17 +438,13 @@ to {opacity:1;transform:translateY(0);}
     box-shadow: 0 6px 20px rgba(124,58,237,0.4);
     background: linear-gradient(135deg, #60A5FA, #7C3AED);
 }
-/* 🔦 导航扫光动画定义 */
-@keyframes shine {
-    0% {left: -100%;}
-    100% {left: 100%;}
-}
-.boxmoe_header .navbar .navbar-nav .nav-item .nav-link {font-size:0.9rem;font-weight:400;color:var(--bs-dark);padding:0.25rem 1rem;border-radius:20px;position:relative;z-index:1;transition:all 0.3s ease;border:1px solid transparent;overflow:hidden;} /* ⬅️ 增加 overflow:hidden 防止溢出 */
-.boxmoe_header .navbar .navbar-nav .nav-item .nav-link:before {content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:20px;z-index:-1;opacity:0;transition:opacity 0.3s ease;background: transparent;}
-.boxmoe_header .navbar .navbar-nav .nav-item .nav-link:after {content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(to right,transparent 0%,var(--nav-shine-color) 50%,transparent 100%);transform:skewX(-25deg);z-index:-1;pointer-events:none;} /* ⬅️ 扫光元素，颜色由变量控制 */
+
+.boxmoe_header .navbar .navbar-nav .nav-item .nav-link {font-size:0.9rem;font-weight:400;color:var(--bs-dark);padding:0.25rem 1rem;border-radius:20px;position:relative;z-index:1;transition:all 0.3s ease;border:1px solid transparent;}
+.boxmoe_header .navbar .navbar-nav .nav-item .nav-link:before {content:'';position:absolute;top:0;left:0;right:0;bottom:0;border-radius:20px;z-index:-1;opacity:0;transition:opacity 0.3s ease;}
+
 .boxmoe_header .navbar .navbar-nav .nav-item .nav-link:hover,.boxmoe_header .navbar .navbar-nav .nav-item .nav-link.active {color:var(--bs-dark);border:1px solid var(--bs-dark);}
 .boxmoe_header .navbar .navbar-nav .nav-item .nav-link:hover:before,.boxmoe_header .navbar .navbar-nav .nav-item .nav-link.active:before {opacity:1;}
-.boxmoe_header .navbar .navbar-nav .nav-item .nav-link:hover:after {animation:shine 0.75s;} /* ⬅️ 触发动画 */
+
 .boxmoe_header .navbar .navbar-nav .nav-item .nav-link i {margin-right:5px;color:var(--bs-dark);}
 .boxmoe_header .navbar .dropdown .nav-link.dropdown-toggle:after {color:var(--bs-dark);}
 .boxmoe_header .navbar-brand img,.boxmoe_header .offcanvas-header img {max-width:150px;height:auto;}
@@ -465,7 +461,7 @@ to {opacity:1;transform:translateY(0);}
 .boxmoe_header .search-input {position:absolute;right:40px;width:0;height:40px;padding:0;border:1px solid #e0e0e0;outline:none;border-radius:20px;background:var(--bs-white);transition:all 0.3s ease;opacity:0;visibility:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.1);}
 .boxmoe_header .search-input:focus {border-color:var(--bs-primary);}
 .boxmoe_header .search-btn {position:relative;width:40px;height:40px;border:none;border-radius:50%;background:transparent;cursor:pointer;z-index:1;}
-.boxmoe_header .search-btn i {color:var(--bs-dark);font-size:1.05rem;display:block;line-height:40px;text-align:center;}
+.boxmoe_header .search-btn i {color:var(--bs-dark);font-size:1.05rem;padding-top:3px;}
 .boxmoe_header .search-form.active .search-btn i {color:var(--bs-gray-900);}
 .boxmoe_header .search-form.active .search-input {width:240px;padding:0 40px 0 15px;opacity:1;visibility:visible;right:0;}
 .boxmoe_header .search-form.active .search-btn {background:transparent;transform:none;}
@@ -506,7 +502,7 @@ to {opacity:1;transform:translateY(0);}
 .boxmoe_header .panel-item {display:flex;align-items:center;padding:10px;color:var(--bs-gray-600);text-decoration:none;border-radius:8px;transition:background-color 0.3s;}
 .boxmoe_header .panel-item:hover {background-color:#f5f5f5;}
 .boxmoe_header .panel-item i {margin-right:10px;font-size:16px;}
-.boxmoe_header .nav-right-section {margin-left:auto;display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px;}
+.boxmoe_header .nav-right-section {margin-left:auto;display:flex;align-items:center;justify-content:flex-end;}
 .boxmoe_header .btn-close {width:1.5rem;height:1.5rem;padding:0.25rem;background:transparent;border:2px solid var(--bs-dark);border-radius:50%;opacity:1;transition:all 0.3s ease;position:relative;}
 .boxmoe_header .btn-close:hover {transform:rotate(90deg);background-color:var(--bs-dark);}
 .boxmoe_header .btn-close:hover::before,.boxmoe_header .btn-close:hover::after {background-color:var(--bs-white);}
@@ -521,10 +517,8 @@ to {opacity:1;transform:translateY(0);}
 .boxmoe_header .mobile-user-wrapper .user-login-wrap,.boxmoe_header .mobile-user-wrapper .user-reg-wrap {text-align:center;}
 .boxmoe_header .mobile-user-wrapper .user-login,.boxmoe_header .mobile-user-wrapper .user-reg {padding:.3em .8em;font-size:0.9em;color:var(--bs-white);background-color:#04040452;display:inline-block;border-radius:4px;min-width:60px;}
 .boxmoe_header .mobile-user-wrapper .divider {position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:15px;height:15px;line-height:15px;text-align:center;background:var(--bs-white);color:var(--bs-success);border-radius:50%;font-size:11px;border:2px solid #e7e7e7;z-index:11;}
-.boxmoe_header .mobile-search-btn {border:none;background:transparent;padding:8px;color:var(--bs-gray-900);z-index:1;display:flex;align-items:center;justify-content:center;}
-
-.boxmoe_header .mobile-search-btn i {font-size:0.9rem;}
-.boxmoe_header .mobile-search-form {position:relative;margin-right:10px;}
+.boxmoe_header .mobile-search-btn {border:none;background:transparent;padding:8px;color:var(--bs-gray-900);position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:1;}
+.boxmoe_header .mobile-search-form {position:relative;height:40px;margin-right:10px;}
 .boxmoe_header .mobile-search-input {width:0;height:40px;padding:0;border:1px solid #e0e0e0;outline:none;border-radius:20px;background:var(--bs-white);transition:all 0.3s ease;opacity:0;padding-right:40px;}
 .boxmoe_header .mobile-search-form.active .mobile-search-input {width:240px;padding:0 40px 0 15px;opacity:1;background:var(--bs-white);border:1px solid #e0e0e0;}
 .boxmoe_header .mobile-search-submit {position:absolute;right:0;width:40px;height:40px;border:none;background:transparent;cursor:pointer;display:none !important;}
@@ -543,9 +537,9 @@ to {opacity:1;transform:translateY(0);}
 .boxmoe_header .mobile-logged-menu .mobile-menu-item i {margin-right:12px;width:24px;height:24px;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.04);border-radius:8px;font-size:14px;color:var(--bs-primary);}
 .boxmoe_header .mobile-logged-menu .mobile-menu-item span {font-size:15px;font-weight:500;letter-spacing:0.3px;}
 .boxmoe_header .mobile-user-panel.closing {transform:translateY(-10%);opacity:0;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
-.boxmoe_header .lighting {background-color:#fff;padding:2px;border-radius:50px;border:1px solid #8183ff;transition:background-color .4s cubic-bezier(0.345,0.045,0.345,1);margin:0 1rem;min-width:200px;}
-.boxmoe_header .lighting ul {list-style:none;padding:0;margin:0;display:flex;gap:5px;flex-wrap:nowrap;}
-.boxmoe_header .lighting li {padding:4px 10px;border-radius:6px;cursor:pointer;font-size:12px;transition:all 0.3s ease;border-radius:50px;flex:1;text-align:center;white-space:nowrap;}
+.boxmoe_header .lighting {background-color:#fff;padding:2px;border-radius:50px;border:1px solid #8183ff;transition:background-color .4s cubic-bezier(0.345,0.045,0.345,1);margin:0 3.5rem;}
+.boxmoe_header .lighting ul {list-style:none;padding:0;margin:0;display:flex;gap:15px;}
+.boxmoe_header .lighting li {padding:4px 15px;border-radius:6px;cursor:pointer;font-size:12px;transition:all 0.3s ease;border-radius:50px}
 .boxmoe_header .lighting li.active {background-color:var(--bs-primary);color:#fff;}
 [data-bs-theme="dark"] .boxmoe_header .lighting li:not(.active) {color:var(--bs-gray-500);}
 .boxmoe_header_banner {height:80vh;background:#33333330;background-position:30% 30%;position:relative;overflow:hidden}
@@ -617,14 +611,102 @@ background: rgba(0, 0, 0, .25);}
         width: 30px;
     }
 }
-/* 1199px以下尺寸，导航栏优化 */
-@media (max-width:1199px) and (min-width:986px) {
-    /* 允许导航菜单换行，防止文字分行 */
+/* 导航栏容器样式调整 */
+.boxmoe_header .navbar .container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+}
+
+/* 确保Logo在最左边 */
+.boxmoe_header .navbar-brand {
+    margin-left: 20px !important;
+    margin-right: auto !important;
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+    order: 1 !important;
+}
+
+/* 确保右侧元素在最右边 */
+.boxmoe_header .d-flex.d-lg-none {
+    order: 3 !important;
+    margin-right: 20px !important;
+}
+
+/* 大屏幕下的导航布局 */
+@media (min-width: 992px) {
+    /* 确保Logo在最左边 */
+    .boxmoe_header .navbar-brand {
+        margin-left: 20px !important;
+        margin-right: auto !important;
+        order: 1 !important;
+    }
+    
+    /* 导航菜单居中 */
+    .boxmoe_header .navbar-nav {
+        margin: 0 auto !important;
+        order: 2 !important;
+    }
+    
+    /* 右侧区域在最右边 */
+    .boxmoe_header .nav-right-section {
+        margin-right: 20px !important;
+        order: 3 !important;
+        margin-left: auto !important;
+    }
+}
+
+/* Logo 和用户信息区域缩进 */
+.boxmoe_header .navbar-toggler {
+    margin-left: 20px !important;
+}
+
+.boxmoe_header .navbar-brand {
+    margin-left: 20px !important;
+}
+
+.boxmoe_header .nav-right-section {
+    margin-right: 20px !important;
+}
+
+.boxmoe_header .d-flex.d-lg-none {
+    margin-right: 20px !important;
+}
+
+/* 992-1199px尺寸，导航栏优化 */
+@media (min-width:992px) and (max-width:1199px) {
+    /* 调整容器布局，允许换行并控制元素排列 */
+    .boxmoe_header .navbar .container {
+        flex-wrap: wrap !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+    
+    /* Logo 左侧显示 */
+    .boxmoe_header .navbar-brand {
+        position: static !important;
+        left: auto !important;
+        transform: none !important;
+        margin: 0 20px !important;
+        order: 1 !important;
+        flex: 0 0 auto !important;
+        z-index: 10 !important;
+    }
+    
+    /* 导航菜单自动换行 */
     .boxmoe_header .navbar-nav {
         flex-wrap: wrap !important;
         gap: 0.5rem !important;
         justify-content: center !important;
         align-items: center !important;
+        order: 2 !important;
+        width: 100% !important;
+        margin: 0.5rem 0 !important;
     }
     
     /* 调整导航项间距和内边距，防止文字分行 */
@@ -639,41 +721,29 @@ background: rgba(0, 0, 0, .25);}
         font-size: 0.85rem !important;
     }
     
-    /* 修复991px尺寸下导航按钮被挤压变形的问题 */
-    .boxmoe_header .navbar-toggler,
-    .boxmoe_header .offcanvas-nav-btn {
-        width: 36px !important;
-        height: 36px !important;
-        flex-shrink: 0 !important;
-        flex-grow: 0 !important;
-        min-width: 36px !important;
-        min-height: 36px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        align-items: center !important;
-        background: transparent !important;
-        border: none !important;
-        outline: none !important;
-        cursor: pointer !important;
-        padding: 8px !important;
-        z-index: 10000 !important;
-        position: relative !important;
+    /* 右侧搜索和用户菜单 */
+    .boxmoe_header .nav-right-section {
+        order: 3 !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        justify-content: flex-end !important;
     }
     
-    /* 明确指定991px尺寸的线条样式，解决线条不显示的问题 */
+    /* 隐藏汉堡菜单按钮，在这个尺寸范围内不显示 */
+    .boxmoe_header .navbar-toggler,
+    .boxmoe_header .offcanvas-nav-btn {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+    }
+    
+    /* 隐藏汉堡菜单线条，在这个尺寸范围内不显示 */
     .boxmoe_header .navbar-toggler .navbar-toggler-bar,
     .boxmoe_header .offcanvas-nav-btn .navbar-toggler-bar {
-        display: block !important;
-        width: 20px !important;
-        height: 2px !important;
-        margin: 3px 0 !important;
-        background: var(--bs-dark) !important;
-        position: relative !important;
-        z-index: 9999 !important;
-        transition: all 0.3s ease !important;
-        border-radius: 1px !important;
-        pointer-events: none !important;
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
     }
     
     /* 修复深色模式下的线条颜色 */
@@ -694,21 +764,27 @@ background: rgba(0, 0, 0, .25);}
         background: var(--pure-white) !important;
     }
     
-    /* 确保按钮位置正确，不被挤压 */
-    .boxmoe_header .navbar-brand {
-        position: static !important;
-        transform: none !important;
-        margin: 0 auto !important;
-        order: 2 !important;
+    /* 显示搜索框和主题切换按钮在右侧，覆盖全局的隐藏样式 */
+    .boxmoe_header .search-box {
+        display: block !important;
     }
     
-    /* 调整按钮和搜索框的顺序 */
-    .boxmoe_header .navbar-toggler {
-        order: 1 !important;
-    }
-    
-    .boxmoe_header .d-flex.d-lg-none {
+    /* 右侧搜索和用户菜单 */
+    .boxmoe_header .nav-right-section {
+        display: flex !important;
         order: 3 !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
+        position: relative !important;
+        z-index: 10 !important;
+        align-items: center !important;
+        justify-content: flex-end !important;
+    }
+    
+    /* 调整移动端搜索框的顺序 */
+    .boxmoe_header .d-flex.d-lg-none {
+        order: 4 !important;
+        margin-left: auto !important;
     }
 }
 
@@ -945,7 +1021,7 @@ background: rgba(0, 0, 0, .25);}
 .boxmoe_header .dropdown-submenu .dropdown-menu.show {display:block;position:static;margin-left:1rem;}
 .boxmoe_header .dropdown-submenu .dropdown-toggle::after {transform:rotate(-90deg);}
 .boxmoe_header .dropdown-submenu .dropdown-toggle[aria-expanded="true"]::after {transform:rotate(0deg);}
-.boxmoe_header .navbar-brand {position:absolute;left:50%;transform:translateX(-50%);}
+.boxmoe_header .navbar-brand {position:static;left:auto;transform:none;}
 .boxmoe_header .search-box {display:none !important;}
 .boxmoe_header .nav-right-section {display:none !important;}
 .boxmoe_header .logged-user-wrapper {display:none !important;}

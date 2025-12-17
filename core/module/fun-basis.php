@@ -272,7 +272,7 @@ function boxmoe_nav_menu(){
     $menu_args = [
         'theme_location' => 'boxmoe-menu',
         'container' => false,
-        'menu_class' => 'navbar-nav mx-auto align-items-lg-center',
+        'menu_class' => 'navbar-nav align-items-lg-center',
         'walker' => new bootstrap_5_wp_nav_menu_walker(),
         'depth' => 3,
         'fallback_cb' => false

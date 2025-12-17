@@ -11,7 +11,18 @@ function boxmoe_user_center_link_page(){
     if($boxmoe_user_center_link_page){
         return get_the_permalink($boxmoe_user_center_link_page);
     }else{
-        return false;
+        // 🔍 自动查找使用 p-user_center.php 模板的用户中心页面
+        $user_center_pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page/p-user_center.php'
+        ));
+        if(!empty($user_center_pages)){
+            // 🔗 返回找到的第一个用户中心页面的链接
+            return get_the_permalink($user_center_pages[0]);
+        }else{
+            // 🔗 回退到默认用户中心页面链接
+            return home_url('/user-center');
+        }
     }
 }
 
@@ -21,18 +32,40 @@ function boxmoe_sign_up_link_page(){
     if($boxmoe_sign_up_link_page){
         return get_the_permalink($boxmoe_sign_up_link_page);
     }else{
-        return false;
+        // 🔍 自动查找使用 p-signup.php 模板的注册页面
+        $signup_pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page/p-signup.php'
+        ));
+        if(!empty($signup_pages)){
+            // 🔗 返回找到的第一个注册页面的链接
+            return get_the_permalink($signup_pages[0]);
+        }else{
+            // 🔗 回退到默认注册页面链接
+            return home_url('/signup');
+        }
     }
 }
 
 
 // 登录页面链接设置--------------------------boxmoe.com--------------------------
 function boxmoe_sign_in_link_page(){
-     $boxmoe_sign_in_link_page = get_boxmoe('boxmoe_sign_in_link_page');
+    $boxmoe_sign_in_link_page = get_boxmoe('boxmoe_sign_in_link_page');
     if($boxmoe_sign_in_link_page){
         return get_the_permalink($boxmoe_sign_in_link_page);
     }else{
-        return false;
+        // 🔍 自动查找使用 p-signin.php 模板的登录页面
+        $login_pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page/p-signin.php'
+        ));
+        if(!empty($login_pages)){
+            // 🔗 返回找到的第一个登录页面的链接
+            return get_the_permalink($login_pages[0]);
+        }else{
+            // 🔗 回退到默认登录页面链接
+            return home_url('/signin');
+        }
     }
 }
 
@@ -42,7 +75,18 @@ function boxmoe_reset_password_link_page(){
     if($boxmoe_reset_password_link_page){
         return get_the_permalink($boxmoe_reset_password_link_page);
     }else{
-        return false;
+        // 🔍 自动查找使用 p-reset_password.php 模板的重置密码页面
+        $reset_password_pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page/p-reset_password.php'
+        ));
+        if(!empty($reset_password_pages)){
+            // 🔗 返回找到的第一个重置密码页面的链接
+            return get_the_permalink($reset_password_pages[0]);
+        }else{
+            // 🔗 回退到默认重置密码页面链接
+            return home_url('/reset-password');
+        }
     }
 }
 
@@ -415,3 +459,38 @@ function boxmoe_generate_custom_uid() {
     } while (!empty($users) || $system_user);
     return $uid;
 }
+
+// 🔒 修复登录失败重定向问题
+function boxmoe_login_failed_redirect() {
+    $login_page = boxmoe_sign_in_link_page(); // ⬅️ 获取主题设置的自定义登录页链接
+    if ($login_page) {
+        wp_redirect($login_page); // ⬅️ 重定向到自定义登录页面
+    } else {
+        wp_redirect(home_url('/wp-login.php')); // ⬅️ 回退到默认登录页面
+    }
+    exit;
+}
+add_action('wp_login_failed', 'boxmoe_login_failed_redirect'); // ⬅️ 挂载登录失败钩子
+
+// 🔒 修复认证失败重定向问题
+function boxmoe_authenticate_failed_redirect($user, $username, $password) {
+    if (is_wp_error($user)) {
+        $login_page = boxmoe_sign_in_link_page(); // ⬅️ 获取主题设置的自定义登录页链接
+        if ($login_page) {
+            // 🔗 检查是否有 redirect_to 参数，如果有则附加到重定向 URL 中
+            if (isset($_REQUEST['redirect_to'])) {
+                $redirect_to = urlencode($_REQUEST['redirect_to']);
+                // 检查 redirect_to 是否会导致循环
+                if (strpos(urldecode($redirect_to), 'wp-login.php') === false) {
+                    $login_page = add_query_arg('redirect_to', $redirect_to, $login_page);
+                }
+            }
+            // 添加登录失败参数，方便前端显示错误信息
+            $login_page = add_query_arg('login', 'failed', $login_page);
+            wp_redirect($login_page); // ⬅️ 重定向到自定义登录页面
+            exit;
+        }
+    }
+    return $user;
+}
+add_filter('authenticate', 'boxmoe_authenticate_failed_redirect', 30, 3); // ⬅️ 挂载认证过滤器
