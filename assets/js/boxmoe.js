@@ -489,6 +489,398 @@ function initHitokoto() {
         })
 }
 
+// 🔐 登录状态管理
+const LoginStatusManager = (() => {
+    // 配置项
+    const config = {
+        checkInterval: 30000, // 30秒检查一次
+        retryAttempts: 3, // 重试次数
+        retryDelay: 2000, // 重试延迟
+        localStorageKey: 'boxmoe_login_status', // 本地存储键名
+        localStorageTTL: 604800000 // 本地存储有效期（7天）
+    };
+    
+    // 状态
+    let isChecking = false;
+    let currentAttempt = 0;
+    
+    /**
+     * 从本地存储获取登录状态
+     */
+    const getLoginStatusFromLocalStorage = () => {
+        try {
+            const stored = localStorage.getItem(config.localStorageKey);
+            if (!stored) {
+                return null;
+            }
+            
+            const data = JSON.parse(stored);
+            const now = Date.now();
+            
+            // 检查是否过期
+            if (now - data.timestamp > config.localStorageTTL) {
+                localStorage.removeItem(config.localStorageKey);
+                return null;
+            }
+            
+            return data;
+        } catch (error) {
+            console.warn('从本地存储获取登录状态失败:', error);
+            localStorage.removeItem(config.localStorageKey);
+            return null;
+        }
+    };
+    
+    /**
+     * 将登录状态保存到本地存储
+     */
+    const saveLoginStatusToLocalStorage = (isLoggedIn, userInfo = {}) => {
+        try {
+            const data = {
+                is_logged_in: isLoggedIn,
+                user_info: userInfo,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(config.localStorageKey, JSON.stringify(data));
+        } catch (error) {
+            console.warn('将登录状态保存到本地存储失败:', error);
+        }
+    };
+    
+    /**
+     * 清除本地存储的登录状态
+     */
+    const clearLoginStatusFromLocalStorage = () => {
+        try {
+            localStorage.removeItem(config.localStorageKey);
+        } catch (error) {
+            console.warn('清除本地存储的登录状态失败:', error);
+        }
+    };
+    
+    /**
+     * 检查登录状态
+     */
+    const checkLoginStatus = async () => {
+        if (isChecking || !window.ajax_object) {
+            return;
+        }
+        
+        isChecking = true;
+        currentAttempt++;
+        
+        try {
+            const response = await fetch(ajax_object.ajaxurl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                body: new URLSearchParams({
+                    action: 'boxmoe_check_login_status',
+                    nonce: ajax_object.nonce
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                updateLoginUI(data.data.is_logged_in, data.data.user_info);
+                saveLoginStatusToLocalStorage(data.data.is_logged_in, data.data.user_info);
+                currentAttempt = 0; // 重置重试次数
+            } else {
+                throw new Error(data.data?.message || '登录状态检查失败');
+            }
+        } catch (error) {
+            console.warn('登录状态检查失败:', error);
+            
+            // 重试机制
+            if (currentAttempt < config.retryAttempts) {
+                setTimeout(() => {
+                    checkLoginStatus();
+                }, config.retryDelay);
+            } else {
+                // 重试次数耗尽，使用本地存储状态
+                console.warn('登录状态检查重试次数耗尽，使用本地存储状态');
+                const storedStatus = getLoginStatusFromLocalStorage();
+                if (storedStatus) {
+                    updateLoginUI(storedStatus.is_logged_in, storedStatus.user_info);
+                }
+                currentAttempt = 0;
+            }
+        } finally {
+            isChecking = false;
+        }
+    };
+    
+    /**
+     * 更新登录UI
+     */
+    const updateLoginUI = (isLoggedIn, userInfo = {}) => {
+        // 检查本地状态
+        const currentIsLoggedIn = window.ajax_object?.is_user_logged_in === 'true';
+        
+        // 如果状态没有变化，跳过更新
+        if (currentIsLoggedIn === isLoggedIn) {
+            return;
+        }
+        
+        // 更新全局状态
+        if (window.ajax_object) {
+            window.ajax_object.is_user_logged_in = isLoggedIn ? 'true' : 'false';
+        }
+        
+        // 重新渲染登录相关UI
+        renderLoginUI(isLoggedIn, userInfo);
+        
+        // 如果从登录状态变为未登录状态，清除本地存储
+        if (currentIsLoggedIn && !isLoggedIn) {
+            clearLoginStatusFromLocalStorage();
+        }
+    };
+    
+    /**
+     * 渲染登录UI
+     */
+    const renderLoginUI = (isLoggedIn, userInfo) => {
+        try {
+            // 处理移动端用户面板
+            const mobileUserBtn = document.querySelector('.mobile-user-btn');
+            const mobileUserPanels = document.querySelectorAll('.mobile-user-panel');
+            
+            if (mobileUserPanels.length > 0) {
+                // 移除所有现有面板
+                mobileUserPanels.forEach(panel => {
+                    try {
+                        panel.remove();
+                    } catch (error) {
+                        console.warn('移除移动端用户面板失败:', error);
+                    }
+                });
+                
+                // 创建新的用户面板
+                const newPanel = document.createElement('div');
+                newPanel.className = 'mobile-user-panel';
+                
+                try {
+                    if (isLoggedIn) {
+                        newPanel.innerHTML = `
+                            <div class="user-panel-content">
+                                <div class="mobile-user-wrapper">
+                                    <div class="mobile-logged-menu">
+                                        <a href="${getUserCenterLink()}" class="mobile-menu-item">
+                                            <i class="fa fa-user-circle"></i>
+                                            <span>会员中心</span></a>
+                                            ${isAdmin() ? `
+                                        <a href="${admin_url()}" class="mobile-menu-item">
+                                            <i class="fa fa-cog"></i>
+                                            <span>后台管理</span></a>
+                                            ` : ''}
+                                        <a href="${getLogoutUrl()}" class="mobile-menu-item">
+                                            <i class="fa fa-sign-out"></i>
+                                            <span>注销登录</span></a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        newPanel.innerHTML = `
+                            <div class="user-panel-content">
+                                <div class="mobile-user-wrapper">
+                                    <div class="mobile-logged-menu">
+                                    <div class="user-wrapper d-lg-flex">
+                                <div class="user-login-wrap">
+                                <a href="${getLoginLink()}" class="user-login">
+                                <span class="login-text">登录</span></a>
+                                </div>
+                                <span class="divider">or</span>
+                                <div class="user-reg-wrap">
+                                <a href="${getRegisterLink()}" class="user-reg">
+                                <span class="reg-text">注册</span></a></div>
+                                <img src="${ajax_object.themeurl}/assets/images/up-new-iocn.png" class="new-tag" alt="up-new-iocn">
+                                </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch (error) {
+                    console.error('创建用户面板HTML失败:', error);
+                    return;
+                }
+                
+                if (mobileUserBtn && mobileUserBtn.parentElement) {
+                    try {
+                        mobileUserBtn.parentElement.appendChild(newPanel);
+                    } catch (error) {
+                        console.warn('添加移动端用户面板失败:', error);
+                    }
+                }
+            }
+            
+            // 处理桌面端用户面板
+            const desktopUserWrappers = document.querySelectorAll('.user-wrapper, .logged-user-wrapper');
+            
+            if (desktopUserWrappers.length > 0) {
+                // 移除所有现有面板
+                desktopUserWrappers.forEach(wrapper => {
+                    try {
+                        wrapper.remove();
+                    } catch (error) {
+                        console.warn('移除桌面端用户面板失败:', error);
+                    }
+                });
+                
+                // 创建新的桌面用户面板
+                const navRightSection = document.querySelector('.nav-right-section');
+                if (navRightSection) {
+                    const newWrapper = document.createElement('div');
+                    
+                    try {
+                        if (isLoggedIn) {
+                            newWrapper.className = 'logged-user-wrapper d-none d-lg-flex';
+                            newWrapper.innerHTML = `
+                                <div class="user-info-wrap d-flex align-items-center dropdown">
+                                    <a href="${getUserCenterLink()}" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <div class="user-avatar">
+                                        <img src="${ajax_object.themeurl}/assets/images/loading.gif" data-src="${getUserAvatarUrl(userInfo.user_id || 0)}" alt="avatar" class="img-fluid rounded-3 lazy">
+                                    </div>
+                                        <div class="user-info">
+                                            <div class="user-name">${userInfo.display_name || '用户'}</div>
+                                            <div class="user-email">${userInfo.user_email || ''}</div>
+                                    </div>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                      <li>
+                                        <a class="dropdown-item" href="${getUserCenterLink()}">
+                                          <i class="fa fa-user-circle"></i>会员中心</a>
+                                      </li>
+                                      ${isAdmin() ? `
+                                      <li>
+                                        <a class="dropdown-item" target="_blank" href="${admin_url()}">
+                                          <i class="fa fa-cog"></i>后台管理</a>
+                                      </li>
+                                      ` : ''}
+                                      <li>
+                                        <a class="dropdown-item" href="${getLogoutUrl()}">
+                                          <i class="fa fa-sign-out"></i>注销登录</a>
+                                      </li>
+                                    </ul>
+                                </div>
+                            `;
+                        } else {
+                            newWrapper.className = 'user-wrapper d-none d-lg-flex';
+                            newWrapper.innerHTML = `
+                                <div class="user-login-wrap">
+                                <a href="${getLoginLink()}" class="user-login">
+                                <span class="login-text">登录</span></a>
+                                </div>
+                                <span class="divider">or</span>
+                                <div class="user-reg-wrap">
+                                <a href="${getRegisterLink()}" class="user-reg">
+                                <span class="reg-text">注册</span></a></div>
+                                <img src="${ajax_object.themeurl}/assets/images/up-new-iocn.png" class="new-tag" alt="up-new-iocn">
+                            `;
+                        }
+                    } catch (error) {
+                        console.error('创建桌面用户面板HTML失败:', error);
+                        return;
+                    }
+                    
+                    try {
+                        navRightSection.appendChild(newWrapper);
+                    } catch (error) {
+                        console.warn('添加桌面端用户面板失败:', error);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('渲染登录UI失败:', error);
+        }
+    };
+    
+    /**
+     * 辅助函数：获取用户中心链接
+     */
+    const getUserCenterLink = () => {
+        return typeof boxmoe_user_center_link_page === 'function' ? boxmoe_user_center_link_page() : '#';
+    };
+    
+    /**
+     * 辅助函数：获取登录链接
+     */
+    const getLoginLink = () => {
+        return typeof boxmoe_sign_in_link_page === 'function' ? boxmoe_sign_in_link_page() : '#';
+    };
+    
+    /**
+     * 辅助函数：获取注册链接
+     */
+    const getRegisterLink = () => {
+        return typeof boxmoe_sign_up_link_page === 'function' ? boxmoe_sign_up_link_page() : '#';
+    };
+    
+    /**
+     * 辅助函数：获取注销链接
+     */
+    const getLogoutUrl = () => {
+        return typeof wp_logout_url === 'function' ? wp_logout_url(home_url()) : '#';
+    };
+    
+    /**
+     * 辅助函数：获取用户头像URL
+     */
+    const getUserAvatarUrl = (userId) => {
+        return typeof boxmoe_get_avatar_url === 'function' ? boxmoe_get_avatar_url(userId, 100) : `${ajax_object.themeurl}/assets/images/avatar.png`;
+    };
+    
+    /**
+     * 辅助函数：检查是否为管理员
+     */
+    const isAdmin = () => {
+        // 简单检查，实际应用中应通过服务器返回
+        return false;
+    };
+    
+    /**
+     * 初始化登录状态管理
+     */
+    const init = () => {
+        // 初始化时首先检查本地存储状态
+        const storedStatus = getLoginStatusFromLocalStorage();
+        if (storedStatus) {
+            updateLoginUI(storedStatus.is_logged_in, storedStatus.user_info);
+        }
+        
+        // 初始AJAX检查
+        checkLoginStatus();
+        
+        // 定期检查
+        setInterval(() => {
+            checkLoginStatus();
+        }, config.checkInterval);
+        
+        // 页面可见性变化时检查
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                checkLoginStatus();
+            }
+        });
+        
+        // 监听网络状态变化
+        window.addEventListener('online', () => {
+            console.log('网络连接恢复，检查登录状态');
+            checkLoginStatus();
+        });
+    };
+    
+    return {
+        init,
+        checkLoginStatus
+    };
+})();
+
 // 点赞功能初始化
 function initPostLikes() {
     document.querySelectorAll('.like-btn').forEach(btn => {
@@ -1625,6 +2017,25 @@ function initVideoPlayer() {
     });
 }
 
+// 🚀 回到顶部功能实现
+function initBackToTop() {
+    // 使用事件委托来确保即使元素动态生成也能正常工作
+    document.addEventListener('click', function(e) {
+        // 检查点击的是否是看板元素或其子元素
+        const target = e.target.closest('#lolijump');
+        if (target) {
+            e.preventDefault();
+            // 使用setTimeout确保事件冒泡完成
+            setTimeout(() => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 0);
+        }
+    });
+}
+
 // DOM加载完成后初始化
 document.addEventListener("DOMContentLoaded", () => {
     const run = fn => { try { fn(); } catch(_) {} };
@@ -1646,6 +2057,7 @@ document.addEventListener("DOMContentLoaded", () => {
     run(initRunningDays);
     run(initTaskList);
     run(initVideoPlayer);
+    run(initBackToTop);
     (function initGifFix(){
         try{
             const imgs = document.querySelectorAll('.single-content img');
@@ -1813,5 +2225,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     type(); // ⬅️ 启动动画
+});
+
+// 🔐 初始化登录状态管理
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof LoginStatusManager !== 'undefined') {
+        LoginStatusManager.init();
+    }
 });
 

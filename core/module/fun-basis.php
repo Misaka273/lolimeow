@@ -250,7 +250,7 @@ function boxmoe_load_assets_footer(){?>
           </span>
           <?php endif; ?>
           <?php if(get_boxmoe('boxmoe_footer_dataquery_switch')): ?>
-          <span><?php echo get_num_queries(); ?> queries in <?php echo timer_stop(0,3); ?> s</span>
+          <span class="query-time"><span style="color: orange;"><?php echo get_num_queries(); ?></span><span style="color: purple;"> 次查询耗时</span> <span style="color: lightcoral;"><?php echo timer_stop(0,3); ?></span> <span style="color: blue;">秒</span></span>
           <?php endif; ?>
           <span style="display:none;"><?php echo get_boxmoe('boxmoe_trackcode'); ?></span>
            </div>
@@ -379,15 +379,229 @@ function boxmoe_border_setting(){
 
 
 
-// 搜索结果排除所有页面--------------------------boxmoe.com--------------------------
+// 🔍 搜索结果排除所有页面--------------------------boxmoe.com--------------------------
 function boxmoe_search_exclude_pages($query) {
-    if ($query->is_search) {
+    if ($query->is_search && $query->is_main_query() && !is_admin()) {
         $query->set('post_type', 'post');
     }
     return $query;
 }
 add_filter('pre_get_posts', 'boxmoe_search_exclude_pages');
 
+// 🔐 AJAX检查登录状态--------------------------boxmoe.com--------------------------
+function boxmoe_check_login_status() {
+    // 验证nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'boxmoe_ajax_nonce')) {
+        wp_send_json_error(array('message' => '无效的请求'));
+    }
+    
+    // 返回登录状态
+    $is_logged_in = is_user_logged_in();
+    
+    $response = array(
+        'is_logged_in' => $is_logged_in,
+        'user_info' => array()
+    );
+    
+    // 如果登录，返回用户信息
+    if ($is_logged_in) {
+        $user = wp_get_current_user();
+        $response['user_info'] = array(
+            'display_name' => $user->display_name,
+            'user_email' => $user->user_email,
+            'user_id' => $user->ID
+        );
+    }
+    
+    wp_send_json_success($response);
+}
+add_action('wp_ajax_boxmoe_check_login_status', 'boxmoe_check_login_status');
+add_action('wp_ajax_nopriv_boxmoe_check_login_status', 'boxmoe_check_login_status');
+
+// 🔐 阻止登录状态缓存--------------------------boxmoe.com--------------------------
+function boxmoe_no_cache_for_logged_in() {
+    if (is_user_logged_in()) {
+        // 阻止页面缓存
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
+        header('Surrogate-Control: no-store');
+        header('Vary: Cookie'); // 确保不同登录状态返回不同缓存
+    }
+}
+add_action('wp_headers', 'boxmoe_no_cache_for_logged_in');
+
+// 🔐 确保登录状态相关的AJAX请求不被缓存--------------------------boxmoe.com--------------------------
+function boxmoe_ajax_no_cache_headers() {
+    // 仅对登录状态检查请求添加特殊缓存控制
+    if (isset($_POST['action']) && $_POST['action'] === 'boxmoe_check_login_status') {
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
+    }
+}
+add_action('wp_ajax_headers', 'boxmoe_ajax_no_cache_headers');
+add_action('wp_ajax_nopriv_headers', 'boxmoe_ajax_no_cache_headers');
+
+// 🔐 防止CDN缓存登录用户内容--------------------------boxmoe.com--------------------------
+function boxmoe_cdn_no_cache_for_logged_in() {
+    if (is_user_logged_in()) {
+        // 添加CDN缓存控制头
+        header('CDN-Cache-Control: no-cache');
+        header('X-Robots-Tag: noarchive');
+    }
+}
+add_action('wp_headers', 'boxmoe_cdn_no_cache_for_logged_in');
+
+
+// 🔐 登录状态测试短代码--------------------------boxmoe.com--------------------------
+function boxmoe_login_status_test_shortcode() {
+    ob_start();
+    ?>
+    <div class="login-status-test">
+        <h3>🔐 登录状态测试</h3>
+        <div class="test-section">
+            <h4>当前登录状态：</h4>
+            <p id="current-login-status">
+                <?php echo is_user_logged_in() ? '✅ 已登录' : '❌ 未登录'; ?>
+            </p>
+        </div>
+        <div class="test-section">
+            <h4>用户信息：</h4>
+            <p id="current-user-info">
+                <?php 
+                if (is_user_logged_in()) {
+                    $user = wp_get_current_user();
+                    echo "用户名：{$user->display_name} | 邮箱：{$user->user_email}";
+                } else {
+                    echo '未登录';
+                }
+                ?>
+            </p>
+        </div>
+        <div class="test-section">
+            <h4>测试按钮：</h4>
+            <button id="test-login-status" class="btn btn-primary">
+                🔄 检查登录状态
+            </button>
+            <button id="clear-local-storage" class="btn btn-secondary ml-2">
+                🗑️ 清除本地存储
+            </button>
+        </div>
+        <div class="test-section">
+            <h4>测试日志：</h4>
+            <div id="test-log" class="test-log"></div>
+        </div>
+    </div>
+    <style>
+        .login-status-test {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .test-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .test-log {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 4px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .test-log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #4a5568;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 测试日志功能
+            function addTestLog(message) {
+                const logDiv = document.getElementById('test-log');
+                const entry = document.createElement('div');
+                entry.className = 'test-log-entry';
+                entry.innerHTML = `<span style="color: #4299e1;">${new Date().toLocaleTimeString()}</span>: ${message}`;
+                logDiv.appendChild(entry);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+            
+            // 测试登录状态检查
+            document.getElementById('test-login-status').addEventListener('click', function() {
+                addTestLog('🔄 开始检查登录状态...');
+                
+                if (typeof LoginStatusManager !== 'undefined') {
+                    LoginStatusManager.checkLoginStatus().then(() => {
+                        addTestLog('✅ 登录状态检查完成');
+                        // 更新显示
+                        const statusDiv = document.getElementById('current-login-status');
+                        const userInfoDiv = document.getElementById('current-user-info');
+                        
+                        if (window.ajax_object && window.ajax_object.is_user_logged_in === 'true') {
+                            statusDiv.innerHTML = '✅ 已登录';
+                            // 尝试获取用户信息
+                            try {
+                                const stored = localStorage.getItem('boxmoe_login_status');
+                                if (stored) {
+                                    const data = JSON.parse(stored);
+                                    userInfoDiv.innerHTML = `用户名：${data.user_info.display_name} | 邮箱：${data.user_info.user_email}`;
+                                }
+                            } catch (error) {
+                                addTestLog(`⚠️ 获取用户信息失败：${error.message}`);
+                            }
+                        } else {
+                            statusDiv.innerHTML = '❌ 未登录';
+                            userInfoDiv.innerHTML = '未登录';
+                        }
+                    }).catch(error => {
+                        addTestLog(`❌ 登录状态检查失败：${error.message}`);
+                    });
+                } else {
+                    addTestLog('❌ LoginStatusManager 未定义');
+                }
+            });
+            
+            // 清除本地存储
+            document.getElementById('clear-local-storage').addEventListener('click', function() {
+                addTestLog('🗑️ 清除本地存储...');
+                try {
+                    localStorage.removeItem('boxmoe_login_status');
+                    addTestLog('✅ 本地存储已清除');
+                } catch (error) {
+                    addTestLog(`❌ 清除本地存储失败：${error.message}`);
+                }
+            });
+            
+            // 初始日志
+            addTestLog('✅ 登录状态测试工具已初始化');
+            addTestLog(`🔧 LoginStatusManager 状态：${typeof LoginStatusManager !== 'undefined' ? '已加载' : '未加载'}`);
+            
+            // 检查本地存储
+            try {
+                const stored = localStorage.getItem('boxmoe_login_status');
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    addTestLog(`📦 本地存储状态：${data.is_logged_in ? '已登录' : '未登录'}，保存时间：${new Date(data.timestamp).toLocaleTimeString()}`);
+                } else {
+                    addTestLog('📦 本地存储：无数据');
+                }
+            } catch (error) {
+                addTestLog(`⚠️ 检查本地存储失败：${error.message}`);
+            }
+        });
+    </script>
+    <?php
+    return ob_get_clean();
+}
+add_shortcode('login_status_test', 'boxmoe_login_status_test_shortcode');
 
 // 开启友情链接--------------------------boxmoe.com--------------------------
 add_filter( 'pre_option_link_manager_enabled', '__return_true' );
@@ -398,4 +612,50 @@ function boxmoe_allow_woff_uploads($mimes){
     return $mimes;
 }
 add_filter('upload_mimes','boxmoe_allow_woff_uploads');
+
+// 🎯 页面焦点状态文字显示控制JavaScript输出
+function boxmoe_page_focus_js() {
+    if (get_boxmoe('boxmoe_page_focus_switch')) {
+        $leave_text = get_boxmoe('boxmoe_page_focus_leave_text', '🚨你快回来~');
+        $return_text = get_boxmoe('boxmoe_page_focus_return_text', '🥱你可算回来了！');
+        
+        $js = <<<EOT
+        <script>
+        // 🎯 页面焦点状态文字显示控制
+        document.addEventListener('DOMContentLoaded', function() {
+            const originalTitle = document.title;
+            let isFocused = true;
+            let originalContent = '';
+            
+            // 监听页面焦点变化事件
+            window.addEventListener('focus', function() {
+                if (!isFocused) {
+                    isFocused = true;
+                    // 恢复原始标题
+                    document.title = originalTitle;
+                    // 显示返回时欢迎语
+                    setTimeout(() => {
+                        document.title = '{$return_text}';
+                        // 3秒后恢复原始标题
+                        setTimeout(() => {
+                            document.title = originalTitle;
+                        }, 3000);
+                    }, 100);
+                }
+            });
+            
+            window.addEventListener('blur', function() {
+                isFocused = false;
+                // 离开时显示自定义文字
+                document.title = '{$leave_text}';
+            });
+        });
+        </script>
+        EOT;
+        
+        echo $js;
+    }
+}
+add_action('wp_head', 'boxmoe_page_focus_js');
+add_action('admin_head', 'boxmoe_page_focus_js');
 

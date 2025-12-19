@@ -261,8 +261,11 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
         <img src="<?php  boxmoe_banner_image(); ?>" alt="boxmoe_header_banner_img">
         <div class="site-main">
           <?php $welcome_text = boxmoe_banner_welcome(true); 
-          if($welcome_text): ?>
-          <h2 class="boxmoe-typing-animation" data-text="<?php echo esc_attr($welcome_text); ?>"></h2>
+          if($welcome_text): 
+          $rainbow_switch = get_boxmoe('boxmoe_banner_rainbow_switch');
+          $rainbow_class = !empty($rainbow_switch) ? 'text-gradient' : '';
+          ?>
+          <h2 class="boxmoe-typing-animation <?php echo esc_attr($rainbow_class); ?>" data-text="<?php echo esc_attr($welcome_text); ?>"></h2>
           <?php endif; ?>
           <?php echo boxmoe_banner_hitokoto(); ?>
         </div>
@@ -284,7 +287,9 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
     <section class="boxmoe-container container">
       <div class="breadcrumb-head">
         <span>
+          <?php if(!get_boxmoe('boxmoe_slogan_remove_icon')): ?>
           <i class="fa fa-home"></i>
+          <?php endif; ?>
           <?php 
           if(is_home()) {
               echo get_boxmoe('boxmoe_slogan_home_text') ?: 'HOME';

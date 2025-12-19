@@ -93,15 +93,15 @@ class Options_Framework_Interface {
 					if (isset($value['group_title'])) {
 						$output .= '<div class="boxmoe_tab_header"><span class="dashicons dashicons-info-outline"></span> ' . esc_html($value['group_title']) . '</div>' . "\n";
 					}
+					
+					// 只在分组开始时创建一次 boxmoe_group_opened div
+					$output .= '<div class="boxmoe_group_opened">' . "\n";
 				}
 				
 				if (!$group_opened) {
 					$output .= '<div id="' . esc_attr( $id ) .'" class="' . esc_attr( $class ) . ' col">' . "\n";
 				}
 
-				if ($group_opened) {
-				$output .= '<div class="boxmoe_group_opened">' . "\n";
-				}		
                 if ( isset( $value['name'] ) ) {
                     $heading = '<h4 class="heading"><span class="dashicons dashicons-shortcode"></span> ' . esc_html( $value['name'] );
                     if ( isset($value['type']) && $value['type'] === 'fonts_table' ) {
@@ -420,7 +420,13 @@ class Options_Framework_Interface {
 				}
 				
 				$output .= '</div>';
+				$output .= '<div class="custom-board-add-section" style="display:flex;gap:10px;align-items:center;margin-top:15px;">';
 				$output .= '<button type="button" class="button button-primary custom-board-add" data-name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '">' . __('新增看板形象', 'ui_boxmoe_com') . '</button>';
+				$output .= '<div class="custom-board-url-input" style="display:flex;gap:5px;flex:1;">';
+				$output .= '<input type="text" id="custom-board-direct-url" placeholder="' . __('直接输入图片链接', 'ui_boxmoe_com') . '" style="flex:1;padding:4px 8px;border:1px solid #ddd;">';
+				$output .= '<button type="button" class="button button-secondary custom-board-add-by-url" data-name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '">' . __('添加', 'ui_boxmoe_com') . '</button>';
+				$output .= '</div>';
+				$output .= '</div>';
 				$output .= '</div>';
 				break;
 
@@ -477,7 +483,9 @@ class Options_Framework_Interface {
 				$class = ! empty( $value['id'] ) ? $value['id'] : $value['name'];
 				$class = preg_replace('/[^a-zA-Z0-9._\-]/', '', strtolower($class) );
                 $output .= '<div id="options-group-' . $counter . '" class="group ' . $class . '">';
-                $header  = '<div class="boxmoe_tab_header"><span class="dashicons dashicons-wordpress"></span> ' . esc_html( $value['name'] );
+                $default_icon = 'dashicons-wordpress';
+                $icon = isset($value['icon']) ? $value['icon'] : $default_icon;
+                $header  = '<div class="boxmoe_tab_header"><span class="dashicons ' . esc_attr($icon) . '"></span> ' . esc_html( $value['name'] );
                 if ( isset($value['name']) && $value['name'] === '页面标语设置' ) {
                     $header .= ' <input type="button" id="of-reset-slogan-btn" class="button-secondary" name="reset_slogan" value="' . esc_attr__( '重置标语', 'textdomain' ) . '" />';
                 }
@@ -492,9 +500,11 @@ class Options_Framework_Interface {
 					$output .= '<div class="explain">' . wp_kses( $explain_value, $allowedtags) . '</div>'."\n";
 				}
 				$output .= '</div>';
-				if ($group_opened) {$output .= '</div>'; }
 
 				if (isset($value['group']) && $value['group'] == 'end') {
+					// 关闭分组的 boxmoe_group_opened div
+					$output .= '</div>'."\n";
+					// 关闭分组的外部 div
 					$output .= '</div>'."\n";
 					$group_opened = false;
 				} else if (!$group_opened) {

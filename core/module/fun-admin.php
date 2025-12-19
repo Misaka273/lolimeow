@@ -618,6 +618,25 @@ function boxmoe_allow_span_tags_in_options($allowedtags) {
 }
 add_filter('wp_kses_allowed_html', 'boxmoe_allow_span_tags_in_options');
 
+// 🔤 修改后台页面浏览器标签，显示网站副标题
+function boxmoe_admin_title($admin_title, $title) {
+    // 获取网站副标题
+    $site_description = get_bloginfo('description');
+    
+    // 移除现有的WordPress或wp后缀
+    $new_title = str_ireplace(array('WordPress', 'wp'), '', $admin_title);
+    // 移除多余的分隔符
+    $new_title = trim($new_title, ' -—–');
+    
+    // 如果有副标题，则添加副标题作为后缀
+    if (!empty($site_description)) {
+        $new_title .= ' - ' . $site_description;
+    }
+    
+    return $new_title;
+}
+add_filter('admin_title', 'boxmoe_admin_title', 10, 2);
+
 // 🆔 后台分类列表添加分类ID列
 function boxmoe_manage_categories_columns($columns) {
     $columns['cat_id'] = '分类ID';
@@ -641,11 +660,63 @@ function boxmoe_manage_post_tag_columns($columns) {
 }
 add_filter('manage_edit-post_tag_columns', 'boxmoe_manage_post_tag_columns');
 
-// 📋 后台分类列表显示标签ID
-function boxmoe_manage_post_tag_custom_column($content, $column_name, $term_id) {
-    if ($column_name == 'tag_id') {
-        return $term_id;
+// 📅 修复WordPress后台日期显示，确保读取当前系统时间
+// 移除直接时区设置，依赖WordPress核心时区机制
+
+// 📝 修复文章列表中的日期显示
+function boxmoe_fix_post_date_column($post_date, $post) {
+    // 使用当前系统时间和正确的时区格式化日期
+    $date = get_post_datetime($post);
+    if ($date) {
+        // 确保日期对象使用正确的时区
+        $date = $date->setTimezone(wp_timezone());
+        return $date->format(get_option('date_format') . ' ' . get_option('time_format'));
     }
-    return $content;
+    return $post_date;
 }
-add_filter('manage_post_tag_custom_column', 'boxmoe_manage_post_tag_custom_column', 10, 3);
+add_filter('post_date_column_time', 'boxmoe_fix_post_date_column', 10, 2);
+
+// 💬 修复评论列表中的日期显示
+function boxmoe_fix_comment_date_column($column_output, $column_name, $comment_id) {
+    if ('date' === $column_name) {
+        $comment = get_comment($comment_id);
+        if ($comment) {
+            $date = get_comment_datetime($comment);
+            if ($date) {
+                // 确保日期对象使用正确的时区
+                $date = $date->setTimezone(wp_timezone());
+                return $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+            }
+        }
+    }
+    return $column_output;
+}
+add_filter('manage_comments_custom_column', 'boxmoe_fix_comment_date_column', 10, 3);
+
+// 📊 修复媒体库中的日期显示
+function boxmoe_fix_media_date_column($column_output, $column_name, $attachment_id) {
+    if ('date' === $column_name) {
+        $attachment = get_post($attachment_id);
+        if ($attachment) {
+            $date = get_post_datetime($attachment);
+            if ($date) {
+                // 确保日期对象使用正确的时区
+                $date = $date->setTimezone(wp_timezone());
+                return $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+            }
+        }
+    }
+    return $column_output;
+}
+add_filter('manage_media_custom_column', 'boxmoe_fix_media_date_column', 10, 3);
+
+// 🔄 确保所有日期函数都使用正确的时区
+function boxmoe_fix_date_i18n($date, $format, $timestamp, $gmt) {
+    // 如果是GMT时间，转换为本地时间
+    if ($gmt) {
+        $timestamp = get_date_from_gmt(date('Y-m-d H:i:s', $timestamp));
+        $timestamp = strtotime($timestamp);
+    }
+    return date($format, $timestamp);
+}
+add_filter('date_i18n', 'boxmoe_fix_date_i18n', 10, 4);

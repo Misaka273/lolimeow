@@ -183,10 +183,10 @@ input:focus, textarea:focus, select:focus{border-color:#2563eb !important;box-sh
 }
 
 /* 🔽 下拉选择框 (Select) 扁平圆角化 - 增强权重版 */
-body select,
-.wrap select,
-.form-table select,
-.wp-core-ui select {
+body select:not(.mm):not(.jj):not(.aa),
+.wrap select:not(.mm):not(.jj):not(.aa),
+.form-table select:not(.mm):not(.jj):not(.aa),
+.wp-core-ui select:not(.mm):not(.jj):not(.aa) {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
@@ -207,15 +207,117 @@ body select,
 }
 
 /* 悬停 */
-body select:hover,
-.wrap select:hover {
+body select:not(.mm):not(.jj):not(.aa):hover,
+.wrap select:not(.mm):not(.jj):not(.aa):hover {
+    border-color: #a78bfa !important;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%) url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%231e40af%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
+    background-size: 16px 16px !important;
+}
+
+/* 聚焦 */
+body select:not(.mm):not(.jj):not(.aa):focus,
+.wrap select:not(.mm):not(.jj):not(.aa):focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    outline: none !important;
+}
+
+/* 🔽 WordPress 日期选择器样式 - 扁平圆角风 */
+body select.mm, body select.jj, body select.aa,
+body select.pt_month, body select.pt_day, body select.pt_year,
+#timestampdiv select,
+.wrap select.mm, .wrap select.jj, .wrap select.aa,
+.wrap select.pt_month, .wrap select.pt_day, .wrap select.pt_year,
+.form-table select.mm, .form-table select.jj, .form-table select.aa,
+.form-table select.pt_month, .form-table select.pt_day, .form-table select.pt_year,
+.wp-core-ui select.mm, .wp-core-ui select.jj, .wp-core-ui select.aa,
+.wp-core-ui select.pt_month, .wp-core-ui select.pt_day, .wp-core-ui select.pt_year {
+    /* 扁平设计核心 */
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    
+    /* 背景和箭头 */
+    background: #ffffff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%231e40af%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
+    background-size: 14px 14px !important;
+    
+    /* 内边距和尺寸 */
+    padding: 6px 30px 6px 12px !important;
+    min-height: 36px !important;
+    line-height: 1.5 !important;
+    
+    /* 圆角边框 */
+    border-radius: 8px !important;
+    border: 1px solid #93c5fd !important;
+    box-shadow: none !important;
+    
+    /* 颜色和过渡 */
+    color: #1e40af !important;
+    width: auto !important;
+    transition: all 0.2s ease !important;
+}
+
+/* 日期选择器悬停样式 */
+body select.mm:hover, body select.jj:hover, body select.aa:hover,
+body select.pt_month:hover, body select.pt_day:hover, body select.pt_year:hover,
+#timestampdiv select:hover,
+.wrap select.mm:hover, .wrap select.jj:hover, .wrap select.aa:hover,
+.wrap select.pt_month:hover, .wrap select.pt_day:hover, .wrap select.pt_year:hover,
+.form-table select.mm:hover, .form-table select.jj:hover, .form-table select.aa:hover,
+.form-table select.pt_month:hover, .form-table select.pt_day:hover, .form-table select.pt_year:hover,
+.wp-core-ui select.mm:hover, .wp-core-ui select.jj:hover, .wp-core-ui select.aa:hover,
+.wp-core-ui select.pt_month:hover, .wp-core-ui select.pt_day:hover, .wp-core-ui select.pt_year:hover {
+    border-color: #a78bfa !important;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%) url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%231e40af%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
+    background-size: 14px 14px !important;
+}
+
+/* 日期选择器聚焦样式 */
+body select.mm:focus, body select.jj:focus, body select.aa:focus,
+body select.pt_month:focus, body select.pt_day:focus, body select.pt_year:focus,
+#timestampdiv select:focus,
+.wrap select.mm:focus, .wrap select.jj:focus, .wrap select.aa:focus,
+.wrap select.pt_month:focus, .wrap select.pt_day:focus, .wrap select.pt_year:focus,
+.form-table select.mm:focus, .form-table select.jj:focus, .form-table select.aa:focus,
+.form-table select.pt_month:focus, .form-table select.pt_day:focus, .form-table select.pt_year:focus,
+.wp-core-ui select.mm:focus, .wp-core-ui select.jj:focus, .wp-core-ui select.aa:focus,
+.wp-core-ui select.pt_month:focus, .wp-core-ui select.pt_day:focus, .wp-core-ui select.pt_year:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    outline: none !important;
+}
+
+/* 日期选择器文本输入框样式 - 扁平圆角风 */
+body input[name="hh"], body input[name="mn"], body input[name="ss"],
+body input.pt_hour, body input.pt_minute, body input.pt_second,
+#timestampdiv input[name="hh"], #timestampdiv input[name="mn"], #timestampdiv input[name="ss"] {
+    /* 适配 WordPress 默认时间输入框尺寸 */
+    border-radius: 6px !important;
+    border: 1px solid #93c5fd !important;
+    color: #1e40af !important;
+    padding: 2px 4px !important; /* 减小内边距 */
+    height: auto !important; /* 自动高度 */
+    min-height: auto !important; /* 移除最小高度限制 */
+    line-height: normal !important; /* 正常行高 */
+    width: auto !important; /* 自动宽度 */
+    min-width: 30px !important; /* 最小宽度适配时间输入 */
+    max-width: 50px !important; /* 最大宽度限制 */
+    transition: all 0.2s ease !important;
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+    font-size: 14px !important; /* 合适的字体大小 */
+}
+
+body input[name="hh"]:hover, body input[name="mn"]:hover, body input[name="ss"]:hover,
+body input.pt_hour:hover, body input.pt_minute:hover, body input.pt_second:hover,
+#timestampdiv input[name="hh"]:hover, #timestampdiv input[name="mn"]:hover, #timestampdiv input[name="ss"]:hover {
     border-color: #3b82f6 !important;
     background-color: #f0f9ff !important;
 }
 
-/* 聚焦 */
-body select:focus,
-.wrap select:focus {
+body input[name="hh"]:focus, body input[name="mn"]:focus, body input[name="ss"]:focus,
+body input.pt_hour:focus, body input.pt_minute:focus, body input.pt_second:focus,
+#timestampdiv input[name="hh"]:focus, #timestampdiv input[name="mn"]:focus, #timestampdiv input[name="ss"]:focus {
     border-color: #2563eb !important;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
     outline: none !important;
@@ -330,8 +432,13 @@ body select[multiple] {
     margin: 0 !important;
 }
 
+.boxmoe-select-trigger:hover {
+    border-color: #a78bfa !important;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%) !important;
+}
+
 .boxmoe-select-dropdown li:hover {
-    background: #f0f9ff;
+    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%);
     color: #1e40af;
 }
 

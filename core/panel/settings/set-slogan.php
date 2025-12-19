@@ -8,6 +8,14 @@ $options[] = array(
 );
 
 $options[] = array(
+    'name' => __('移除默认图标', 'ui_boxmoe_com'),
+    'id'   => 'boxmoe_slogan_remove_icon',
+    'type' => 'checkbox',
+    'std'  => false,
+    'desc' => __('开启后将移除标语前的默认图标', 'ui_boxmoe_com')
+);
+
+$options[] = array(
     'name' => __('首页标语', 'ui_boxmoe_com'),
     'id'   => 'boxmoe_slogan_home_text',
     'type' => 'text',

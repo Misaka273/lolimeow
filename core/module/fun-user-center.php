@@ -197,7 +197,7 @@ add_action('wp_ajax_boxmoe_form_money_card', 'boxmoe_form_money_card');
 add_action('wp_ajax_nopriv_boxmoe_form_money_card', 'boxmoe_form_money_card');
 
 function boxmoe_form_money_card() {
-	date_default_timezone_set('Asia/Shanghai');
+	// 移除直接时区设置，使用WordPress核心时区机制
 	$erphp_aff_money = get_option('erphp_aff_money');
     if (isset($_POST['epdcardnum']) && !empty($_POST['epdcardnum']) &&
         isset($_POST['epdcardpass']) && !empty($_POST['epdcardpass'])) {

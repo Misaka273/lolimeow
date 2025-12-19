@@ -73,13 +73,13 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
             echo '</style>';
         }
         
-        // 始终使用栅格布局容器，确保移动端一行两个卡片
+        // 根据布局设置选择容器类和列宽
         echo '<div class="row g-4">';
         
         while ( have_posts() ) : the_post(); 
-        ?>          
-          <div class="col-lg-4 col-md-6 col-sm-6">
-          <article class="post-list list-three <?php echo boxmoe_border_setting(); ?>" onclick="if (!event.target.closest('a') && window.getSelection().toString().length === 0) { <?php echo get_boxmoe('boxmoe_article_new_window_switch', true) ? "window.open('".esc_js(get_the_permalink())."', '_blank')" : "location.href='".esc_js(get_the_permalink())."'"; ?>; }">
+        ?>
+          <div class="<?php echo ($article_layout_style == 'three') ? 'col-lg-4 col-md-6 col-sm-6' : 'col-lg-12'; ?>">
+          <article class="post-list <?php echo ($article_layout_style == 'three') ? 'list-three' : 'list-one'; ?> <?php echo boxmoe_border_setting(); ?>" onclick="if (!event.target.closest('a') && window.getSelection().toString().length === 0) { <?php echo get_boxmoe('boxmoe_article_new_window_switch', true) ? "window.open('".esc_js(get_the_permalink())."', '_blank')" : "location.href='".esc_js(get_the_permalink())."'"; ?>; }">
             <?php if ( post_password_required() ) : ?>
             <span class="post-protected-badge">密码保护</span>
             <?php elseif ( get_post_status() === 'private' ) : ?>

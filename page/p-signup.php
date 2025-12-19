@@ -274,6 +274,19 @@ if (is_user_logged_in()){
                   <div class="invalid-feedback">请输入密码。</div>
                </div>
 
+               <!-- 确认密码 -->
+               <div class="mb-3 position-relative floating-label-group">
+                  <div class="password-field">
+                     <input type="password" class="form-control fakePassword" name="confirmpassword" id="formSignUpConfirmPassword" required="" placeholder=" ">
+                     <label for="formSignUpConfirmPassword" data-default="再次输入密码" data-active="确认密码"></label>
+                     <i class="bi bi-eye-slash passwordToggler"></i>
+                  </div>
+                  <div class="invalid-feedback">请确认密码。</div>
+               </div>
+
+               <!-- 安全验证 -->
+               <input type="hidden" name="signup_nonce" value="<?php echo wp_create_nonce('user_signup'); ?>">
+
                <!-- 注册按钮 -->
                <div class="d-grid mt-4">
                   <button class="btn btn-primary" type="submit" name="signup_submit">
@@ -395,12 +408,22 @@ if (is_user_logged_in()){
               spinner.classList.remove('d-none');
               btnText.textContent = '注册中...';
               
-              var formData = new FormData(this);
-              formData.append('action', 'user_register_action');
+              // 构建表单数据对象
+              var formData = {
+                  username: document.getElementById('signupFullnameInput').value,
+                  email: document.getElementById('signupEmailInput').value,
+                  verificationcode: document.getElementById('signupVerificationCode').value,
+                  password: document.getElementById('formSignUpPassword').value,
+                  confirmpassword: document.getElementById('formSignUpConfirmPassword').value,
+                  signup_nonce: this.querySelector('input[name="signup_nonce"]').value
+              };
               
               fetch(ajax_object.ajaxurl, {
                   method: 'POST',
-                  body: formData
+                  headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                  },
+                  body: 'action=user_signup_action&formData=' + encodeURIComponent(JSON.stringify(formData))
               })
               .then(response => response.json())
               .then(data => {

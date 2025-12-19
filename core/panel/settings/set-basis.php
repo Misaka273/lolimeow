@@ -299,3 +299,29 @@ $options[] = array(
 			'class' => 'small',
 			'std' => '秒',
 		);
+		
+		// 🎯 页面焦点状态文字显示控制
+		$options[] = array(
+			'group' => 'start',
+			'group_title' => '页面焦点状态文字显示控制',
+			'name' => __('启用页面焦点状态文字显示', 'ui_boxmoe_com'),
+			'id' => 'boxmoe_page_focus_switch',
+			'type' => 'checkbox',
+			'std' => false,
+			'desc' => __('开启后，当用户离开或返回浏览器标签页时，页面标题或指定区域会显示自定义文字', 'ui_boxmoe_com'),
+		);
+		$options[] = array(
+			'name' => __('离开时显示文字', 'ui_boxmoe_com'),
+			'id' => 'boxmoe_page_focus_leave_text',
+			'type' => 'text',
+			'std' => '🚨你快回来~',
+			'desc' => __('当用户离开浏览器标签页时显示的文字', 'ui_boxmoe_com'),
+		);
+		$options[] = array(
+			'group' => 'end',
+			'name' => __('返回时欢迎语', 'ui_boxmoe_com'),
+			'id' => 'boxmoe_page_focus_return_text',
+			'type' => 'text',
+			'std' => '🥱你可算回来了！',
+			'desc' => __('当用户返回浏览器标签页时显示的文字', 'ui_boxmoe_com'),
+		);

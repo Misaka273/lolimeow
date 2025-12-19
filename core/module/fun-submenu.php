@@ -30,15 +30,7 @@ function boxmoe_integrate_submenus() {
         'widgets.php' // ⬅️ 菜单 slug
     );
     
-    // 将主题设置添加为外观菜单的子菜单
-    add_submenu_page(
-        'themes.php', // ⬅️ 父菜单 slug
-        __('盒子萌主题设置', 'textdomain'), // ⬅️ 页面标题
-        __('盒子萌主题设置', 'textdomain'), // ⬅️ 菜单标题
-        'edit_theme_options', // ⬅️ 权限
-        'boxmoe_options', // ⬅️ 菜单 slug
-        '' // ⬅️ 回调函数，使用空字符串表示链接到现有页面
-    );
+
 }
 
 // 添加erphpdown作为主题设置子菜单

@@ -203,6 +203,59 @@ jQuery(document).ready(function($) {
 			$item.remove();
 		}
 	});
+	
+	// Add board by direct URL
+	$(document).on('click', '.custom-board-add-by-url', function(e) {
+		e.preventDefault();
+		var $btn = $(this);
+		var namePrefix = $btn.data('name');
+		var $wrap = $btn.closest('.custom-board-list-wrap');
+		var $items = $wrap.find('.custom-board-items');
+		var $urlInput = $('#custom-board-direct-url');
+		var url = $urlInput.val().trim();
+		
+		if (!url) {
+			alert('请输入图片链接');
+			return;
+		}
+		
+		// Simple URL validation
+		var urlPattern = /^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+		if (!urlPattern.test(url)) {
+			alert('请输入有效的图片链接');
+			return;
+		}
+		
+		var timestamp = new Date().getTime();
+		var itemUrlName = namePrefix + '[' + timestamp + '][url]';
+		var itemNameName = namePrefix + '[' + timestamp + '][name]';
+		
+		var html = '<div class="custom-board-item" style="width:150px;border:1px solid #ddd;padding:10px;border-radius:5px;background:#fff;text-align:center;">';
+		html += '<div class="custom-board-preview" style="margin-bottom:10px;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;">';
+		html += '<img src="' + url + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+		html += '</div>';
+		html += '<input type="hidden" name="' + itemUrlName + '" value="' + url + '" class="custom-board-url">';
+		html += '<div class="custom-board-input-group">';
+		html += '<input type="text" name="' + itemNameName + '" value="" class="custom-board-name" placeholder=" ">';
+		html += '<span class="custom-board-floating-label" data-normal="请输入名称" data-active="名称"></span>';
+		html += '</div>';
+		html += '<div class="actions" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;">';
+		html += '<button type="button" class="button button-secondary custom-board-enable" data-url="' + url + '" style="width:100%;margin-bottom:5px;">启动</button>';
+		html += '<button type="button" class="button custom-board-replace" data-update="选择图片" data-choose="选择看板图片" style="flex:1;">替换</button>';
+		html += '<button type="button" class="button custom-board-delete" style="color:#b32d2e;border-color:#b32d2e;flex:1;">删除</button>';
+		html += '</div></div>';
+		
+		$items.append(html);
+		$urlInput.val(''); // Clear input
+	});
+	
+	// Allow Enter key to add by URL
+	$(document).on('keypress', '#custom-board-direct-url', function(e) {
+		if (e.which == 13) { // Enter key
+			e.preventDefault();
+			$('.custom-board-add-by-url').click();
+		}
+	});
 
 	// Enable button logic
 	$(document).on('click', '.custom-board-enable', function(e) {

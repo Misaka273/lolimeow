@@ -11,6 +11,15 @@ jQuery(document).ready(function($) {
             if ($this.hasClass('select2-hidden-accessible') || $this.hasClass('chosen-select')) {
                 return;
             }
+            
+            // 排除日期选择器中的 select 元素
+            if (
+                $this.hasClass('pt_month') || $this.hasClass('pt_year') || // 快速编辑中的日期选择器
+                $this.closest('#timestampdiv').length > 0 || // 文章编辑页面中的日期选择器
+                $this.attr('name') === 'mm' || $this.attr('name') === 'jj' || $this.attr('name') === 'aa' // 日期相关的 name 属性
+            ) {
+                return;
+            }
 
             // 获取当前选中的选项文本
             var selectedText = $this.find('option:selected').text();

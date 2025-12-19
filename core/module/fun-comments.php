@@ -4,13 +4,21 @@ if(!defined('ABSPATH')){
     echo'Look your sister';
     exit;
 }
-// 添加 session 处理函数
+// 添加 session 处理函数 - 仅在非 REST API 和非环回请求时启动
 function init_comment_session() {
+    // 检查是否为 REST API 请求或环回请求
+    if (
+        defined('REST_REQUEST') && REST_REQUEST ||
+        strpos($_SERVER['REQUEST_URI'], '/wp-admin/admin-ajax.php') !== false ||
+        strpos($_SERVER['REQUEST_URI'], '/wp-json/') !== false
+    ) {
+        return;
+    }
+    
     if (!session_id()) {
         session_start();
     }
 }
-add_action('init', 'init_comment_session');
 function boxmoe_comment($comment, $args = array(), $depth = 1) {
     $GLOBALS['comment'] = $comment;
     $defaults = array(
@@ -22,7 +30,7 @@ function boxmoe_comment($comment, $args = array(), $depth = 1) {
     $current_user_id = get_current_user_id();
     $is_private = get_comment_meta($comment->comment_ID, 'private_comment', true);
     ?>
-    <div id="comment-<?php comment_ID(); ?>" class="comment-item <?php echo $depth > 1 ? 'child' : 'parent'; ?>">
+    <div id="comment-<?php echo get_comment_ID(); ?>" class="comment-item <?php echo $depth > 1 ? 'child' : 'parent'; ?>">
             <div class="comment-avatar">
             <img src="<?php echo boxmoe_lazy_load_images(); ?>" data-src="<?php echo boxmoe_get_avatar_url($comment->comment_author_email, 60); ?>" alt="评论头像" class="lazy">
             </div>
@@ -34,14 +42,14 @@ function boxmoe_comment($comment, $args = array(), $depth = 1) {
                     if (!empty($comment_url) && $comment_url !== 'http://') {
                         echo '<a href="' . esc_url($comment_url) . '" target="_blank" rel="nofollow">' . get_comment_author() . '</a>';
                     } else {
-                        comment_author();
+                        echo get_comment_author();
                     }
                     ?>
                 </span>
                 <?php if (user_can($comment->user_id, 'administrator')): ?>
                     <span class="comment-badge"><?php echo get_boxmoe('boxmoe_comment_blogger_tag')?get_boxmoe('boxmoe_comment_blogger_tag'):'博主'; ?></span>
                 <?php endif; ?>
-                <span class="comment-date"><?php comment_date('Y年m月d日'); ?></span>
+                <span class="comment-date"><?php echo get_comment_date('Y年m月d日'); ?></span>
             </div>
             <div class="comment-text">
                 <?php 
@@ -59,7 +67,7 @@ function boxmoe_comment($comment, $args = array(), $depth = 1) {
                 } else {
                     echo esc_html(get_comment_text());
                 }
-                ?>   
+                ?>
                 <?php if ( $comment->comment_approved == '0' ) : ?>
                     <span class="comment-awaiting-moderation">您的评论正在等待审核...</span>
                 <?php endif; ?>
@@ -68,12 +76,13 @@ function boxmoe_comment($comment, $args = array(), $depth = 1) {
 
             <div class="comment-actions">
                 <?php
-                comment_reply_link(array_merge($args, array(
+                echo comment_reply_link(array_merge($args, array(
                     'reply_text' => '<i class="fa fa-reply"></i>回复',
                     'depth' => $depth,
                     'max_depth' => $args['max_depth'],
                     'before' => '',
-                    'after' => ''
+                    'after' => '',
+                    'echo' => false
                 )));
                 ?>
             </div>
@@ -109,9 +118,15 @@ add_action('comment_post', 'save_private_comment_status');
 // session
 function save_comment_author_info($comment_ID, $comment_approved, $commentdata) {
     if ($comment_approved !== 'spam') {
-        $_SESSION['comment_author'] = $commentdata['comment_author'];
-        $_SESSION['comment_author_email'] = $commentdata['comment_author_email'];
-        $_SESSION['comment_author_url'] = $commentdata['comment_author_url'];
+        // 确保会话已启动
+        if (session_id()) {
+            $_SESSION['comment_author'] = $commentdata['comment_author'];
+            $_SESSION['comment_author_email'] = $commentdata['comment_author_email'];
+            $_SESSION['comment_author_url'] = $commentdata['comment_author_url'];
+            
+            // 立即关闭会话，释放资源
+            session_write_close();
+        }
 
         setcookie('author', $commentdata['comment_author'], time() + 7 * 24 * 3600, '/');
         setcookie('email', $commentdata['comment_author_email'], time() + 7 * 24 * 3600, '/');
@@ -121,13 +136,42 @@ function save_comment_author_info($comment_ID, $comment_approved, $commentdata) 
 add_action('comment_post', 'save_comment_author_info', 10, 3);
 
 function get_comment_author_info($field) {
-    if (isset($_SESSION[$field])) {
-        return $_SESSION[$field];
+    $session_started = false;
+    
+    // 只在需要时启动会话
+    if (!session_id() && !isset($_COOKIE[str_replace('comment_', '', $field)])) {
+        // 检查是否为 REST API 请求或环回请求
+        if (
+            !defined('REST_REQUEST') || !REST_REQUEST &&
+            strpos($_SERVER['REQUEST_URI'], '/wp-admin/admin-ajax.php') === false &&
+            strpos($_SERVER['REQUEST_URI'], '/wp-json/') === false
+        ) {
+            session_start();
+            $session_started = true;
+        }
     }
+    
+    // 从会话获取数据
+    if (session_id() && isset($_SESSION[$field])) {
+        $value = $_SESSION[$field];
+        // 如果是临时启动的会话，使用后立即关闭
+        if ($session_started) {
+            session_write_close();
+        }
+        return $value;
+    }
+    
+    // 从 cookie 获取数据
     $cookie_field = str_replace('comment_', '', $field);
     if (isset($_COOKIE[$cookie_field])) {
         return $_COOKIE[$cookie_field];
     }
+    
+    // 如果是临时启动的会话，确保关闭
+    if ($session_started) {
+        session_write_close();
+    }
+    
     return '';
 }
 
@@ -249,9 +293,10 @@ function ajax_comment_callback() {
         }
     }
     }
-    if (get_boxmoe('boxmoe_smtp_mail_switch') && get_boxmoe('boxmoe_new_comment_notice_switch')) {
-        boxmoe_new_comment_notice_email($comment_id);
-    }
+    // 📧 新评论通知已通过hook实现，此处不再重复调用
+    // if (get_boxmoe('boxmoe_smtp_mail_switch') && get_boxmoe('boxmoe_new_comment_notice_switch')) {
+    //     boxmoe_comment_notification($comment_id);
+    // }
 
     if (get_boxmoe('boxmoe_robot_notice_switch') && get_boxmoe('boxmoe_new_comment_notice_robot_switch')) {
         boxmoe_robot_msg_comment($comment_id);

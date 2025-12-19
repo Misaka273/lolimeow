@@ -30,6 +30,12 @@ $options[] = array(
 		'type' => "checkbox",
 		'std' => true,
 		);
+    $options[] = array(
+		'name' => __('关闭彩虹色banner欢迎语', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_banner_rainbow_switch',
+		'type' => "checkbox",
+		'std' => false,
+		);
         $hitokoto_array = array(
 			'a' => __('动画', 'ui_boxmoe_com'),
 			'b' => __('漫画', 'ui_boxmoe_com'),

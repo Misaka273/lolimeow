@@ -11,8 +11,9 @@ if(!defined('ABSPATH')){
     echo'Look your sister';
     exit;
 }
-//时区设置
-date_default_timezone_set('Asia/Shanghai');
+// 移除直接时区设置，改为使用WordPress核心时区机制
+// 注意：WordPress会自动处理时区，无需手动设置date_default_timezone_set
+
 
 //boxmoe.com===加载面板
 define( 'OPTIONS_FRAMEWORK_DIRECTORY', get_template_directory_uri() . '/core/panel/' );
@@ -39,6 +40,8 @@ require_once  get_stylesheet_directory() . '/core/module/fun-shortcode.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-fonts.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-markdown.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-submenu.php'; // ⬅️ 引入子菜单整合功能
+// 🔽 由初叶🍂www.chuyel.top提供，白木🥰gl.baimu.live集成
+require_once  get_stylesheet_directory() . '/core/module/fun-music.php'; // ⬅️ 引入音乐播放器功能
 //boxmoe.com===自定义代码
 add_filter('protected_title_format', function($format){return '%s';});
 add_filter('private_title_format', function($format){return '%s';});
@@ -114,31 +117,10 @@ function lolimeow_create_pages_on_activation() {
             'slug' => 'reset-password'
         )
     );
-    
-    // 循环创建每个页面
-    foreach ($pages as $page) {
-        // 检查页面是否已存在
-        $page_exists = get_page_by_path($page['slug'], OBJECT, 'page');
-        
-        if (!$page_exists) {
-            // 创建页面
-            $page_id = wp_insert_post(array(
-                'post_title' => $page['title'],
-                'post_content' => $page['content'],
-                'post_status' => 'publish',
-                'post_type' => 'page',
-                'post_author' => 1,
-                'post_slug' => $page['slug'],
-                'page_template' => $page['template']
-            ));
-            
-            // 如果页面创建成功，添加模板
-            if ($page_id && !is_wp_error($page_id)) {
-                update_post_meta($page_id, '_wp_page_template', $page['template']);
-            }
-        }
-    }
+
 }
+
+
 
 // 主题激活时触发函数
 add_action('after_switch_theme', 'lolimeow_create_pages_on_activation');
@@ -434,3 +416,200 @@ function lolimeow_disable_cache_for_logout() {
     }
 }
 add_action('init', 'lolimeow_disable_cache_for_logout');
+
+// 🔧 修改WP Fastest Cache插件菜单名称
+function lolimeow_rename_wp_fastest_cache_menu() {
+    // 检查WP Fastest Cache插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wp-fastest-cache/wpFastestCache.php')) {
+        global $menu;
+        
+        // 遍历菜单数组，找到WP Fastest Cache的菜单并修改名称
+        foreach ($menu as $key => $value) {
+            if (strpos($value[0], 'WP Fastest Cache') !== false || strpos($value[0], 'wpFastestCache') !== false) {
+                $menu[$key][0] = 'WP清理缓存';
+                break;
+            }
+        }
+    }
+}
+add_action('admin_menu', 'lolimeow_rename_wp_fastest_cache_menu', 999);
+
+// 🎯 修改WP-Optimize插件菜单名称
+function lolimeow_rename_wp_optimize_menu() {
+    // 检查WP-Optimize插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wp-optimize/wp-optimize.php')) {
+        global $menu;
+        
+        // 遍历菜单数组，找到WP-Optimize的菜单并修改名称
+        foreach ($menu as $key => $value) {
+            if (strpos($value[0], 'WP-Optimize') !== false) {
+                $menu[$key][0] = 'WP优化';
+                break;
+            }
+        }
+    }
+}
+add_action('admin_menu', 'lolimeow_rename_wp_optimize_menu', 999);
+
+// 📦 修改WPvivid Backup插件菜单名称
+function lolimeow_rename_wpvivid_menu() {
+    // 检查WPvivid Backup插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wpvivid-backuprestore/wpvivid-backuprestore.php')) {
+        global $menu;
+        
+        // 遍历菜单数组，找到WPvivid Backup的菜单并修改名称
+        foreach ($menu as $key => $value) {
+            if (strpos($value[0], 'WPvivid Backup') !== false) {
+                $menu[$key][0] = '网站备份';
+                break;
+            }
+        }
+    }
+}
+add_action('admin_menu', 'lolimeow_rename_wpvivid_menu', 999);
+
+// 📋 修改WPvivid Backup插件工具栏菜单名称（通过过滤器）
+function lolimeow_rename_wpvivid_toolbar_menu_filter($toolbar_menus) {
+    // 检查WPvivid Backup插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wpvivid-backuprestore/wpvivid-backuprestore.php')) {
+        // 修改主菜单标题
+        if (isset($toolbar_menus['wpvivid_admin_menu'])) {
+            $toolbar_menus['wpvivid_admin_menu']['title'] = '网站备份';
+        }
+        
+        // 修改子菜单标题
+        if (isset($toolbar_menus['wpvivid_admin_menu']['child']['wpvivid_admin_menu_backup'])) {
+            $toolbar_menus['wpvivid_admin_menu']['child']['wpvivid_admin_menu_backup']['title'] = '备份与恢复';
+        }
+    }
+    return $toolbar_menus;
+}
+add_filter('wpvivid_get_toolbar_menus', 'lolimeow_rename_wpvivid_toolbar_menu_filter', 11);
+
+// 📋 确保工具栏菜单名称正确修改（通过admin_bar_menu钩子）
+function lolimeow_rename_wpvivid_toolbar_menu($wp_admin_bar) {
+    // 检查WPvivid Backup插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wpvivid-backuprestore/wpvivid-backuprestore.php')) {
+        // 获取工具栏菜单节点
+        $node = $wp_admin_bar->get_node('wpvivid_admin_menu');
+        
+        // 如果找到了节点，修改其标题
+        if ($node) {
+            $wp_admin_bar->remove_node('wpvivid_admin_menu');
+            $wp_admin_bar->add_menu(array(
+                'id' => 'wpvivid_admin_menu',
+                'title' => '<span class="dashicons-cloud ab-icon"></span>网站备份'
+            ));
+            
+            // 检查是否有子菜单节点需要修改
+            $child_node = $wp_admin_bar->get_node('wpvivid_admin_menu_backup');
+            if ($child_node) {
+                $wp_admin_bar->remove_node('wpvivid_admin_menu_backup');
+                $wp_admin_bar->add_menu(array(
+                    'id' => 'wpvivid_admin_menu_backup',
+                    'parent' => 'wpvivid_admin_menu',
+                    'title' => '备份与恢复',
+                    'href' => admin_url('admin.php?page=WPvivid&tab-backup')
+                ));
+            }
+        }
+    }
+}
+add_action('admin_bar_menu', 'lolimeow_rename_wpvivid_toolbar_menu', 100);
+
+// 📋 修改WP-Optimize插件子菜单名称
+function lolimeow_rename_wp_optimize_submenus() {
+    // 检查WP-Optimize插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wp-optimize/wp-optimize.php')) {
+        global $submenu;
+        
+        // 遍历子菜单数组，找到WP-Optimize的子菜单并修改名称
+        foreach ($submenu as $key => $value) {
+            if (strpos($key, 'WP-Optimize') !== false || strpos($key, 'wp-optimize') !== false) {
+                foreach ($value as $subkey => $subvalue) {
+                    // 修改子菜单名称
+                    switch ($subvalue[0]) {
+                        case 'Database':
+                            $submenu[$key][$subkey][0] = '数据库';
+                            break;
+                        case 'Images':
+                            $submenu[$key][$subkey][0] = '图片';
+                            break;
+                        case 'Cache':
+                            $submenu[$key][$subkey][0] = '缓存';
+                            break;
+                        case 'Minify':
+                            $submenu[$key][$subkey][0] = '压缩';
+                            break;
+                        case 'Performance':
+                            $submenu[$key][$subkey][0] = '性能';
+                            break;
+                        case 'Settings':
+                            $submenu[$key][$subkey][0] = '设置';
+                            break;
+                        case 'Help':
+                            $submenu[$key][$subkey][0] = '帮助';
+                            break;
+                        case 'Premium Upgrade':
+                            $submenu[$key][$subkey][0] = '升级高级版';
+                            break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+add_action('admin_menu', 'lolimeow_rename_wp_optimize_submenus', 999);
+
+// 📋 修改WPvivid Backup插件子菜单名称
+function lolimeow_rename_wpvivid_submenus() {
+    // 检查WPvivid Backup插件是否已安装
+    if (file_exists(WP_PLUGIN_DIR . '/wpvivid-backuprestore/wpvivid-backuprestore.php')) {
+        global $submenu;
+        
+        // 遍历子菜单数组，找到WPvivid Backup的子菜单并修改名称
+        foreach ($submenu as $key => $value) {
+            if (strpos($key, 'WPvivid') !== false || strpos($key, 'wpvivid') !== false) {
+                foreach ($value as $subkey => $subvalue) {
+                    // 修改子菜单名称
+                    switch ($subvalue[0]) {
+                        case 'Backup & Restore':
+                            $submenu[$key][$subkey][0] = '备份与恢复';
+                            break;
+                        case 'Settings':
+                            $submenu[$key][$subkey][0] = '设置';
+                            break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+}
+add_action('admin_menu', 'lolimeow_rename_wpvivid_submenus', 999);
+
+// 🎨 动态修改主题名称在后台显示，添加版本号
+function lolimeow_dynamic_theme_name_in_admin($prepared_themes) {
+    // 获取当前主题信息
+    $current_theme = wp_get_theme();
+    $theme_slug = $current_theme->get('TextDomain');
+    $theme_version = $current_theme->get('Version');
+    $current_theme_dir = basename(get_template_directory());
+    
+    // 遍历所有准备好的主题数据
+    foreach ($prepared_themes as &$theme_data) {
+        // 检查数组中是否存在'stylesheet'键
+        if (isset($theme_data['stylesheet'])) {
+            // 检查是否是当前主题
+            if ($theme_data['stylesheet'] === $theme_slug || $theme_data['stylesheet'] === $current_theme_dir) {
+                // 动态添加版本号到主题名称
+                $theme_data['name'] = $current_theme->get('Name') . ' ' . $theme_version;
+                break;
+            }
+        }
+    }
+    
+    return $prepared_themes;
+}
+add_filter('wp_prepare_themes_for_js', 'lolimeow_dynamic_theme_name_in_admin');

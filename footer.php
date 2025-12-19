@@ -38,6 +38,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
           </li>
           <?php endif; ?>
           <?php if(get_boxmoe('boxmoe_lolijump_switch')): ?>
+            <li>
             <a id="lolijump" href="#" title="返回顶部">
                 <?php
                 $lolijump_img = get_boxmoe('boxmoe_lolijump_img');
@@ -49,6 +50,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
                 }
                 ?>
               <img src="<?php echo $lolijump_src; ?>" alt="返回顶部"></a>
+            </li>
           <?php endif; ?>
 
           <!-- 🎬 视频播放器看板娘配置 -->
