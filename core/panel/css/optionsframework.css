@@ -138,7 +138,7 @@ input[type="number"].number-text-d {width:70px;}
 #optionsframework input[type="radio"]:checked::before {background-color:#627c83 !important;}
 #show_slider_video_url-image .no-image,#group_slider_video_url-image .no-image {display:none;}
 /**自定义**/#setting-error-save_options,#message {top:0;position:absolute;left:0;width:60%;color:#000;}
-#optionsframework-wrap {margin:50px auto 0 !important;box-shadow:1px 4px 15px rgb(125 147 178 / 32%);border-radius:10px;width:80%;border-top-right-radius:2rem;border-top-left-radius:2rem;}
+#optionsframework-wrap {margin:50px auto 0 !important;box-shadow:1px 4px 15px rgb(125 147 178 / 32%);border-radius:10px;width:80%;border-top-right-radius:2rem;border-top-left-radius:2rem;position:relative;}
 @media screen and (max-width:767px) {#optionsframework-wrap {width:100%;}
 }
 #optionsframework-wrap .header-set-title {background:#ebecee;color:#fff;display:flex;padding-left:20px;padding-right:20px;justify-content:space-between;align-items:center;height:120px;border-top-right-radius:2rem;border-top-left-radius:2rem;}
@@ -163,7 +163,7 @@ input[type="number"].number-text-d {width:70px;}
 #optionsframework-wrap h3 {cursor:default;background-color:#fff;line-height:1.4;padding:1.3em 20px;border-bottom:none;padding-bottom:10px;color:#1d2327;font-size:1.3em;}
 #optionsframework-wrap .postbox,#optionsframework-wrap .stuffbox {margin-bottom:0;border:0;border-right:solid 1px #f9f9ff;border-left:solid 1px #f9f9ff;background-color:#fff;min-height:800px;}
 #optionsframework-wrap .postbox {border-radius:0;}
-/**保存/重置**/#optionsframework-submit {padding:10px;box-sizing:border-box;text-align:right;left:0;right:0;bottom:0;background-color:#f9fafb;border-top:1px solid #e9e9ea;position:sticky;border-radius:0 0 10px 10px;}
+/**保存/重置**/#optionsframework-submit {padding:10px;box-sizing:border-box;text-align:right;background-color:#f9fafb;border-top:1px solid #e9e9ea;position:fixed;z-index:9999;border-radius:0;width:calc(80% - 250px);right:10%;bottom:0;left:auto;}
 input.reset-button.button-secondary {float:left;background:#be3838;color:#fff;border-color:#be3838;}
 @media screen and (max-width:550px) {#optionsframework-wrap {margin:10px auto 0 !important;}
 #of-search-input{width:55vw}
@@ -180,6 +180,7 @@ h1 .nav-tab,h2 .nav-tab,h3 .nav-tab,nav .nav-tab {margin:0;border-bottom:0;}
 #optionsframework-wrap .set-main-plane.on .metabox-holder {left:250px;}
 #optionsframework-wrap .set-main-plane.on .set-main-menu {width:300px;}
 #optionsframework-wrap .header-set-title {padding-left:0px;}
+#optionsframework-submit {width:calc(100% - 20px) !important;right:10px !important;left:10px !important;}
 }
 .boxmoe-options-site-name {font-size:1.3rem;position:relative;margin:3rem 0 2rem 0;padding:0 2.5rem 0.5rem 2rem;width:calc(100% - 3rem);display:flex;align-items:center;color:#fff;FONT-WEIGHT:600;transition-duration:0.2s;}
 .boxmoe-options-site-name svg {position:absolute;fill:#333;width:16px;height:16px;right:55px;top:50%;transform:translateY(-50%);display:none;}

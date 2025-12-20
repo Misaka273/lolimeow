@@ -23,13 +23,19 @@ function boxmoe_markdown_to_html($text){
         global $post;
         $is_author = false;
         if(is_user_logged_in() && $post){
-            $is_author = (get_current_user_id() == $post->post_author);
+            $current_user_id = get_current_user_id();
+            $is_author = ($current_user_id == $post->post_author);
+            
+            // 检查用户是否是被授权的编辑者
+            if (!$is_author) {
+                $editors = get_post_meta($post->ID, '_boxmoe_post_editors', true);
+                $editors = is_array($editors) ? $editors : array();
+                $is_author = in_array($current_user_id, $editors);
+            }
         }
-        // 强制启用交互功能，便于调试
-        $is_author = true;
         $list_class = $is_author ? 'md-task-list-interactive' : 'md-task-list-static';
         foreach($items as $it){
-            if(preg_match('/^-\s*\[( |x|>)\]\s+(.+)/',$it,$mm)){
+            if(preg_match('/^-\s*\[( |x|>)\]\s+(.+)/', $it, $mm)){
                 $status_char = $mm[1];
                 // 根据状态字符设置emoji和状态值
                 switch($status_char){
@@ -47,14 +53,27 @@ function boxmoe_markdown_to_html($text){
                         break;
                 }
                 $item_class = $is_author ? 'md-task-item-interactive' : 'md-task-item-static';
-                $lis .= '<li class="md-task-item '.$item_class.'" data-task-status="'.$task_status.'" data-task-content="'.esc_attr($mm[2]).'" data-is-author="'.($is_author ? 'true' : 'false').'">';
-                $lis .= '<span class="md-task-emoji">'.$emoji.'</span>';
-                $lis .= '<span class="md-task-text">'.$mm[2].'</span>';
+                $task_content = esc_attr($mm[2]);
+                $lis .= '<li class="md-task-item ' . $item_class . '" data-task-status="' . $task_status . '" data-task-content="' . $task_content . '" data-is-author="' . ($is_author ? 'true' : 'false') . '">';
+                $lis .= '<span class="md-task-emoji">' . $emoji . '</span>';
+                $lis .= '<span class="md-task-text">' . $mm[2] . '</span>';
                 $lis .= '</li>';
             }
         }
-        return '<ul class="md-task-list '.$list_class.'">'.$lis.'</ul>';
+        return '<ul class="md-task-list ' . $list_class . '">' . $lis . '</ul>';
     }, $text);
+    
+    // 确保进行中状态的样式正确显示
+    add_action('wp_head', function(){
+        ?> <style>
+        .md-task-list-static .md-task-item[data-task-status="in-progress"] .md-task-emoji:before {
+            content: "🔄";
+        }
+        .md-task-list-interactive .md-task-item[data-task-status="in-progress"] .md-task-emoji:before {
+            content: "🔄";
+        }
+        </style><?php
+    });
     $text = preg_replace_callback('/(^|\n)(?:-\s+.+(?:\n|$))+/', function($m){
         $items = preg_split('/\n/', trim($m[0]));
         $lis = '';
@@ -111,12 +130,27 @@ function boxmoe_markdown_to_html($text){
 }
 
 function boxmoe_md_the_content($content){
-    if(get_boxmoe('boxmoe_md_editor_switch')){
+    // 只在前端显示时转换为HTML，后台编辑器中保持原始Markdown语法
+    if(get_boxmoe('boxmoe_md_editor_switch') && !is_admin()){
         return boxmoe_markdown_to_html($content);
     }
     return $content;
 }
 add_filter('the_content', 'boxmoe_md_the_content', 9);
+
+// 修复后台编辑器中的HTML实体问题
+function boxmoe_fix_md_editor_content($content){
+    if(get_boxmoe('boxmoe_md_editor_switch') && is_admin()){
+        // 将HTML实体转换为原始字符，确保后台编辑器中显示正确的Markdown语法
+        $content = str_replace('&gt;', '>', $content);
+        $content = str_replace('&lt;', '<', $content);
+        $content = str_replace('&quot;', '"', $content);
+        $content = str_replace('&#039;', "'", $content);
+    }
+    return $content;
+}
+add_filter('content_edit_pre', 'boxmoe_fix_md_editor_content');
+add_filter('the_editor_content', 'boxmoe_fix_md_editor_content');
 
 if(get_boxmoe('boxmoe_md_editor_switch')){
     add_filter('use_block_editor_for_post', '__return_false');
@@ -146,7 +180,23 @@ if(get_boxmoe('boxmoe_md_editor_switch')){
 add_action('wp_ajax_update_task_status', 'boxmoe_update_task_status');
 add_action('wp_ajax_nopriv_update_task_status', 'boxmoe_update_task_status_nopriv');
 
+// 前端任务清单AJAX初始化
+add_action('wp_enqueue_scripts', function(){
+    // 只在单页文章和页面中加载任务清单脚本
+    if(is_singular()){
+        wp_localize_script('boxmoe-script', 'ajax_object', array(
+            'ajaxurl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('boxmoe_task_status')
+        ));
+    }
+});
+
 function boxmoe_update_task_status(){
+    // 检查nonce
+    if(!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'boxmoe_task_status')){
+        wp_send_json_error(['message'=>'无效的nonce']);
+    }
+    
     if(!isset($_POST['post_id']) || !isset($_POST['task_content']) || !isset($_POST['current_status'])){
         wp_send_json_error(['message'=>'缺少必要参数']);
     }
@@ -158,16 +208,60 @@ function boxmoe_update_task_status(){
     // 获取当前用户ID
     $current_user_id = get_current_user_id();
     
-    // 为了调试，先暂时注释掉权限验证
     // 验证用户权限
-    // $post = get_post($post_id);
-    // if(!$post || $current_user_id !== $post->post_author){
-    //     wp_send_json_error(['message'=>'没有权限修改此任务']);
-    // }
+    $post = get_post($post_id);
+    if(!$post){
+        wp_send_json_error(['message'=>'文章不存在']);
+    }
     
-    // 允许所有登录用户修改任务状态（调试用）
-    if(!is_user_logged_in()){
-        wp_send_json_error(['message'=>'请先登录']);
+    // 初始化编辑者数组，避免作用域问题
+    $editors = array();
+    
+    // 检查用户是否有修改权限
+    $is_allowed = false;
+    
+    // 1. 检查WordPress内置权限（管理员、编辑、作者等）
+    if(current_user_can('edit_post', $post_id)){
+        $is_allowed = true;
+    } else {
+        // 2. 检查用户是否是文章作者
+        if($current_user_id === $post->post_author){
+            $is_allowed = true;
+        } else {
+            // 3. 检查用户是否是被授权的编辑者
+            $editors = get_post_meta($post_id, '_boxmoe_post_editors', true);
+            
+            // 添加详细调试日志
+            error_log('原始编辑者数据: ' . print_r($editors, true));
+            
+            $editors = is_array($editors) ? $editors : array();
+            
+            // 确保$current_user_id是整数
+            $current_user_id = intval($current_user_id);
+            
+            // 将编辑者列表转换为整数数组
+            $editors = array_map('intval', $editors);
+            
+            // 添加调试日志
+            error_log('处理后的编辑者列表: ' . implode(', ', $editors));
+            error_log('当前用户ID (整数): ' . $current_user_id);
+            error_log('in_array返回值: ' . (in_array($current_user_id, $editors) ? 'true' : 'false'));
+            
+            $is_allowed = in_array($current_user_id, $editors);
+        }
+    }
+    
+    // 添加调试日志
+    error_log('任务状态更新权限检查:');
+    error_log('当前用户ID: ' . $current_user_id);
+    error_log('文章作者ID: ' . $post->post_author);
+    error_log('文章编辑者列表: ' . implode(', ', $editors));
+    error_log('是否有权限: ' . ($is_allowed ? '是' : '否'));
+    error_log('内置权限检查: ' . (current_user_can('edit_post', $post_id) ? '是' : '否'));
+    
+    // 只有有权限的用户才能修改任务状态
+    if(!$is_allowed){
+        wp_send_json_error(['message'=>'没有权限修改此任务']);
     }
     
     // 获取当前文章内容
@@ -179,23 +273,24 @@ function boxmoe_update_task_status(){
     $content = $post->post_content;
     
     // 根据当前状态计算下一个状态
-    // 状态循环：pending → in-progress → completed → pending
+    // 状态循环：in-progress → pending → completed → in-progress
+    // 对应语法：- [>] → - [ ] → - [x] → - [>]
     switch($current_status){
-        case 'pending':
-            $next_status = 'in-progress';
-            $status_char = '>';
-            break;
         case 'in-progress':
+            $next_status = 'pending';
+            $status_char = ' ';
+            break;
+        case 'pending':
             $next_status = 'completed';
             $status_char = 'x';
             break;
         case 'completed':
-            $next_status = 'pending';
-            $status_char = ' ';
+            $next_status = 'in-progress';
+            $status_char = '>';
             break;
         default:
-            $next_status = 'pending';
-            $status_char = ' ';
+            $next_status = 'in-progress';
+            $status_char = '>';
             break;
     }
     
@@ -203,46 +298,80 @@ function boxmoe_update_task_status(){
     error_log('更新任务状态: post_id='.$post_id.', task_content='.$task_content.', current_status='.$current_status.', next_status='.$next_status.', status_char='.$status_char);
     error_log('原始文章内容前100字符: '.substr($content, 0, 100));
     
-    // 更新任务状态
-    // 使用更精确的正则表达式，确保能匹配和替换任务内容
-    // 匹配完整的任务行，包括换行符，支持三种状态
-    $pattern = '/^-\s*\[( |x|>)\]\s+'.preg_quote($task_content, '/').'(\s*)(?:$|\n)/m';
-    $replacement = '- ['.$status_char.'] '.$task_content.'$2';
-    $updated_content = preg_replace($pattern, $replacement, $content, 1);
+    // 记录完整的文章内容用于调试
+    error_log('完整文章内容: '.str_replace('\n', '\\n', $content));
     
-    error_log('第一次替换后内容变化: '.($updated_content === $content ? '无变化' : '有变化'));
+    // 当所有任务内容完全相同时，我们需要使用更智能的匹配策略
+    // 1. 首先将文章内容按行分割（使用双引号确保换行符被正确解释）
+    $lines = explode("\n", $content);
+    $updated = false;
     
-    // 如果没有匹配到，尝试使用更宽松的匹配方式
-    if($updated_content === $content){
-        // 尝试匹配任务内容，允许前后有不同的空格
-        $pattern = '/^-\s*\[( |x|>)\]\s+(.*?)'.preg_quote($task_content, '/').'(.*?)(?:$|\n)/m';
-        $replacement = '- ['.$status_char.'] $1'.$task_content.'$2$3';
-        $updated_content = preg_replace($pattern, $replacement, $content, 1);
+    // 2. 遍历每一行，查找需要更新的任务行
+    for($i = 0; $i < count($lines); $i++){
+        $line = $lines[$i];
         
-        error_log('第二次替换后内容变化: '.($updated_content === $content ? '无变化' : '有变化'));
-        
-        // 如果还是没有匹配到，尝试使用更宽松的匹配方式
-        if($updated_content === $content){
-            // 尝试匹配包含任务内容的行，不考虑具体格式
-            $pattern = '/^(.*?)'.preg_quote($task_content, '/').'(.*?)(?:$|\n)/m';
-            // 找到行后，替换整行的任务状态
-            $updated_content = preg_replace_callback($pattern, function($matches) use ($task_content, $status_char) {
-                $full_line = $matches[0];
-                $before = $matches[1];
-                $after = $matches[2];
-                
-                // 检查是否是任务行
-                if(preg_match('/^-\s*\[( |x|>)\]\s+/', $before)){
-                    // 是任务行，替换任务状态
-                    return '- ['.$status_char.'] '.$task_content.$after;
-                }
-                // 不是任务行，保持不变
-                return $full_line;
-            }, $content, 1);
+        // 检查是否是任务行
+        if(preg_match('/^-\s*\[( |x|>|&gt;)\]\s+(.*)$/', $line, $matches)){
+            $current_status_char = $matches[1];
+            $line_content = $matches[2];
             
-            error_log('第三次替换后内容变化: '.($updated_content === $content ? '无变化' : '有变化'));
+            // 精确匹配任务内容（去除HTML实体影响）
+            $clean_line_content = trim(str_replace('&gt;', '>', str_replace('&lt;', '<', $line_content)));
+            $clean_task_content = trim($task_content);
+            
+            // 记录当前行的匹配信息
+            error_log('检查行 ' . ($i+1) . ': "' . $line . '"');
+            error_log('  当前状态字符: "' . $current_status_char . '"');
+            error_log('  行内容(clean): "' . $clean_line_content . '"');
+            error_log('  目标内容(clean): "' . $clean_task_content . '"');
+            error_log('  内容匹配: ' . ($clean_line_content === $clean_task_content ? '是' : '否'));
+            error_log('  当前状态: "' . $current_status . '"');
+            
+            // 匹配条件：
+            // 1. 任务内容完全匹配
+            // 2. 当前状态字符与请求的当前状态匹配
+            $status_matched = false;
+            if($current_status == 'pending' && $current_status_char == ' ') {
+                $status_matched = true;
+            } elseif($current_status == 'completed' && $current_status_char == 'x') {
+                $status_matched = true;
+            } elseif($current_status == 'in-progress' && ($current_status_char == '>' || $current_status_char == '&gt;')) {
+                $status_matched = true;
+            }
+            
+            error_log('  状态匹配: ' . ($status_matched ? '是' : '否'));
+            
+            if($clean_line_content === $clean_task_content && $status_matched){
+                // 找到匹配的任务行，更新状态
+                error_log('  找到匹配行，更新状态');
+                
+                // 替换该行的状态字符
+                $new_line = preg_replace('/^(-\s*)\[( |x|>|&gt;)\]/', '$1['.$status_char.']', $line);
+                $lines[$i] = $new_line;
+                $updated = true;
+                break; // 只更新第一个匹配的行，避免更新所有相同内容的行
+            }
         }
     }
+    
+    // 如果找到并更新了任务行，重新组合文章内容（使用双引号确保换行符被正确解释）
+    if($updated){
+        $updated_content = implode("\n", $lines);
+        error_log('找到并更新了匹配的任务行');
+    } else {
+        // 如果没有找到匹配的任务行，保持原内容不变
+        $updated_content = $content;
+        error_log('没有找到匹配的任务行');
+    }
+    
+    // 确保所有HTML实体都被转换为原始字符
+    $updated_content = str_replace('&gt;', '>', $updated_content);
+    $updated_content = str_replace('&lt;', '<', $updated_content);
+    
+    // 添加调试日志，查看最终更新后的内容
+    error_log('最终更新后的内容片段: ' . substr($updated_content, 0, 200));
+    $updated_content = str_replace('&quot;', '"', $updated_content);
+    $updated_content = str_replace('&#039;', "'", $updated_content);
     
     // 记录替换结果
     error_log('替换结果: '.($updated_content === $content ? '未找到匹配的任务' : '成功更新任务状态'));

@@ -90,7 +90,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
                                                          echo '<option value="43" '.$checked.'>USDT</option>';
                                                          break;
                                                       case 'vpay-wx':
-                                                         echo '<option value="32" '.$checked.'>微信</option>';
+                                                         echo '<option value="32" '.$checked.'>支付宝</option>';
                                                          break;
                                                       case 'vpay-ali':
                                                          echo '<option value="31" '.$checked.'>微信</option>';

@@ -1,0 +1,291 @@
+/* 📋 强制移动端单排布局以上图下文字形式呈现 */
+
+/* 新增：覆盖992px到1200px断点，确保这个区间也是上图下文字 */
+@media (max-width: 1200px) and (min-width: 992px) {
+    /* 针对 layout-single 类的选择器，确保优先级足够高 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one,
+    .row > [class*="col-12"] > .post-list.list-one {
+        flex-direction: column !important;
+        display: flex !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+        background-image: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 确保新增的容器元素正确显示 */
+    .layout-single .single-row-layout,
+    .layout-single .post-list-card {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        overflow: visible !important;
+    }
+    
+    /* 确保卡片内部元素正确布局 */
+    .layout-single .post-list-card {
+        background: transparent !important;
+        border-radius: var(--bs-border-radius-lg) !important;
+        overflow: hidden !important;
+        box-shadow: none !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* 针对 layout-single 类的图片区域，确保在上 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-img,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-img {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        order: 1 !important;
+    }
+    
+    /* 针对 layout-single 类的内容区域，确保在下 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
+        order: 2 !important;
+    }
+    
+    /* 额外针对 layout-single 类的直接子元素 */
+    .layout-single .post-list {
+        flex-direction: column !important;
+        display: flex !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 20px !important;
+        background-image: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .layout-single .post-list-img {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        order: 1 !important;
+    }
+    
+    .layout-single .post-list-content {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        margin: 0 !important;
+        order: 2 !important;
+    }
+}
+
+/* 原有：覆盖991px以下断点，确保是上图下文字 */
+@media (max-width: 991px) {
+    /* 针对 layout-single 类的选择器，确保优先级足够高 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one,
+    .row > [class*="col-12"] > .post-list.list-one {
+        flex-direction: column !important;
+        display: flex !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 0 !important;
+        background-image: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    /* 确保新增的容器元素正确显示 */
+    .layout-single .single-row-layout,
+    .layout-single .post-list-card {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        overflow: visible !important;
+    }
+    
+    /* 确保卡片内部元素正确布局 */
+    .layout-single .post-list-card {
+        background: transparent !important;
+        border-radius: var(--bs-border-radius-lg) !important;
+        overflow: hidden !important;
+        box-shadow: none !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    /* 针对 layout-single 类的图片区域，确保在上 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-img,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-img {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        order: 1 !important;
+    }
+    
+    /* 针对 layout-single 类的内容区域，确保在下 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        padding: 20px !important;
+        margin: 0 !important;
+        order: 2 !important;
+        position: relative !important;
+        z-index: 1 !important;
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    /* 确保内容区域内的元素正常显示 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .category,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .category {
+        margin-bottom: 12px !important;
+    }
+    
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > h3,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > h3 {
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .post-meta,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .post-meta {
+        margin-top: 15px !important;
+        padding-top: 15px !important;
+    }
+    
+    /* 额外针对 layout-single 类的直接子元素 */
+    .layout-single .post-list {
+        flex-direction: column !important;
+        display: flex !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        padding: 15px 0 !important;
+        background-image: none !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    
+    .layout-single .post-list-img {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        margin-right: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 0 !important;
+        order: 1 !important;
+    }
+    
+    .layout-single .post-list-content {
+        flex: 1 1 100% !important;
+        width: 100% !important;
+        padding: 20px !important;
+        margin: 0 !important;
+        order: 2 !important;
+        position: relative !important;
+        z-index: 1 !important;
+    }
+    
+    .layout-single .post-list-content .category {
+        margin-bottom: 12px !important;
+    }
+    
+    .layout-single .post-list-content h3 {
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
+        line-height: 1.4 !important;
+        margin-bottom: 12px !important;
+    }
+    
+    .layout-single .post-list-content .post-meta {
+        margin-top: 15px !important;
+        padding-top: 15px !important;
+    }
+    
+    /* 确保文章内容和元信息显示 */
+    .layout-single .post-content,
+    .layout-single .post-title,
+    .layout-single .text-reset,
+    .layout-single .post-meta,
+    .layout-single .category,
+    .layout-single .tags,
+    .layout-single .post-list-avatar,
+    .layout-single .post-meta-info {
+        display: block !important;
+        color: var(--bs-body-color) !important;
+    }
+}
+
+/* 更小屏幕的适配 */
+@media (max-width: 768px) {
+    /* 针对 layout-single 类的选择器 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one,
+    .row > [class*="col-12"] > .post-list.list-one {
+        padding: 15px 0 !important;
+        margin-bottom: 2rem !important;
+    }
+    
+    /* 针对 layout-single 类的图片 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-img > figure > a > img,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-img > figure > a > img,
+    .layout-single .post-list-img > figure > a > img {
+        height: 160px !important;
+        object-fit: cover !important;
+    }
+    
+    /* 针对 layout-single 类的标题 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > h3,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > h3,
+    .layout-single .post-list-content > h3 {
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    /* 针对 layout-single 类的选择器 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one,
+    .row > [class*="col-12"] > .post-list.list-one {
+        padding: 10px 0 !important;
+        margin-bottom: 1.5rem !important;
+    }
+    
+    /* 针对 layout-single 类的图片 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-img > figure > a > img,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-img > figure > a > img,
+    .layout-single .post-list-img > figure > a > img {
+        height: 140px !important;
+        object-fit: cover !important;
+    }
+    
+    /* 针对 layout-single 类的标题 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > h3,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > h3,
+    .layout-single .post-list-content > h3 {
+        font-size: 0.85rem !important;
+        margin-bottom: 8px !important;
+    }
+    
+    /* 针对 layout-single 类的元数据 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .post-meta,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .post-meta,
+    .layout-single .post-list-content > .post-meta {
+        gap: 10px !important;
+        margin-top: 10px !important;
+        padding-top: 10px !important;
+    }
+    
+    /* 针对 layout-single 类的统计数据 */
+    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .post-meta > .post-meta-info > .post-meta-stats,
+    .row > [class*="col-12"] > .post-list.list-one > .post-list-content > .post-meta > .post-meta-info > .post-meta-stats,
+    .layout-single .post-list-content > .post-meta > .post-meta-info > .post-meta-stats {
+        gap: 10px !important;
+    }
+}

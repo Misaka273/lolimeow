@@ -64,66 +64,7 @@ function custom_password_protected_form($form) {
 }
 add_filter('the_password_form', 'custom_password_protected_form');
 
-// 🎉 主题激活时自动创建页面
-function lolimeow_create_pages_on_activation() {
-    // 定义需要创建的页面数组
-    $pages = array(
-        array(
-            'title' => '友链',
-            'content' => '',
-            'template' => 'page/p-links.php',
-            'slug' => 'links'
-        ),
-        array(
-            'title' => '友情链接',
-            'content' => '',
-            'template' => 'page/p-links.php',
-            'slug' => 'friends'
-        ),
-        array(
-            'title' => '外链提示版',
-            'content' => '',
-            'template' => 'page/p-goto.php',
-            'slug' => 'goto'
-        ),
-        array(
-            'title' => '外链直跳版',
-            'content' => '',
-            'template' => 'page/p-go.php',
-            'slug' => 'go'
-        ),
-        array(
-            'title' => '注册页面',
-            'content' => '',
-            'template' => 'page/p-signup.php',
-            'slug' => 'signup'
-        ),
-        array(
-            'title' => '用户中心',
-            'content' => '',
-            'template' => 'page/p-user_center.php',
-            'slug' => 'user-center'
-        ),
-        array(
-            'title' => '登录页面',
-            'content' => '',
-            'template' => 'page/p-signin.php',
-            'slug' => 'signin'
-        ),
-        array(
-            'title' => '重置密码页面',
-            'content' => '',
-            'template' => 'page/p-reset_password.php',
-            'slug' => 'reset-password'
-        )
-    );
 
-}
-
-
-
-// 主题激活时触发函数
-add_action('after_switch_theme', 'lolimeow_create_pages_on_activation');
 
 // 将书签小部件标题从"书签"改为"链接"
 function lolimeow_change_bookmark_title($args) {
@@ -140,6 +81,19 @@ function lolimeow_custom_logout_page() {
                       strpos($_SERVER['REQUEST_URI'], 'action=logout') !== false;
     
     if ($is_logout_page) {
+        // 检查是否有POST请求，确认用户点击了"是的，注销"按钮
+        if (isset($_POST['logout_confirm'])) {
+            // 验证nonce
+            if (isset($_POST['_wpnonce']) && wp_verify_nonce($_POST['_wpnonce'], 'log-out')) {
+                // 直接执行注销操作
+                wp_logout();
+                
+                // 重定向到首页
+                wp_safe_redirect(home_url());
+                exit;
+            }
+        }
+        
         // 避免重复定义常量
         if (!defined('DONOTCACHEPAGE')) {
             define('DONOTCACHEPAGE', true);
@@ -371,11 +325,10 @@ function lolimeow_custom_logout_page() {
         </div>
         
         <div class="button-group">
-            <!-- 注销按钮 - 使用WordPress标准注销机制 -->
-            <form method="post" action="' . esc_url(site_url('wp-login.php')) . '" style="margin: 0;">
-                <input type="hidden" name="action" value="logout">
-                <input type="hidden" name="_wpnonce" value="' . esc_attr($_GET['_wpnonce']) . '">
-                <input type="hidden" name="redirect_to" value="' . esc_url(home_url()) . '">
+            <!-- 注销按钮 - 直接执行注销操作 -->
+            <form method="post" action="' . esc_url(add_query_arg(array('action' => 'logout'), site_url('wp-login.php'))) . '" style="margin: 0;">
+                <input type="hidden" name="logout_confirm" value="1">
+                <input type="hidden" name="_wpnonce" value="' . esc_attr(wp_create_nonce('log-out')) . '">
                 <button type="submit" class="btn btn-primary">是的，注销</button>
             </form>
             <!-- 取消按钮 -->

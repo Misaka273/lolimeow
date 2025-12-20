@@ -65,9 +65,10 @@ add_action('manage_posts_custom_column', 'boxmoe_admin_post_thumbnail_column_con
 function boxmoe_dashboard_widget_function() {
     echo '<div style="text-align:center;">
     <img src="'.boxmoe_theme_url().'/assets/images/logo.png" style="width:100px;margin-bottom:10px;">
-    <h3>Lolimeow Theme</h3>
-    <p>Version: '.THEME_VERSION.'</p>
-    <p>By <a href="https://www.boxmoe.com" target="_blank">Boxmoe</a></p>
+    <h3>盒子萌 - 纸鸢版</h3>
+    <p>原创作者：<a href="https://www.boxmoe.com" target="_blank">boxmoe</a></p>
+    <p>当前主题版本: '.THEME_VERSION.'</p>
+    <p>当前主题二创作者： <a href="https://gl.baimu.live" target="_blank">白木</a></p>
     </div>';
 }
 function boxmoe_add_dashboard_widgets() {
@@ -670,7 +671,11 @@ function boxmoe_fix_post_date_column($post_date, $post) {
     if ($date) {
         // 确保日期对象使用正确的时区
         $date = $date->setTimezone(wp_timezone());
-        return $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+        $formatted_date = $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+        // 将英文时段转换为中文
+        $formatted_date = str_replace(array('AM', 'am'), '上午', $formatted_date);
+        $formatted_date = str_replace(array('PM', 'pm'), '下午', $formatted_date);
+        return $formatted_date;
     }
     return $post_date;
 }
@@ -685,7 +690,11 @@ function boxmoe_fix_comment_date_column($column_output, $column_name, $comment_i
             if ($date) {
                 // 确保日期对象使用正确的时区
                 $date = $date->setTimezone(wp_timezone());
-                return $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+                $formatted_date = $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+                // 将英文时段转换为中文
+                $formatted_date = str_replace(array('AM', 'am'), '上午', $formatted_date);
+                $formatted_date = str_replace(array('PM', 'pm'), '下午', $formatted_date);
+                return $formatted_date;
             }
         }
     }
@@ -702,7 +711,11 @@ function boxmoe_fix_media_date_column($column_output, $column_name, $attachment_
             if ($date) {
                 // 确保日期对象使用正确的时区
                 $date = $date->setTimezone(wp_timezone());
-                return $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+                $formatted_date = $date->format(get_option('date_format') . ' ' . get_option('time_format'));
+                // 将英文时段转换为中文
+                $formatted_date = str_replace(array('AM', 'am'), '上午', $formatted_date);
+                $formatted_date = str_replace(array('PM', 'pm'), '下午', $formatted_date);
+                return $formatted_date;
             }
         }
     }
@@ -710,13 +723,17 @@ function boxmoe_fix_media_date_column($column_output, $column_name, $attachment_
 }
 add_filter('manage_media_custom_column', 'boxmoe_fix_media_date_column', 10, 3);
 
-// 🔄 确保所有日期函数都使用正确的时区
+// 🔄 确保所有日期函数都使用正确的时区和中文时段
 function boxmoe_fix_date_i18n($date, $format, $timestamp, $gmt) {
     // 如果是GMT时间，转换为本地时间
     if ($gmt) {
         $timestamp = get_date_from_gmt(date('Y-m-d H:i:s', $timestamp));
         $timestamp = strtotime($timestamp);
     }
-    return date($format, $timestamp);
+    // 生成日期并将英文时段转换为中文
+    $formatted_date = date($format, $timestamp);
+    $formatted_date = str_replace(array('AM', 'am'), '上午', $formatted_date);
+    $formatted_date = str_replace(array('PM', 'pm'), '下午', $formatted_date);
+    return $formatted_date;
 }
 add_filter('date_i18n', 'boxmoe_fix_date_i18n', 10, 4);

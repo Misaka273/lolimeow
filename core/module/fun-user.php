@@ -8,86 +8,262 @@ if(!defined('ABSPATH')){
 // 用户中心链接设置--------------------------boxmoe.com--------------------------
 function boxmoe_user_center_link_page(){
     $boxmoe_user_center_link_page = get_boxmoe('boxmoe_user_center_link_page');
-    if($boxmoe_user_center_link_page){
-        return get_the_permalink($boxmoe_user_center_link_page);
-    }else{
-        // 🔍 自动查找使用 p-user_center.php 模板的用户中心页面
+    if($boxmoe_user_center_link_page && is_numeric($boxmoe_user_center_link_page)){
+        $permalink = get_the_permalink($boxmoe_user_center_link_page);
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 自动查找使用 p-user_center.php 模板的用户中心页面（尝试多种模板路径格式）
+    $template_paths = array(
+        'page/p-user_center.php',
+        'p-user_center.php'
+    );
+    
+    foreach($template_paths as $template_path){
         $user_center_pages = get_pages(array(
             'meta_key' => '_wp_page_template',
-            'meta_value' => 'page/p-user_center.php'
+            'meta_value' => $template_path
         ));
         if(!empty($user_center_pages)){
             // 🔗 返回找到的第一个用户中心页面的链接
             return get_the_permalink($user_center_pages[0]);
-        }else{
-            // 🔗 回退到默认用户中心页面链接
-            return home_url('/user-center');
         }
     }
+    
+    // 🔍 按模板名称查找用户中心页面
+    $args = array(
+        'post_type' => 'page',
+        'posts_per_page' => 1,
+        'meta_query' => array(
+            array(
+                'key' => '_wp_page_template',
+                'value' => 'p-user_center.php',
+                'compare' => 'LIKE'
+            )
+        )
+    );
+    
+    $user_center_query = new WP_Query($args);
+    if($user_center_query->have_posts()){
+        $user_center_query->the_post();
+        $permalink = get_the_permalink();
+        wp_reset_postdata();
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 按slug查找用户中心页面
+    $user_center_page = get_page_by_path('user-center');
+    if($user_center_page){
+        return get_the_permalink($user_center_page);
+    }
+    
+    // 🔗 最后尝试获取所有页面，手动检查模板
+    $all_pages = get_pages();
+    foreach($all_pages as $page){
+        $template = get_page_template_slug($page->ID);
+        if($template && strpos($template, 'user_center') !== false){
+            return get_the_permalink($page->ID);
+        }
+    }
+    
+    // 🔗 回退到默认用户中心页面链接
+    return home_url('/user-center');
 }
 
 // 注册页面链接设置--------------------------boxmoe.com--------------------------
 function boxmoe_sign_up_link_page(){
     $boxmoe_sign_up_link_page = get_boxmoe('boxmoe_sign_up_link_page');
-    if($boxmoe_sign_up_link_page){
-        return get_the_permalink($boxmoe_sign_up_link_page);
-    }else{
-        // 🔍 自动查找使用 p-signup.php 模板的注册页面
+    if($boxmoe_sign_up_link_page && is_numeric($boxmoe_sign_up_link_page)){
+        $permalink = get_the_permalink($boxmoe_sign_up_link_page);
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 自动查找使用 p-signup.php 模板的注册页面（尝试多种模板路径格式）
+    $template_paths = array(
+        'page/p-signup.php',
+        'p-signup.php'
+    );
+    
+    foreach($template_paths as $template_path){
         $signup_pages = get_pages(array(
             'meta_key' => '_wp_page_template',
-            'meta_value' => 'page/p-signup.php'
+            'meta_value' => $template_path
         ));
         if(!empty($signup_pages)){
             // 🔗 返回找到的第一个注册页面的链接
             return get_the_permalink($signup_pages[0]);
-        }else{
-            // 🔗 回退到默认注册页面链接
-            return home_url('/signup');
         }
     }
+    
+    // 🔍 按模板名称查找注册页面
+    $args = array(
+        'post_type' => 'page',
+        'posts_per_page' => 1,
+        'meta_query' => array(
+            array(
+                'key' => '_wp_page_template',
+                'value' => 'p-signup.php',
+                'compare' => 'LIKE'
+            )
+        )
+    );
+    
+    $signup_query = new WP_Query($args);
+    if($signup_query->have_posts()){
+        $signup_query->the_post();
+        $permalink = get_the_permalink();
+        wp_reset_postdata();
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 按slug查找注册页面
+    $signup_page = get_page_by_path('signup');
+    if($signup_page){
+        return get_the_permalink($signup_page);
+    }
+    
+    // 🔗 最后尝试获取所有页面，手动检查模板
+    $all_pages = get_pages();
+    foreach($all_pages as $page){
+        $template = get_page_template_slug($page->ID);
+        if($template && strpos($template, 'signup') !== false){
+            return get_the_permalink($page->ID);
+        }
+    }
+    
+    // 🔗 回退到默认注册页面链接
+    return home_url('/signup');
 }
 
 
 // 登录页面链接设置--------------------------boxmoe.com--------------------------
 function boxmoe_sign_in_link_page(){
     $boxmoe_sign_in_link_page = get_boxmoe('boxmoe_sign_in_link_page');
-    if($boxmoe_sign_in_link_page){
-        return get_the_permalink($boxmoe_sign_in_link_page);
-    }else{
-        // 🔍 自动查找使用 p-signin.php 模板的登录页面
+    if($boxmoe_sign_in_link_page && is_numeric($boxmoe_sign_in_link_page)){
+        $permalink = get_the_permalink($boxmoe_sign_in_link_page);
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 自动查找使用 p-signin.php 模板的登录页面（尝试多种模板路径格式）
+    $template_paths = array(
+        'page/p-signin.php',
+        'p-signin.php'
+    );
+    
+    foreach($template_paths as $template_path){
         $login_pages = get_pages(array(
             'meta_key' => '_wp_page_template',
-            'meta_value' => 'page/p-signin.php'
+            'meta_value' => $template_path
         ));
         if(!empty($login_pages)){
             // 🔗 返回找到的第一个登录页面的链接
             return get_the_permalink($login_pages[0]);
-        }else{
-            // 🔗 回退到默认登录页面链接
-            return home_url('/signin');
         }
     }
+    
+    // 🔍 按模板名称查找登录页面
+    $args = array(
+        'post_type' => 'page',
+        'posts_per_page' => 1,
+        'meta_query' => array(
+            array(
+                'key' => '_wp_page_template',
+                'value' => 'p-signin.php',
+                'compare' => 'LIKE'
+            )
+        )
+    );
+    
+    $login_query = new WP_Query($args);
+    if($login_query->have_posts()){
+        $login_query->the_post();
+        $permalink = get_the_permalink();
+        wp_reset_postdata();
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 按slug查找登录页面
+    $login_page = get_page_by_path('signin');
+    if($login_page){
+        return get_the_permalink($login_page);
+    }
+    
+    // 🔗 最后尝试获取所有页面，手动检查模板
+    $all_pages = get_pages();
+    foreach($all_pages as $page){
+        $template = get_page_template_slug($page->ID);
+        if($template && strpos($template, 'signin') !== false){
+            return get_the_permalink($page->ID);
+        }
+    }
+    
+    // 🔗 回退到默认登录页面链接
+    return home_url('/signin');
 }
 
 // 重置密码页面链接设置--------------------------boxmoe.com--------------------------
 function boxmoe_reset_password_link_page(){
     $boxmoe_reset_password_link_page = get_boxmoe('boxmoe_reset_password_link_page');
-    if($boxmoe_reset_password_link_page){
-        return get_the_permalink($boxmoe_reset_password_link_page);
-    }else{
-        // 🔍 自动查找使用 p-reset_password.php 模板的重置密码页面
+    if($boxmoe_reset_password_link_page && is_numeric($boxmoe_reset_password_link_page)){
+        $permalink = get_the_permalink($boxmoe_reset_password_link_page);
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 自动查找使用 p-reset_password.php 模板的重置密码页面（尝试多种模板路径格式）
+    $template_paths = array(
+        'page/p-reset_password.php',
+        'p-reset_password.php'
+    );
+    
+    foreach($template_paths as $template_path){
         $reset_password_pages = get_pages(array(
             'meta_key' => '_wp_page_template',
-            'meta_value' => 'page/p-reset_password.php'
+            'meta_value' => $template_path
         ));
         if(!empty($reset_password_pages)){
             // 🔗 返回找到的第一个重置密码页面的链接
             return get_the_permalink($reset_password_pages[0]);
-        }else{
-            // 🔗 回退到默认重置密码页面链接
-            return home_url('/reset-password');
         }
     }
+    
+    // 🔍 按模板名称查找重置密码页面
+    $args = array(
+        'post_type' => 'page',
+        'posts_per_page' => 1,
+        'meta_query' => array(
+            array(
+                'key' => '_wp_page_template',
+                'value' => 'p-reset_password.php',
+                'compare' => 'LIKE'
+            )
+        )
+    );
+    
+    $reset_password_query = new WP_Query($args);
+    if($reset_password_query->have_posts()){
+        $reset_password_query->the_post();
+        $permalink = get_the_permalink();
+        wp_reset_postdata();
+        if($permalink) return $permalink;
+    }
+    
+    // 🔍 按slug查找重置密码页面
+    $reset_password_page = get_page_by_path('reset-password');
+    if($reset_password_page){
+        return get_the_permalink($reset_password_page);
+    }
+    
+    // 🔗 最后尝试获取所有页面，手动检查模板
+    $all_pages = get_pages();
+    foreach($all_pages as $page){
+        $template = get_page_template_slug($page->ID);
+        if($template && strpos($template, 'reset_password') !== false){
+            return get_the_permalink($page->ID);
+        }
+    }
+    
+    // 🔗 回退到默认重置密码页面链接
+    return home_url('/reset-password');
 }
 
 // 充值卡购买链接设置--------------------------boxmoe.com--------------------------
@@ -104,7 +280,7 @@ add_action('wp_ajax_nopriv_user_login_action', 'handle_user_login');
 add_action('wp_ajax_user_login_action', 'handle_user_login');
 
 function handle_user_login() {
-    $formData = json_decode(stripslashes($_POST['formData']), true);
+    $formData = isset($_POST['formData']) ? json_decode(stripslashes($_POST['formData']), true) : array();
     
     // 🔄 优化nonce验证机制，避免因页面停留时间过长导致无法登录
     $nonce_verified = false;
@@ -171,14 +347,14 @@ function handle_user_login() {
     } 
     
     // 🔗 获取并验证重定向地址
-    $redirect_to = !empty($formData['redirect_to']) ? $formData['redirect_to'] : home_url();
+    $redirect_to = !empty($formData['redirect_to']) ? $formData['redirect_to'] : boxmoe_user_center_link_page();
 
-    // 👮‍♂️ 非管理员用户强制跳转到首页
+    // 👮u200d♂️ 非管理员用户跳转到会员中心，管理员保持原有重定向
     if ( !user_can( $user, 'manage_options' ) ) {
-        $redirect_to = home_url();
+        $redirect_to = boxmoe_user_center_link_page();
     }
 
-    $redirect_to = wp_validate_redirect($redirect_to, home_url());
+    $redirect_to = wp_validate_redirect($redirect_to, boxmoe_user_center_link_page());
 
     wp_send_json_success(array(
         'message' => '登录成功',
@@ -198,7 +374,12 @@ function handle_user_signup() {
     remove_action('network_site_users_created_user', 'wp_send_new_user_notifications');
     remove_action('network_user_new_created_user', 'wp_send_new_user_notifications');
     
-    $formData = json_decode(stripslashes($_POST['formData']), true);
+    $formData = isset($_POST['formData']) ? json_decode(stripslashes($_POST['formData']), true) : array();
+    
+    if (empty($formData['email']) || empty($formData['verificationcode'])) {
+        wp_send_json_error(array('message' => '验证码错误或已过期'));
+        exit;
+    }
     
     $stored_code = get_transient('verification_code_' . $formData['email']);
     if (!$stored_code || $stored_code !== $formData['verificationcode']) {
@@ -331,7 +512,7 @@ add_filter('sanitize_user', 'boxmoe_allow_chinese_username', 10, 3);
 add_action('wp_ajax_nopriv_send_verification_code', 'handle_send_verification_code');
 add_action('wp_ajax_send_verification_code', 'handle_send_verification_code');
 function handle_send_verification_code() {
-    $email = sanitize_email($_POST['email']);
+    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
     
     if (!is_email($email)) {
         wp_send_json_error(array('message' => '请输入有效的邮箱地址'));

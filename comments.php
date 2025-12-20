@@ -128,7 +128,7 @@ if(!isset($user_ID)) {
                                         <?php 
                                         $comment_author = get_comment_author_info('comment_author');
                                         $comment_author_email = get_comment_author_info('comment_author_email');
-                                        echo get_avatar($comment_author_email, 60,'',''); 
+                                        echo get_avatar($comment_author_email, 60); 
                                         ?>
                                         <div class="user-info">
                                             <span class="user-name"><?php echo !empty($comment_author) ? esc_attr($comment_author) : '访客'; ?></span>

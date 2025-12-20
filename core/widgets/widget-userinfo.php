@@ -75,7 +75,7 @@ class widget_userinfo extends WP_Widget {
 		echo '
 		<div class="widget-profile">
 			<div class="profile-avatar">
-				<img src="'.boxmoe_lazy_load_images().'"  class="lazy" data-src="'.esc_url($avatar_url).'" alt="avatar">
+				<img src="'.boxmoe_lazy_load_images().'"  class="lazy" data-src="'.esc_url($avatar_url).'" alt="avatar" onerror="this.src=\''.boxmoe_default_avatar_url().'\'">
 			</div>
 			<h3 class="profile-name">'. esc_html($nickname) .'</h3>
 			<p class="profile-desc">'. esc_html($bio) .'</p>

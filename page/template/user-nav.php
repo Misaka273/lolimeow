@@ -9,7 +9,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
 ?>
                 <div class="col-lg-3 col-md-4">
                   <div class="d-flex align-items-center mb-4 justify-content-center justify-content-md-start">
-                     <img src="<?php echo boxmoe_get_avatar_url($current_user->ID,100); ?>" alt="avatar" class="avatar avatar-lg rounded-circle">
+                     <img src="<?php echo boxmoe_get_avatar_url($current_user->ID,100); ?>" alt="avatar" class="avatar avatar-lg rounded-circle" onerror="this.src='<?php echo boxmoe_default_avatar_url(); ?>'">
                      <div class="ms-3">
                         <h5 class="mb-0"><?php echo $current_user->display_name; ?></h5>
                         <small><?php echo $current_user->user_email; ?></small>

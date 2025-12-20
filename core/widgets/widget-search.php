@@ -30,7 +30,6 @@ class widget_search extends WP_Widget {
                     <input type="search" class="search-input" placeholder="<?php echo esc_attr_x('搜索...', 'placeholder', 'text_domain'); ?>" 
                            value="<?php echo get_search_query(); ?>" name="s" required>
                     <button type="submit" class="search-submit">
-                        <i class="fa fa-search"></i>
                     </button>
                 </div>
             </form>

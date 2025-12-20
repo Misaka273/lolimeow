@@ -195,7 +195,7 @@ $current_user = wp_get_current_user();
                                     <tr>
                                        <th scope="row">
                                           <div class="d-flex align-items-center">
-                                          <img id="user-avatar"  src="<?php echo boxmoe_get_avatar_url($current_user->ID,100); ?>"  class="avatar rounded-3 img-fluid" alt="avatar">  
+                                          <img id="user-avatar"  src="<?php echo boxmoe_get_avatar_url($current_user->ID,100); ?>"  class="avatar rounded-3 img-fluid" alt="avatar" onerror="this.src='<?php echo boxmoe_default_avatar_url(); ?>'">  
                                              <div class="ms-3">
                                                 <div class="fs-5 fw-semibold text-dark"><?php echo get_user_meta(get_current_user_id(), 'nickname', true); ?> (ID:<?php echo $current_user->ID; ?>)</div>
                                                 <small>会员等级：<?php echo boxmoe_vip_name(); ?> <?php echo boxmoe_vip_pic(); ?> 到期时间：<?php echo boxmoe_vip_time(); ?></small>

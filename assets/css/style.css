@@ -95,6 +95,68 @@ Author URI:https://www.boxmoe.com
     transition: all 0.3s ease;
 }
 
+/* 📦 单排布局样式 */
+.single-row-layout {
+    width: 100%;
+}
+
+.post-list-card {
+    position: relative;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: var(--bs-border-radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.post-list-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+/* 📱 移动端响应式优化 */
+@media (max-width: 991px) {
+    .post-list-card {
+        margin-bottom: 1.5rem;
+        flex-direction: column;
+    }
+    
+    .post-list-content {
+        padding: 20px;
+    }
+    
+    .post-list-img {
+        margin-bottom: 0;
+    }
+    
+    /* 📝 内容缩进优化 */
+    .post-list-content .tags {
+        margin-bottom: 10px;
+    }
+    
+    .post-list-content .text-reset {
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+    
+    .post-list-content .post-meta {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    /* 📌 分类标签缩进 */
+    .post-list-content .category {
+        margin-bottom: 15px;
+    }
+    
+    /* 📌 标题缩进 */
+    .post-list-content .post-title {
+        margin-bottom: 15px;
+    }
+}
+
 /* 静态任务清单（非作者用户） */
 .md-task-item-static {
     cursor: default;
@@ -814,6 +876,53 @@ background: rgba(0, 0, 0, .25);}
         padding-left: 10px;
         padding-right: 10px;
     }
+    
+    /* 超小屏幕下三列布局优化 */
+    .list-three .post-meta {
+        flex-direction:column;
+        align-items:flex-start;
+        gap:5px;
+        padding-top:5px;
+    }
+    
+    /* 调整超小屏幕下作者和日期显示 */
+    .list-three .list-post-author {
+        font-size:0.55rem; /* 进一步减小字体大小 */
+    }
+    
+    /* 调整超小屏幕下统计信息显示 */
+    .list-three .list-post-view,
+    .list-three .list-post-comment {
+        font-size:0.55rem; /* 进一步减小字体大小 */
+    }
+    
+    /* 调整超小屏幕下统计信息间距 */
+    .list-three .post-meta-stats {
+        gap:6px;
+    }
+    
+    /* 超小屏幕下调整头像大小 */
+    .list-three .post-list-avatar {
+        width:32px;
+        height:32px;
+    }
+    
+    /* 超小屏幕下调整头像样式 */
+    .list-three .avatar {
+        width:37px;
+        height:37px;
+    }
+    
+    /* 调整超小屏幕下post-meta-info布局 */
+    .list-three .post-meta-info {
+        width:100%;
+    }
+    
+    /* 确保作者和日期在同一行 */
+    .list-three .list-post-author {
+        white-space:nowrap;
+        max-width:100%;
+    }
 }
 
 .breadcrumb-head{position:relative;margin-top:2.5rem !important}
@@ -1348,37 +1457,47 @@ to {transform:translateY(0);opacity:1;}
 @keyframes gradient {0% {background-position:0% 50%;}
 100% {background-position:100% 50%;}
 }
-/* list */
-.list-one.post-list {position:relative;display:flex;flex-wrap:wrap;align-items:center;padding:20px 5px;border-radius:var(--bs-border-radius-lg) !important;background:none;margin-bottom:2.5rem;transition:all 0.3s ease; /* ⬅️ 添加过渡动画 */}
-.list-one.post-list:before {content:"";display:block;position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;border-radius:var(--bs-border-radius-lg);background-color:var(--bs-white);background-image:url(../images/post-list.png);background-position:right bottom;background-repeat:no-repeat;}
-.list-one.post-list:hover {transform:translateY(-10px); /* ⬅️ 仅保留上移效果，去掉阴影 */}
-.list-one .post-protected-badge,.list-one .post-private-badge,.list-one .post-sticky-badge{position:absolute !important;top:10px !important;right:10px !important;display:inline-block !important;width:auto !important;white-space:nowrap;z-index:3;pointer-events:none;padding:4px 10px;font-size:0.72rem;letter-spacing:0.3px;border:1px solid var(--bs-dark);color:var(--bs-dark);background:var(--bs-white);border-radius:999px;box-shadow:2px 2px 0 0 var(--bs-dark);line-height:1}
-@media (max-width:991px){.list-one .post-protected-badge,.list-one .post-private-badge,.list-one .post-sticky-badge{top:8px !important;right:8px !important;padding:3px 9px;font-size:0.7rem}}
+/* 📋 文章列表布局 */
+.list-one.post-list {position:relative;display:flex;flex-wrap:wrap;align-items:center;padding:20px 5px;border-radius:var(--bs-border-radius-lg) !important;background-color:var(--bs-white);background-image:url(../images/post-list.png);background-position:right bottom;background-repeat:no-repeat;margin-bottom:2.5rem;}
+
+
+
+
+
+
 .list-one .post-list-img {flex:0 0 auto;width:40%;margin-right:20px;}
 .list-one .post-list-content {flex:1;min-width:0;padding-left:20px;}
 
-.list-one .post-content {font-size:0.82rem;font-weight:400;color: var(--bs-gray-700);letter-spacing: 0.5px;margin-bottom:15px;}
+/* 单排布局图片和内容样式 */
+.list-one .post-content {font-size:0.82rem;font-weight:400;color: var(--bs-gray-700);letter-spacing: 0.5px;}
 .list-one .post-list-img figure {margin:0;height:100%;}
 .list-one .post-list-img img {width:100%;height:220px;object-fit:cover;border-radius:8px;transition:all .4s cubic-bezier(.7,0,.3,1);}
 .list-one .post-list-img img[src*="loadz.svg"] {width:100%;height:220px;object-fit:contain;padding:60px;}
-.list-one .category {display:-webkit-box;display:-ms-flexbox;display:flex;width:100%;-webkit-box-align:center;-ms-flex-align:center;align-items:center;margin-bottom:10px;}
+.list-one .category {display:-webkit-box;display:-ms-flexbox;display:flex;width:100%;-webkit-box-align:center;-ms-flex-align:center;align-items:center;}
 .list-one .category .tags {display:block;font-weight:400;font-size:13px;letter-spacing:0.5px}
 .list-one .category .tags a {color:var(--bs-dark);display:inline-block;padding:3px 10px;line-height:1;margin-right:10px;background:var(--bs-white);border:1px solid var(--bs-hui);border-radius:25px;-webkit-transition:all 300ms cubic-bezier(.5,2.5,.7,.7);-o-transition:all 300ms cubic-bezier(.5,2.5,.7,.7);transition:all 300ms cubic-bezier(.5,2.5,.7,.7);font-size:0.65rem}
 .list-one .category .tags i {stroke:rgba(0,0,0,0.4);width:11px;height:11px;margin-right:5px}
 .list-one .category .tags a:hover {color:var(--bs-dark) !important;-webkit-transform:translate(-1px,-1px);-ms-transform:translate(-1px,-1px);transform:translate(-1px,-1px);-webkit-box-shadow:2px 2px 0px 0px var(--bs-dark);box-shadow:2px 2px 0px 0px #333}
-.list-one h3 {font-size:1rem;font-weight:600;margin-bottom:10px;}
+.list-one h3 {font-size:1rem;font-weight:600;}
 .list-one  .post-meta {display:flex;align-items:center;gap:15px;margin-top:15px;padding-top:15px;}
-.list-one .post-list-avatar {width:50px;height:50px;position:relative;flex-shrink:0;}
+.list-one .post-list-avatar {width:50px;height:50px;position:relative;flex-shrink:0;display:inline-block;}
 .list-one .post-meta-info {display:flex;flex-direction:column;gap:8px;}
 .list-one .post-meta-info i{margin-right: 5px;}
 .list-one .post-meta-stats {display:flex;gap:15px;order:1;}
 .list-one .list-post-author {display:block;font-size:0.75rem;color:var(--bs-gray-700);order:2;}
 .list-one .list-post-view,.list-one .list-post-comment {font-size:0.75rem;color:var(--bs-gray-700);}
 .list-one .post-list-avatar-img,.list-one .avatar {width:55px;height:55px;-o-object-fit:cover;object-fit:cover;-webkit-clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);border:1px solid transparent}
-.list-one .post-list-avatar {width:50px;height:50px;z-index:0;float:left;position:relative;text-align:right}
+.list-one .post-list-avatar {width:50px;height:50px;z-index:0;position:relative;text-align:right}
 .list-one .post-list-avatar:after {width:80%;height:80%;content:"";position:absolute;top:7px;left:3px;transform:rotate(45deg);z-index:-1;border-radius:4px;border:2px solid #ff00009c}
 .list-one .post-list-avatar-img,.list-one .avatar {width:55px;height:55px;-o-object-fit:cover;object-fit:cover;-webkit-clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%);border:1px solid transparent}
 .dot {content:'';display:inline-block;width:5px;height:5px;background:#ff4c60;vertical-align:middle;margin-right:10px;margin-left:10px;border-radius:100%;margin-top:-2px}
+
+
+/* 📱 三列布局样式 */
+.list-three.post-list {position:relative;display:flex;flex-direction:column;padding:20px;border-radius:var(--bs-border-radius-lg) !important;background:none;margin-bottom:2.5rem;transition:all 0.3s ease;height:100%;min-height:400px;}
+.list-three.post-list:before {content:"";display:block;position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;border-radius:var(--bs-border-radius-lg);background-color:var(--bs-white);background-image:url(../images/post-list.png);background-position:right bottom;background-repeat:no-repeat;background-size:100px auto;}
+.list-three.post-list:hover {transform:translateY(-10px);}
+
 /* 📱 移动端博客列表优化 */
 @media (max-width:991px) {
     .list-one.post-list,.list-two.post-list {flex-direction:column;margin:0;margin-bottom:2.5rem;padding:15px 0;background-image:none}
@@ -1396,10 +1515,7 @@ to {transform:translateY(0);opacity:1;}
     .list-three .post-list-img img {height:160px;} /* 三列布局移动端图片高度 */
     }
 
-/* 📱 三列布局样式 */
-.list-three.post-list {position:relative;display:flex;flex-direction:column;padding:20px;border-radius:var(--bs-border-radius-lg) !important;background:none;margin-bottom:2.5rem;transition:all 0.3s ease;height:100%;min-height:400px;}
-.list-three.post-list:before {content:"";display:block;position:absolute;top:0;left:0;width:100%;height:100%;z-index:-1;border-radius:var(--bs-border-radius-lg);background-color:var(--bs-white);background-image:url(../images/post-list.png);background-position:right bottom;background-repeat:no-repeat;background-size:100px auto;}
-.list-three.post-list:hover {transform:translateY(-10px);}
+
 
 /* 🎬 哔哩哔哩风格视频播放器样式 */
 .single-content video {
@@ -1786,6 +1902,12 @@ to {transform:translateY(0);opacity:1;}
 
 
 
+/* 💊 药丸模块-样式优化 */
+.badge {
+    --bs-badge-font-size: 0.8rem !important; /* ⬅️ 控制文字大小 */
+    --bs-badge-padding-x:1em !important;  /* ⬅️ 控制药丸背景宽度 */
+    --bs-badge-padding-y:0.65em !important;  /* ⬅️ 控制药丸背景高度 */
+}
 /* 🎬 播放按钮样式 */
 .single-content .play-btn {
     position: absolute;
@@ -1945,6 +2067,40 @@ to {transform:translateY(0);opacity:1;}
         flex-grow:1;
         margin-bottom:10px;
     }
+    /* 优化post-meta布局，节省空间 */
+    .list-three .post-meta {
+        gap:8px;
+        padding-top:8px;
+    }
+    /* 调整post-meta-info布局，节省空间 */
+    .list-three .post-meta-info {
+        gap:3px;
+    }
+    /* 调整统计信息间距 */
+    .list-three .post-meta-stats {
+        gap:8px;
+    }
+    /* 确保作者和日期在同一行显示 */
+    .list-three .list-post-author {
+        display:inline-flex !important;
+        align-items:center;
+        flex-wrap:nowrap;
+        font-size:0.65rem; /* 减小字体大小 */
+    }
+    /* 优化日期显示，确保不换行且不被切割 */
+    .list-three .list-post-author * {
+        white-space:nowrap !important;
+        flex-shrink:1;
+    }
+    /* 减小统计信息字体大小 */
+    .list-three .list-post-view,
+    .list-three .list-post-comment {
+        font-size:0.65rem;
+    }
+    /* 调整圆点间距 */
+    .list-three .list-post-author .dot {
+        margin:0 3px;
+    }
     /* 确保内容区域填满卡片 */
     .list-three .post-list-content {
         padding:0 5px;
@@ -1956,20 +2112,7 @@ to {transform:translateY(0);opacity:1;}
     .list-three .post-meta {
         margin-top:auto;
     }
-    /* 确保移动端日期不分行 */
-    .list-three .list-post-author {
-        display:inline-flex !important;
-        align-items:center;
-        flex-wrap:nowrap;
-        font-size:0.7rem;
-    }
-    .list-three .list-post-author * {
-        white-space:nowrap !important;
-    }
-    .list-three .list-post-author .dot {
-        margin:0 5px;
-    }
-    }
+}
 
 /* all */
 .fadein-top{animation-name:fade-in-top;animation-duration:0.8s;animation-timing-function:linear;animation-delay:0s;animation-iteration-count:1;animation-direction:normal;animation-fill-mode:none}
@@ -1992,9 +2135,9 @@ to {transform:translateY(0);opacity:1;}
 .load-more-btn:hover {transform:translateY(2px);background-color:#ff4c60;color:var(--bs-white);border:1px solid var(--bs-hui);box-shadow:none;}
 .load-more-btn .fa-refresh {font-size:14px;}
 .tags i.fa{color:#85b2f4}
-.tag-cloud{color:var(--bs-dark);display:inline-block;padding:6px 10px;line-height:1.2;margin-right:10px;background:var(--bs-white);border:1px solid var(--bs-hui);border-radius:25px;-webkit-transition:all 300ms cubic-bezier(.5,2.5,.7,.7);-o-transition:all 300ms cubic-bezier(.5,2.5,.7,.7);transition:all 300ms cubic-bezier(.5,2.5,.7,.7);margin-bottom:12px;margin-right:10px;font-size:0.75rem}
-.tag-cloud:hover{color:var(--bs-dark) !important;-webkit-transform:translate(-1px,-1px);-ms-transform:translate(-1px,-1px);transform:translate(-1px,-1px);-webkit-box-shadow:2px 2px 0px 0px var(--bs-dark);box-shadow:2px 2px 0px 0px #333}
-.tag-cloud i{margin-right:5px}
+.tag-cloud{color:var(--bs-dark);display:inline-block;padding:10px 18px;line-height:1.5;margin-right:15px;background:var(--bs-white);border:1px solid var(--bs-hui);border-radius:30px;-webkit-transition:all 300ms cubic-bezier(.5,2.5,.7,.7);-o-transition:all 300ms cubic-bezier(.5,2.5,.7,.7);transition:all 300ms cubic-bezier(.5,2.5,.7,.7);margin-bottom:15px;margin-right:15px;font-size:1.25rem}
+.tag-cloud:hover{color:var(--bs-dark) !important;-webkit-transform:translate(-1px,-1px);-ms-transform:translate(-1px,-1px);transform:translate(-1px,-1px);-webkit-box-shadow:3px 3px 0px 0px var(--bs-dark);box-shadow:3px 3px 0px 0px #333}
+.tag-cloud i{margin-right:8px;font-size:1.1rem}
 .pagenav {margin-top:30px}
 .pagenav .page-link,.page-item span {margin:0 6px}
 .pagenav .page-item .page-link {position:relative;color:var(--bs-dark);background:transparent;border:1px solid var(--bs-dark);box-shadow:2px 2px 0 0 var(--bs-dark);margin:0 5px;border-radius:4px;transition:all 0.3s cubic-bezier(.5,2.5,.7,.7);transform:translateY(0);font-size:0.85rem;}

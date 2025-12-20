@@ -570,13 +570,15 @@ const LoginStatusManager = (() => {
         currentAttempt++;
         
         try {
+            // 使用FormData来构建请求体，确保WordPress能正确解析
+            const formData = new FormData();
+            formData.append('action', 'boxmoe_check_login_status');
+            formData.append('nonce', ajax_object.nonce);
+            
             const response = await fetch(ajax_object.ajaxurl, {
                 method: 'POST',
                 credentials: 'same-origin',
-                body: new URLSearchParams({
-                    action: 'boxmoe_check_login_status',
-                    nonce: ajax_object.nonce
-                })
+                body: formData
             });
             
             if (!response.ok) {
@@ -586,6 +588,7 @@ const LoginStatusManager = (() => {
             const data = await response.json();
             
             if (data.success) {
+                // 无论状态是否变化，都更新UI，确保头像和管理员入口正确显示
                 updateLoginUI(data.data.is_logged_in, data.data.user_info);
                 saveLoginStatusToLocalStorage(data.data.is_logged_in, data.data.user_info);
                 currentAttempt = 0; // 重置重试次数
@@ -618,25 +621,43 @@ const LoginStatusManager = (() => {
      * 更新登录UI
      */
     const updateLoginUI = (isLoggedIn, userInfo = {}) => {
-        // 检查本地状态
-        const currentIsLoggedIn = window.ajax_object?.is_user_logged_in === 'true';
-        
-        // 如果状态没有变化，跳过更新
-        if (currentIsLoggedIn === isLoggedIn) {
-            return;
-        }
-        
         // 更新全局状态
         if (window.ajax_object) {
             window.ajax_object.is_user_logged_in = isLoggedIn ? 'true' : 'false';
         }
         
+        // 确保userInfo有默认值
+        userInfo = userInfo || {};
+        
         // 重新渲染登录相关UI
         renderLoginUI(isLoggedIn, userInfo);
         
+        // 强制刷新所有懒加载图片，确保头像显示
+        setTimeout(() => {
+            // 手动触发所有懒加载图片加载，确保头像显示
+            const lazyImages = document.querySelectorAll('img.lazy');
+            lazyImages.forEach(img => {
+                if (img.dataset.src) {
+                    // 确保图片URL正确，避免404错误
+                    const imgSrc = img.dataset.src;
+                    if (imgSrc && !imgSrc.startsWith('http')) {
+                        // 如果是相对路径，确保它有正确的主题路径
+                        const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
+                        img.src = themeUrl + imgSrc;
+                    } else {
+                        img.src = imgSrc;
+                    }
+                    img.classList.remove('lazy');
+                }
+            });
+        }, 200);
+        
         // 如果从登录状态变为未登录状态，清除本地存储
-        if (currentIsLoggedIn && !isLoggedIn) {
+        if (!isLoggedIn) {
             clearLoginStatusFromLocalStorage();
+        } else {
+            // 如果是登录状态，确保本地存储有最新的用户信息
+            saveLoginStatusToLocalStorage(isLoggedIn, userInfo);
         }
     };
     
@@ -664,6 +685,9 @@ const LoginStatusManager = (() => {
                 newPanel.className = 'mobile-user-panel';
                 
                 try {
+                    // 确保ajax_object和themeurl存在
+                    const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
+                    
                     if (isLoggedIn) {
                         newPanel.innerHTML = `
                             <div class="user-panel-content">
@@ -673,7 +697,7 @@ const LoginStatusManager = (() => {
                                             <i class="fa fa-user-circle"></i>
                                             <span>会员中心</span></a>
                                             ${isAdmin() ? `
-                                        <a href="${admin_url()}" class="mobile-menu-item">
+                                        <a href="${window.ajax_object?.adminurl || '/wp-admin/'}" class="mobile-menu-item">
                                             <i class="fa fa-cog"></i>
                                             <span>后台管理</span></a>
                                             ` : ''}
@@ -698,7 +722,6 @@ const LoginStatusManager = (() => {
                                 <div class="user-reg-wrap">
                                 <a href="${getRegisterLink()}" class="user-reg">
                                 <span class="reg-text">注册</span></a></div>
-                                <img src="${ajax_object.themeurl}/assets/images/up-new-iocn.png" class="new-tag" alt="up-new-iocn">
                                 </div>
                                     </div>
                                 </div>
@@ -738,14 +761,21 @@ const LoginStatusManager = (() => {
                     const newWrapper = document.createElement('div');
                     
                     try {
+                        // 确保ajax_object和themeurl存在
+                        const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
+                        
                         if (isLoggedIn) {
                             newWrapper.className = 'logged-user-wrapper d-none d-lg-flex';
+                            // 获取头像URL
+                            const avatarUrl = getUserAvatarUrl(userInfo.user_id || 0);
+                            
                             newWrapper.innerHTML = `
                                 <div class="user-info-wrap d-flex align-items-center dropdown">
                                     <a href="${getUserCenterLink()}" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                                        ${avatarUrl ? `
                                         <div class="user-avatar">
-                                        <img src="${ajax_object.themeurl}/assets/images/loading.gif" data-src="${getUserAvatarUrl(userInfo.user_id || 0)}" alt="avatar" class="img-fluid rounded-3 lazy">
-                                    </div>
+                                        <img src="${themeUrl}/assets/images/loading.gif" data-src="${avatarUrl}" alt="avatar" class="img-fluid rounded-3 lazy">
+                                    </div>` : ''}
                                         <div class="user-info">
                                             <div class="user-name">${userInfo.display_name || '用户'}</div>
                                             <div class="user-email">${userInfo.user_email || ''}</div>
@@ -758,7 +788,7 @@ const LoginStatusManager = (() => {
                                       </li>
                                       ${isAdmin() ? `
                                       <li>
-                                        <a class="dropdown-item" target="_blank" href="${admin_url()}">
+                                        <a class="dropdown-item" target="_blank" href="${window.ajax_object?.adminurl || '/wp-admin/'}">
                                           <i class="fa fa-cog"></i>后台管理</a>
                                       </li>
                                       ` : ''}
@@ -780,7 +810,6 @@ const LoginStatusManager = (() => {
                                 <div class="user-reg-wrap">
                                 <a href="${getRegisterLink()}" class="user-reg">
                                 <span class="reg-text">注册</span></a></div>
-                                <img src="${ajax_object.themeurl}/assets/images/up-new-iocn.png" class="new-tag" alt="up-new-iocn">
                             `;
                         }
                     } catch (error) {
@@ -804,42 +833,123 @@ const LoginStatusManager = (() => {
      * 辅助函数：获取用户中心链接
      */
     const getUserCenterLink = () => {
-        return typeof boxmoe_user_center_link_page === 'function' ? boxmoe_user_center_link_page() : '#';
+        // 优先使用全局函数（由PHP输出到页面）
+        if (typeof boxmoe_user_center_link_page === 'function') {
+            return boxmoe_user_center_link_page();
+        }
+        // 尝试从页面元数据中获取
+        const userCenterMeta = document.querySelector('meta[name="user-center-url"]');
+        if (userCenterMeta) {
+            return userCenterMeta.content;
+        }
+        // 回退到默认链接（仅作为最后的备选）
+        return '/user-center';
     };
     
     /**
      * 辅助函数：获取登录链接
      */
     const getLoginLink = () => {
-        return typeof boxmoe_sign_in_link_page === 'function' ? boxmoe_sign_in_link_page() : '#';
+        // 优先使用全局函数（由PHP输出到页面）
+        if (typeof boxmoe_sign_in_link_page === 'function') {
+            return boxmoe_sign_in_link_page();
+        }
+        // 尝试从页面元数据中获取
+        const loginMeta = document.querySelector('meta[name="login-url"]');
+        if (loginMeta) {
+            return loginMeta.content;
+        }
+        // 回退到默认链接（仅作为最后的备选）
+        return '/signin';
     };
-    
+
     /**
      * 辅助函数：获取注册链接
      */
     const getRegisterLink = () => {
-        return typeof boxmoe_sign_up_link_page === 'function' ? boxmoe_sign_up_link_page() : '#';
+        // 优先使用全局函数（由PHP输出到页面）
+        if (typeof boxmoe_sign_up_link_page === 'function') {
+            return boxmoe_sign_up_link_page();
+        }
+        // 尝试从页面元数据中获取
+        const registerMeta = document.querySelector('meta[name="register-url"]');
+        if (registerMeta) {
+            return registerMeta.content;
+        }
+        // 回退到默认链接（仅作为最后的备选）
+        return '/signup';
     };
     
     /**
      * 辅助函数：获取注销链接
      */
     const getLogoutUrl = () => {
-        return typeof wp_logout_url === 'function' ? wp_logout_url(home_url()) : '#';
+        // 优先使用WordPress函数
+        if (typeof wp_logout_url === 'function') {
+            return wp_logout_url(home_url());
+        }
+        // 回退到默认链接
+        return '/wp-login.php?action=logout';
     };
     
     /**
      * 辅助函数：获取用户头像URL
      */
     const getUserAvatarUrl = (userId) => {
-        return typeof boxmoe_get_avatar_url === 'function' ? boxmoe_get_avatar_url(userId, 100) : `${ajax_object.themeurl}/assets/images/avatar.png`;
+        try {
+            // 确保ajax_object和themeurl存在
+            const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
+            
+            // 检查localStorage中是否有用户信息
+            const userInfo = JSON.parse(localStorage.getItem('user_info'));
+            if (userInfo && userInfo.user_avatar) {
+                return userInfo.user_avatar;
+            }
+            
+            // 直接返回PHP生成的头像URL，避免覆盖
+            const existingAvatar = document.querySelector('.user-avatar img');
+            if (existingAvatar) {
+                // 如果是data-src，返回data-src，否则返回src
+                return existingAvatar.getAttribute('data-src') || existingAvatar.getAttribute('src');
+            }
+            
+            // 检查是否有默认头像URL
+            if (themeUrl) {
+                return `${themeUrl}/assets/images/touxiang.jpg`;
+            }
+            
+            // 最终回退
+            return '/wp-content/themes/lolimeow-shiroki/assets/images/touxiang.jpg';
+        } catch (error) {
+            console.warn('获取用户头像URL失败:', error);
+            // 确保返回有效的URL
+            return '/wp-content/themes/lolimeow-shiroki/assets/images/touxiang.jpg';
+        }
     };
     
     /**
      * 辅助函数：检查是否为管理员
      */
     const isAdmin = () => {
-        // 简单检查，实际应用中应通过服务器返回
+        try {
+            // 优先从当前用户信息检查
+            if (window.ajax_object && window.ajax_object.is_admin === 'true') {
+                return true;
+            }
+            
+            // 从本地存储获取管理员状态
+            const stored = getLoginStatusFromLocalStorage();
+            if (stored && stored.user_info && stored.user_info.is_admin) {
+                return stored.user_info.is_admin;
+            }
+            
+            // 检查全局函数
+            if (typeof current_user_can === 'function') {
+                return current_user_can('administrator');
+            }
+        } catch (error) {
+            console.warn('检查管理员状态失败:', error);
+        }
         return false;
     };
     
@@ -847,30 +957,41 @@ const LoginStatusManager = (() => {
      * 初始化登录状态管理
      */
     const init = () => {
-        // 初始化时首先检查本地存储状态
+        // 页面加载时立即使用PHP渲染的初始状态
+        const initialIsLoggedIn = window.ajax_object && window.ajax_object.is_user_logged_in === 'true';
+        
+        // 立即更新UI，使用初始状态，确保页面加载时就能显示正确的登录状态
+        updateLoginUI(initialIsLoggedIn, {});
+        
+        // 然后检查本地存储状态，可能包含更详细的用户信息
         const storedStatus = getLoginStatusFromLocalStorage();
         if (storedStatus) {
             updateLoginUI(storedStatus.is_logged_in, storedStatus.user_info);
         }
         
-        // 初始AJAX检查
+        // 初始AJAX检查，获取最新的登录状态
         checkLoginStatus();
         
-        // 定期检查
+        // 定期检查，确保登录状态始终最新
         setInterval(() => {
             checkLoginStatus();
         }, config.checkInterval);
         
-        // 页面可见性变化时检查
+        // 页面可见性变化时检查，用户返回页面时更新状态
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 checkLoginStatus();
             }
         });
         
-        // 监听网络状态变化
+        // 监听网络状态变化，网络恢复时更新状态
         window.addEventListener('online', () => {
             console.log('网络连接恢复，检查登录状态');
+            checkLoginStatus();
+        });
+        
+        // 监听页面加载完成事件，确保所有资源加载完成后再次检查
+        window.addEventListener('load', () => {
             checkLoginStatus();
         });
     };
@@ -1236,40 +1357,215 @@ function initTaskList() {
     
     // 前端本地切换任务状态
     const toggleTaskState = (taskItem) => {
+        // 如果正在同步中，不允许重复点击
+        if (taskItem.classList.contains('md-task-syncing')) {
+            return;
+        }
+        
         const currentStatus = taskItem.dataset.taskStatus;
         let newStatus = '';
         let newEmoji = '';
         
         // 根据当前状态计算下一个状态
-        // 状态循环：pending → in-progress → completed → pending
+        // 状态循环：in-progress → pending → completed → in-progress
+        // 对应语法：- [>] → - [ ] → - [x] → - [>]
         switch(currentStatus) {
-            case 'pending':
-                newStatus = 'in-progress';
-                newEmoji = '📃';
-                break;
             case 'in-progress':
+                newStatus = 'pending';
+                newEmoji = '❌';
+                break;
+            case 'pending':
                 newStatus = 'completed';
                 newEmoji = '✅';
                 break;
             case 'completed':
-                newStatus = 'pending';
-                newEmoji = '❌';
+                newStatus = 'in-progress';
+                newEmoji = '🔄';
                 break;
-            // default:
-            //     newStatus = 'pending';
-            //     newEmoji = '❌';
-            //     break;
+            default:
+                newStatus = 'in-progress';
+                newEmoji = '🔄';
+                break;
         }
+        
+        // 添加同步中状态
+        taskItem.classList.add('md-task-syncing');
         
         // 更新本地状态
         taskItem.dataset.taskStatus = newStatus;
         const emojiSpan = taskItem.querySelector('.md-task-emoji');
         emojiSpan.textContent = newEmoji;
         
+        // 添加加载指示器
+        let loader = taskItem.querySelector('.md-task-loader');
+        if (!loader) {
+            loader = document.createElement('span');
+            loader.className = 'md-task-loader';
+            loader.style.cssText = `
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border: 2px solid rgba(0, 0, 0, 0.3);
+                border-top-color: #000;
+                border-radius: 50%;
+                margin-left: 5px;
+                animation: spin 1s linear infinite;
+            `;
+            taskItem.appendChild(loader);
+        }
+        
+        // 添加旋转动画样式
+        if (!document.getElementById('md-task-spin-style')) {
+            const style = document.createElement('style');
+            style.id = 'md-task-spin-style';
+            style.textContent = `
+                @keyframes spin {
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
         console.log('本地切换任务状态:', newStatus);
         
         // 自动保存任务状态到服务器
         saveTaskState(taskItem, currentStatus);
+    };
+    
+    // 显示通知消息
+    const showNotification = (message, type = 'info') => {
+        // 创建通知容器
+        let notificationContainer = document.getElementById('md-task-notification');
+        if (!notificationContainer) {
+            notificationContainer = document.createElement('div');
+            notificationContainer.id = 'md-task-notification';
+            notificationContainer.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 10000;
+                max-width: 300px;
+            `;
+            document.body.appendChild(notificationContainer);
+        }
+        
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.className = `md-task-notification md-task-notification-${type}`;
+        
+        // 设置浅蓝渐变背景，不同类型使用不同深浅的浅蓝色
+        const lightBlueStart = type === 'error' ? 'rgba(173, 216, 230, 0.6)' : 
+                               type === 'success' ? 'rgba(135, 206, 250, 0.6)' : 
+                               'rgba(176, 224, 230, 0.6)';
+        const lightBlueEnd = type === 'error' ? 'rgba(135, 206, 250, 0.4)' : 
+                             type === 'success' ? 'rgba(173, 216, 230, 0.4)' : 
+                             'rgba(135, 206, 250, 0.4)'; // 默认浅蓝色
+        
+        notification.style.cssText = `
+            padding: 16px 24px;
+            margin-bottom: 10px;
+            border-radius: 16px;
+            color: rgba(0, 0, 139, 0.95); // 深蓝色字体
+            font-size: 15px;
+            font-weight: 500;
+            box-shadow: 
+                0 8px 32px rgba(135, 206, 250, 0.15),
+                0 1px 2px rgba(135, 206, 250, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            animation: slideUpFadeIn 0.3s ease-out;
+            background: linear-gradient(135deg, ${lightBlueStart}, ${lightBlueEnd}); // 浅蓝渐变
+            backdrop-filter: blur(20px); // 高斯模糊效果
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.4); // 白色半透明边框
+            transition: all 0.3s ease;
+        `;
+        notification.textContent = message;
+        
+        // 添加动画样式
+        if (!document.getElementById('md-task-notification-style')) {
+            const style = document.createElement('style');
+            style.id = 'md-task-notification-style';
+            style.textContent = `
+                @keyframes slideUpFadeIn {
+                    from {
+                        transform: translateY(20px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
+                
+                @keyframes slideDownFadeOut {
+                    from {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                    to {
+                        transform: translateY(20px);
+                        opacity: 0;
+                    }
+                }
+                
+                /* 浅粉色扫光动画 */
+                @keyframes pinkShine {
+                    0% {
+                        left: -100%;
+                        opacity: 0.8;
+                    }
+                    100% {
+                        left: 100%;
+                        opacity: 0;
+                    }
+                }
+                
+                /* 通知元素基础样式 */
+                .md-task-notification {
+                    position: relative;
+                    overflow: hidden;
+                }
+                
+                /* 扫光效果容器 */
+                .md-task-shine {
+                    position: relative;
+                }
+                
+                /* 扫光动画伪元素 */
+                .md-task-shine::after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 182, 193, 0.8), transparent);
+                    pointer-events: none;
+                    z-index: 1;
+                    animation: pinkShine 1s ease-in-out forwards;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // 添加通知到容器
+        notificationContainer.appendChild(notification);
+        
+        // 延迟500ms后添加扫光效果（确保向上渐显动画完成）
+        setTimeout(() => {
+            // 添加扫光类，触发粉色扫光动画
+            notification.classList.add('md-task-shine');
+        }, 500);
+        
+        // 2秒后开始淡出动画，然后移除
+        setTimeout(() => {
+            notification.style.animation = 'slideDownFadeOut 0.3s ease-in forwards';
+            // 动画结束后移除元素
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 2000);
     };
     
     // 自动保存任务状态到服务器
@@ -1279,7 +1575,9 @@ function initTaskList() {
         try {
             // 确保post_id存在
             if (!postId) {
-                console.error('更新任务状态失败: 无法获取文章ID');
+                showNotification('更新任务状态失败: 无法获取文章ID', 'error');
+                // 恢复原状态
+                removeSyncingState(taskItem, currentStatus);
                 return;
             }
             
@@ -1288,10 +1586,19 @@ function initTaskList() {
             formData.append('post_id', postId);
             formData.append('task_content', taskContent);
             formData.append('current_status', currentStatus);
+            // 添加nonce验证
+            if (window.ajax_object && window.ajax_object.nonce) {
+                formData.append('nonce', window.ajax_object.nonce);
+            } else {
+                showNotification('更新任务状态失败: 缺少安全验证', 'error');
+                removeSyncingState(taskItem, currentStatus);
+                return;
+            }
             
             // 确保ajax_object存在
             if (!window.ajax_object || !window.ajax_object.ajaxurl) {
-                console.error('更新任务状态失败: 无法获取AJAX URL');
+                showNotification('更新任务状态失败: 无法获取服务器地址', 'error');
+                removeSyncingState(taskItem, currentStatus);
                 return;
             }
             
@@ -1327,13 +1634,90 @@ function initTaskList() {
                     }
                     emojiSpan.textContent = newEmoji;
                 }
+                
+                // 移除同步中状态
+                removeSyncingState(taskItem);
+                
+                // 显示成功提示
+                showNotification('任务状态更新成功', 'success');
             } else {
                 console.warn('更新任务状态失败:', data.data.message);
+                
                 // 恢复原状态
-                // 这里可以根据需要添加恢复逻辑
+                removeSyncingState(taskItem, currentStatus);
+                
+                // 显示错误提示
+                showNotification(data.data.message || '更新任务状态失败', 'error');
             }
         } catch (error) {
             console.error('更新任务状态请求失败:', error);
+            
+            // 恢复原状态
+            removeSyncingState(taskItem, currentStatus);
+            
+            // 显示错误提示
+            showNotification('网络错误，更新任务状态失败', 'error');
+            
+            // 添加重试按钮
+            const retryBtn = document.createElement('button');
+            retryBtn.textContent = '重试';
+            retryBtn.style.cssText = `
+                margin-top: 10px;
+                padding: 5px 10px;
+                background: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            `;
+            retryBtn.onclick = () => {
+                retryBtn.remove();
+                toggleTaskState(taskItem);
+            };
+            
+            // 在任务项中添加重试按钮
+            taskItem.appendChild(retryBtn);
+            
+            // 3秒后自动移除重试按钮
+            setTimeout(() => {
+                if (retryBtn.parentNode) {
+                    retryBtn.remove();
+                }
+            }, 5000);
+        }
+    };
+    
+    // 移除同步中状态和加载指示器
+    const removeSyncingState = (taskItem, revertStatus = null) => {
+        // 移除同步中类
+        taskItem.classList.remove('md-task-syncing');
+        
+        // 移除加载指示器
+        const loader = taskItem.querySelector('.md-task-loader');
+        if (loader) {
+            loader.remove();
+        }
+        
+        // 如果需要恢复原状态
+        if (revertStatus !== null) {
+            taskItem.dataset.taskStatus = revertStatus;
+            const emojiSpan = taskItem.querySelector('.md-task-emoji');
+            let emoji = '';
+            switch(revertStatus) {
+                case 'pending':
+                    emoji = '❌';
+                    break;
+                case 'in-progress':
+                    emoji = '🔄';
+                    break;
+                case 'completed':
+                    emoji = '✅';
+                    break;
+                default:
+                    emoji = '❌';
+                    break;
+            }
+            emojiSpan.textContent = emoji;
         }
     };
     
@@ -1345,7 +1729,7 @@ function initTaskList() {
         console.log('任务项点击事件触发:', e.target);
         
         // 查找最近的任务项
-        const taskItem = this.closest('.md-task-item');
+        const taskItem = this.closest('.md-task-item') || e.target.closest('.md-task-item');
         if (!taskItem) {
             console.log('未找到任务项');
             return;
@@ -1363,26 +1747,64 @@ function initTaskList() {
         toggleTaskState(taskItem);
     };
     
-    // 直接绑定点击事件到所有任务项
-    const taskItems = document.querySelectorAll('.md-task-item');
-    console.log('找到任务项数量:', taskItems.length);
+    // 页面加载时初始化任务状态
+    const initTaskStates = () => {
+        const taskItems = document.querySelectorAll('.md-task-item');
+        console.log('初始化任务项数量:', taskItems.length);
+        
+        // 为每个可交互的任务项添加点击事件
+        taskItems.forEach(taskItem => {
+            if (taskItem.classList.contains('md-task-item-interactive')) {
+                // 添加悬停效果
+                taskItem.style.cursor = 'pointer';
+                taskItem.style.transition = 'opacity 0.2s ease';
+                
+                // 绑定点击事件
+                taskItem.addEventListener('click', handleTaskItemClick);
+                
+                // 确保初始状态正确
+                const status = taskItem.dataset.taskStatus;
+                const emojiSpan = taskItem.querySelector('.md-task-emoji');
+                let emoji = '';
+                switch(status) {
+                    case 'pending':
+                        emoji = '❌';
+                        break;
+                    case 'in-progress':
+                        emoji = '🔄';
+                        break;
+                    case 'completed':
+                        emoji = '✅';
+                        break;
+                    default:
+                        emoji = '❌';
+                        taskItem.dataset.taskStatus = 'pending';
+                        break;
+                }
+                emojiSpan.textContent = emoji;
+            } else {
+                taskItem.style.cursor = 'default';
+            }
+        });
+    };
     
-    taskItems.forEach(taskItem => {
-        // 绑定任务项点击事件
-        taskItem.addEventListener('click', handleTaskItemClick);
-        
-        // 绑定emoji点击事件
-        const emojiSpan = taskItem.querySelector('.md-task-emoji');
-        if (emojiSpan) {
-            emojiSpan.addEventListener('click', handleTaskItemClick);
-        }
-        
-        // 绑定任务文本点击事件
-        const taskText = taskItem.querySelector('.md-task-text');
-        if (taskText) {
-            taskText.addEventListener('click', handleTaskItemClick);
+    // 初始化任务状态和事件
+    initTaskStates();
+    
+    // 为了支持动态生成的任务项，添加事件委托
+    container.addEventListener('click', function(e) {
+        if (e.target.closest('.md-task-item-interactive')) {
+            const taskItem = e.target.closest('.md-task-item-interactive');
+            handleTaskItemClick.call(taskItem, e);
         }
     });
+}
+
+// 页面加载完成后初始化任务清单
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTaskList);
+} else {
+    initTaskList();
 }
 
 // 🎬 视频播放器初始化

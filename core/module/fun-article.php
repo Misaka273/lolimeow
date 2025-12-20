@@ -574,7 +574,7 @@ function boxmoe_custom_post_order($query) {
         if (empty($order)) {
              $order = ($orderby == 'title') ? 'ASC' : 'DESC';
         }
-        
+
         // Validate order
         if (!in_array($order, ['ASC', 'DESC'])) {
             $order = 'DESC';
@@ -608,3 +608,367 @@ function boxmoe_custom_post_order($query) {
     }
 }
 add_action('pre_get_posts', 'boxmoe_custom_post_order');
+
+// 🎯 文章编辑权限管理模块
+
+// 添加文章编辑权限元框
+function boxmoe_add_post_editor_meta_box() {
+    // 支持文章类型
+    add_meta_box(
+        'boxmoe_post_editors',
+        '文章编辑者',
+        'boxmoe_post_editors_meta_box_callback',
+        'post',
+        'normal',
+        'high'
+    );
+    
+    // 支持页面类型
+    add_meta_box(
+        'boxmoe_post_editors',
+        '页面编辑者',
+        'boxmoe_post_editors_meta_box_callback',
+        'page',
+        'normal',
+        'high'
+    );
+}
+add_action('add_meta_boxes', 'boxmoe_add_post_editor_meta_box');
+
+// 元框回调函数
+function boxmoe_post_editors_meta_box_callback($post) {
+    // 添加安全字段
+    wp_nonce_field('boxmoe_save_post_editors', 'boxmoe_post_editors_nonce');
+    
+    // 获取已保存的编辑者
+    $editors = get_post_meta($post->ID, '_boxmoe_post_editors', true);
+    $editors = is_array($editors) ? $editors : array();
+    
+    // 获取当前用户信息，用于显示创建者
+    $post_author = get_user_by('ID', $post->post_author);
+    
+    ?>
+    <div class="boxmoe-post-editors-container">
+        <div class="boxmoe-post-creator" style="margin-bottom: 15px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+            <strong>创建者:</strong> <?php echo esc_html($post_author->display_name); ?> (<?php echo esc_html($post_author->user_login); ?>)
+        </div>
+        
+        <div class="boxmoe-search-user-section" style="margin-bottom: 15px;">
+            <label for="boxmoe-search-user" style="display: block; margin-bottom: 5px;">搜索用户:</label>
+            <input type="text" id="boxmoe-search-user" class="regular-text" placeholder="输入用户ID、用户名或邮箱" style="width: 100%; margin-bottom: 10px;">
+            <div id="boxmoe-search-results" style="max-height: 150px; overflow-y: auto; border: 1px solid #ddd; background: white; display: none;"></div>
+        </div>
+        
+        <div class="boxmoe-selected-editors">
+            <label style="display: block; margin-bottom: 10px;">已选编辑者:</label>
+            <div id="boxmoe-editors-list" style="margin-bottom: 15px;">
+                <?php if (!empty($editors)): ?>
+                    <?php foreach ($editors as $editor_id): ?>
+                        <?php $editor = get_user_by('ID', $editor_id); ?>
+                        <?php if ($editor): ?>
+                            <div class="boxmoe-editor-item" data-user-id="<?php echo esc_attr($editor_id); ?>" style="display: inline-block; margin: 5px; padding: 5px 10px; background: #e8f4f8; border: 1px solid #21759b; border-radius: 15px;">
+                                <?php echo esc_html($editor->display_name); ?> (<?php echo esc_html($editor->user_login); ?>)
+                                <button type="button" class="boxmoe-remove-editor" style="background: none; border: none; color: #d9534f; cursor: pointer; margin-left: 5px;">×</button>
+                                <input type="hidden" name="boxmoe_post_editors[]" value="<?php echo esc_attr($editor_id); ?>">
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p style="color: #999;">暂无添加的编辑者</p>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <p class="description">
+            添加其他用户作为文章编辑者，他们将能够编辑此文章。
+        </p>
+    </div>
+    
+    <script>
+    jQuery(document).ready(function($) {
+        // 用户搜索功能
+        $('#boxmoe-search-user').on('input', function() {
+            var search_term = $(this).val();
+            var results_container = $('#boxmoe-search-results');
+            
+            if (search_term.length < 2) {
+                results_container.hide();
+                return;
+            }
+            
+            $.ajax({
+                url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                type: 'POST',
+                data: {
+                    action: 'boxmoe_post_search_users',
+                    search_term: search_term,
+                    nonce: '<?php echo wp_create_nonce('boxmoe_post_search_users'); ?>'
+                },
+                success: function(response) {
+                    if (response.success && response.data.length > 0) {
+                        var results = '<ul style="margin: 0; padding: 0; list-style: none;">';
+                        $.each(response.data, function(index, user) {
+                            results += '<li data-user-id="' + user.id + '" style="padding: 8px; cursor: pointer; border-bottom: 1px solid #eee;">' +
+                                '<strong>' + user.display_name + '</strong> (' + user.user_login + ') - ' + user.user_email +
+                                '</li>';
+                        });
+                        results += '</ul>';
+                        results_container.html(results).show();
+                    } else {
+                        results_container.html('<p style="padding: 8px; color: #999;">未找到匹配用户</p>').show();
+                    }
+                }
+            });
+        });
+        
+        // 点击搜索结果添加用户
+        $(document).on('click', '#boxmoe-search-results li', function() {
+            var user_id = $(this).data('user-id');
+            var user_name = $(this).find('strong').text();
+            var user_login = $(this).text().match(/\((.*?)\)/)[1];
+            
+            // 检查用户是否已添加
+            if ($('#boxmoe-editors-list input[value="' + user_id + '"]').length === 0) {
+                var editor_item = '<div class="boxmoe-editor-item" data-user-id="' + user_id + '" style="display: inline-block; margin: 5px; padding: 5px 10px; background: #e8f4f8; border: 1px solid #21759b; border-radius: 15px;">' +
+                    user_name + ' (' + user_login + ') ' +
+                    '<button type="button" class="boxmoe-remove-editor" style="background: none; border: none; color: #d9534f; cursor: pointer; margin-left: 5px;">×</button>' +
+                    '<input type="hidden" name="boxmoe_post_editors[]" value="' + user_id + '">' +
+                    '</div>';
+                
+                $('#boxmoe-editors-list p:contains("暂无添加的编辑者")').remove();
+                $('#boxmoe-editors-list').append(editor_item);
+            }
+            
+            // 清空搜索框和结果
+            $('#boxmoe-search-user').val('');
+            $('#boxmoe-search-results').hide();
+        });
+        
+        // 移除编辑者
+        $(document).on('click', '.boxmoe-remove-editor', function() {
+            $(this).parent().remove();
+            
+            // 如果没有编辑者，显示提示信息
+            if ($('#boxmoe-editors-list .boxmoe-editor-item').length === 0) {
+                $('#boxmoe-editors-list').html('<p style="color: #999;">暂无添加的编辑者</p>');
+            }
+        });
+        
+        // 点击页面其他地方关闭搜索结果
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.boxmoe-search-user-section').length) {
+                $('#boxmoe-search-results').hide();
+            }
+        });
+    });
+    </script>
+    <?php
+}
+
+// 保存编辑者数据
+function boxmoe_save_post_editors($post_id) {
+    // 检查安全字段
+    if (!isset($_POST['boxmoe_post_editors_nonce'])) {
+        return;
+    }
+    
+    if (!wp_verify_nonce($_POST['boxmoe_post_editors_nonce'], 'boxmoe_save_post_editors')) {
+        return;
+    }
+    
+    // 检查自动保存
+    if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+        return;
+    }
+    
+    // 检查用户权限
+    if (!current_user_can('edit_post', $post_id)) {
+        return;
+    }
+    
+    // 保存数据
+    if (isset($_POST['boxmoe_post_editors'])) {
+        $editors = array_map('intval', $_POST['boxmoe_post_editors']);
+        $editors = array_unique($editors); // 移除重复项
+        update_post_meta($post_id, '_boxmoe_post_editors', $editors);
+    } else {
+        delete_post_meta($post_id, '_boxmoe_post_editors');
+    }
+}
+add_action('save_post', 'boxmoe_save_post_editors');
+
+// AJAX 用户搜索函数
+function boxmoe_post_search_users() {
+    // 检查nonce
+    if (!wp_verify_nonce($_POST['nonce'], 'boxmoe_post_search_users')) {
+        wp_send_json_error('Invalid nonce');
+    }
+    
+    // 检查用户权限
+    if (!current_user_can('edit_posts')) {
+        wp_send_json_error('Permission denied');
+    }
+    
+    // 获取搜索词
+    $search_term = isset($_POST['search_term']) ? sanitize_text_field($_POST['search_term']) : '';
+    
+    if (empty($search_term)) {
+        wp_send_json_error('Search term empty');
+    }
+    
+    // 搜索用户
+    $users = get_users(array(
+        'search' => '*' . $search_term . '*',
+        'search_columns' => array('ID', 'user_login', 'user_email', 'display_name'),
+        'number' => 10
+    ));
+    
+    // 准备结果
+    $results = array();
+    foreach ($users as $user) {
+        $results[] = array(
+            'id' => $user->ID,
+            'user_login' => $user->user_login,
+            'user_email' => $user->user_email,
+            'display_name' => $user->display_name
+        );
+    }
+    
+    wp_send_json_success($results);
+}
+add_action('wp_ajax_boxmoe_post_search_users', 'boxmoe_post_search_users');
+
+// 修改文章编辑权限，允许指定用户编辑
+function boxmoe_post_edit_capability($allcaps, $caps, $args) {
+    // 检查是否请求编辑文章权限
+    if (isset($args[0]) && $args[0] === 'edit_post' && isset($args[2])) {
+        $user_id = $args[1];
+        $post_id = $args[2];
+        
+        // 检查用户是否是文章的编辑者
+        $editors = get_post_meta($post_id, '_boxmoe_post_editors', true);
+        $editors = is_array($editors) ? $editors : array();
+        
+        if (in_array($user_id, $editors)) {
+            // 添加编辑权限
+            $allcaps['edit_posts'] = true;
+            $allcaps['edit_post'] = true;
+            $allcaps['edit_others_posts'] = true;
+        }
+    }
+    
+    return $allcaps;
+}
+add_filter('user_has_cap', 'boxmoe_post_edit_capability', 10, 3);
+
+// 修改文章列表查询，只显示用户有编辑权限的文章和页面
+function boxmoe_restrict_post_list($query) {
+    global $pagenow;
+    
+    // 只在管理后台的文章和页面列表页面生效
+    if (is_admin() && in_array($pagenow, array('edit.php', 'edit.php?post_type=page')) && $query->is_main_query() && !current_user_can('edit_others_posts')) {
+        $user_id = get_current_user_id();
+        
+        // 获取当前查询的文章类型
+        $post_type = $query->get('post_type');
+        $post_type = empty($post_type) ? 'post' : $post_type;
+        
+        // 获取用户是编辑者的所有内容
+        $editor_posts = get_posts(array(
+            'post_type' => $post_type,
+            'meta_key' => '_boxmoe_post_editors',
+            'meta_value' => $user_id,
+            'meta_compare' => 'LIKE',
+            'fields' => 'ids',
+            'posts_per_page' => -1
+        ));
+        
+        // 获取用户自己的内容
+        $author_posts = get_posts(array(
+            'post_type' => $post_type,
+            'author' => $user_id,
+            'fields' => 'ids',
+            'posts_per_page' => -1
+        ));
+        
+        // 合并内容ID并去重
+        $allowed_posts = array_merge($editor_posts, $author_posts);
+        $allowed_posts = array_unique($allowed_posts);
+        
+        // 设置查询条件
+        if (!empty($allowed_posts)) {
+            $query->set('post__in', $allowed_posts);
+        } else {
+            // 如果没有内容，返回空结果
+            $query->set('post__in', array(0));
+        }
+    }
+}
+add_action('pre_get_posts', 'boxmoe_restrict_post_list');
+
+// 🔗 外链跳转处理
+function boxmoe_external_link_redirect($content) {
+    // 获取设置开关状态
+    $notice_switch = get_boxmoe('boxmoe_external_link_notice_switch');
+    $direct_switch = get_boxmoe('boxmoe_external_link_direct_switch');
+    
+    // 如果两个开关都关闭，直接返回原内容
+    if (!$notice_switch && !$direct_switch) {
+        return $content;
+    }
+    
+    // 获取跳转页面URL
+    $redirect_url = '';
+    if ($notice_switch) {
+        // 查找使用外链提醒版模板的页面
+        $pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page/p-goto.php'
+        ));
+        if (!empty($pages)) {
+            $redirect_url = get_permalink($pages[0]->ID);
+        }
+    } elseif ($direct_switch) {
+        // 查找使用外链直跳版模板的页面
+        $pages = get_pages(array(
+            'meta_key' => '_wp_page_template',
+            'meta_value' => 'page/p-go.php'
+        ));
+        if (!empty($pages)) {
+            $redirect_url = get_permalink($pages[0]->ID);
+        }
+    }
+    
+    // 如果找不到对应页面，直接返回原内容
+    if (empty($redirect_url)) {
+        return $content;
+    }
+    
+    // 查找所有链接
+    $pattern = '/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/i';
+    
+    // 替换链接为跳转链接
+    $content = preg_replace_callback($pattern, function($matches) use ($redirect_url) {
+        $href = $matches[1];
+        $text = $matches[2];
+        $attributes = preg_replace('/href=["\'][^"\']+["\']/', '', $matches[0]);
+        $attributes = str_replace('><', '>', $attributes);
+        
+        // 检查是否为外部链接
+        if (strpos($href, home_url()) === 0 || strpos($href, 'http') !== 0) {
+            // 内部链接或相对链接，不处理
+            return $matches[0];
+        }
+        
+        // 构建跳转链接
+        $encoded_url = urlencode($href);
+        $full_redirect_url = "{$redirect_url}?url={$encoded_url}";
+        
+        // 返回新的链接
+        return "<a href='{$full_redirect_url}'{$attributes}>{$text}</a>";
+    }, $content);
+    
+    return $content;
+}
+
+add_filter('the_content', 'boxmoe_external_link_redirect', 99);

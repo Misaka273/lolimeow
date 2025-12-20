@@ -162,12 +162,13 @@ $options[] = array(
     }
     
     $lolijump_options = array(
-			'lolisister1' => __(' 看板萝莉-姐姐 ', 'ui_boxmoe_com'),
-			'lolisister2' => __(' 看板萝莉-妹妹', 'ui_boxmoe_com'),
-			'dance' => __(' 看板娘-舞娘娘', 'ui_boxmoe_com'),
-			'meow' => __(' 看板娘-喵小娘', 'ui_boxmoe_com'),
-			'lemon' => __(' 看板妹-柠檬妹', 'ui_boxmoe_com'),			
-			'bear' => __(' 看板熊-熊宝宝', 'ui_boxmoe_com'),
+			'lolisister1' => __(' 姐姐 ', 'ui_boxmoe_com'),
+			'lolisister2' => __(' 妹妹', 'ui_boxmoe_com'),
+			'dance' => __(' 阿尼亚', 'ui_boxmoe_com'),
+			'meow' => __(' 喵小娘', 'ui_boxmoe_com'),
+			'lemon' => __(' 柠檬妹', 'ui_boxmoe_com'),			
+			'bear' => __(' 熊宝宝', 'ui_boxmoe_com'),
+			'gurayao' => __(' gura摇', 'ui_boxmoe_com'),
     );
     if(is_array($lolijump_custom_list) && !empty($lolijump_custom_list)){
         $i = 1;

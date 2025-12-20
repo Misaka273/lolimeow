@@ -119,5 +119,22 @@ $options[] = array(
             'std' => '',
             'desc' => __('QQ号码\群号、TG用户\群组\频道ID,留空则不使用', 'ui_boxmoe_com'),
         );
+        // 🔗 外链跳转设置
+        $options[] = array(
+            'group' => 'start',
+            'group_title' => '外链跳转设置',
+            'name' => __('外链提醒版开关', 'ui_boxmoe_com'),
+            'id' => 'boxmoe_external_link_notice_switch',
+            'type' => 'checkbox',
+            'std' => false,
+            'desc' => __('开启后，外链将使用提醒版跳转页面', 'ui_boxmoe_com'),
+        );
+        $options[] = array(
+            'name' => __('外链直跳版开关', 'ui_boxmoe_com'),
+            'id' => 'boxmoe_external_link_direct_switch',
+            'type' => 'checkbox',
+            'std' => false,
+            'desc' => __('开启后，外链将使用直跳版跳转页面', 'ui_boxmoe_com'),
+        );
 
 
