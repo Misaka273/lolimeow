@@ -63,10 +63,10 @@ function listol_shortcode( $atts, $content='' ) {
     $output = null;
     foreach($lists as $li){
         if(trim($li) != '') {
-            $output .= "<ol>{$li}</ol>\n";
+            $output .= "<li>{$li}</li>\n";
         }
     }
-    $outputs = "<ul class='ol'>\n".$output."</ul>\n";
+    $outputs = "<ol class='ol'>\n".$output."</ol>\n";
     return $outputs;
 }
 

@@ -446,10 +446,18 @@ function initTableOfContents() {
     });
     tocBtn.addEventListener('click', () => {
         toc.classList.toggle('show');
+        // 🎯 目录打开/关闭时切换按钮动画状态
+        if (toc.classList.contains('show')) {
+            tocBtn.style.animationPlayState = 'paused';
+        } else {
+            tocBtn.style.animationPlayState = 'running';
+        }
     });
     document.addEventListener('click', (e) => {
         if(!toc.contains(e.target) && !tocBtn.contains(e.target)) {
             toc.classList.remove('show');
+            // 🎯 点击外部关闭目录时恢复按钮动画
+            tocBtn.style.animationPlayState = 'running';
         }
     });
 }
@@ -593,7 +601,7 @@ const LoginStatusManager = (() => {
                 saveLoginStatusToLocalStorage(data.data.is_logged_in, data.data.user_info);
                 currentAttempt = 0; // 重置重试次数
             } else {
-                throw new Error(data.data?.message || '登录状态检查失败');
+                console.warn('登录状态检查失败:', data.data?.message || '未知错误');
             }
         } catch (error) {
             console.warn('登录状态检查失败:', error);
@@ -670,158 +678,153 @@ const LoginStatusManager = (() => {
             const mobileUserBtn = document.querySelector('.mobile-user-btn');
             const mobileUserPanels = document.querySelectorAll('.mobile-user-panel');
             
-            if (mobileUserPanels.length > 0) {
-                // 移除所有现有面板
-                mobileUserPanels.forEach(panel => {
-                    try {
-                        panel.remove();
-                    } catch (error) {
-                        console.warn('移除移动端用户面板失败:', error);
-                    }
-                });
-                
-                // 创建新的用户面板
-                const newPanel = document.createElement('div');
-                newPanel.className = 'mobile-user-panel';
-                
+            // 移除所有现有面板
+            mobileUserPanels.forEach(panel => {
                 try {
-                    // 确保ajax_object和themeurl存在
-                    const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
-                    
-                    if (isLoggedIn) {
-                        newPanel.innerHTML = `
-                            <div class="user-panel-content">
-                                <div class="mobile-user-wrapper">
-                                    <div class="mobile-logged-menu">
-                                        <a href="${getUserCenterLink()}" class="mobile-menu-item">
-                                            <i class="fa fa-user-circle"></i>
-                                            <span>会员中心</span></a>
-                                            ${isAdmin() ? `
-                                        <a href="${window.ajax_object?.adminurl || '/wp-admin/'}" class="mobile-menu-item">
-                                            <i class="fa fa-cog"></i>
-                                            <span>后台管理</span></a>
-                                            ` : ''}
-                                        <a href="${getLogoutUrl()}" class="mobile-menu-item">
-                                            <i class="fa fa-sign-out"></i>
-                                            <span>注销登录</span></a>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        newPanel.innerHTML = `
-                            <div class="user-panel-content">
-                                <div class="mobile-user-wrapper">
-                                    <div class="mobile-logged-menu">
-                                    <div class="user-wrapper d-lg-flex">
-                                <div class="user-login-wrap">
-                                <a href="${getLoginLink()}" class="user-login">
-                                <span class="login-text">登录</span></a>
-                                </div>
-                                <span class="divider">or</span>
-                                <div class="user-reg-wrap">
-                                <a href="${getRegisterLink()}" class="user-reg">
-                                <span class="reg-text">注册</span></a></div>
-                                </div>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }
+                    panel.remove();
                 } catch (error) {
-                    console.error('创建用户面板HTML失败:', error);
-                    return;
+                    console.warn('移除移动端用户面板失败:', error);
                 }
+            });
+            
+            // 创建新的用户面板
+            const newPanel = document.createElement('div');
+            newPanel.className = 'mobile-user-panel';
+            
+            try {
+                // 确保ajax_object和themeurl存在
+                const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
                 
-                if (mobileUserBtn && mobileUserBtn.parentElement) {
-                    try {
-                        mobileUserBtn.parentElement.appendChild(newPanel);
-                    } catch (error) {
-                        console.warn('添加移动端用户面板失败:', error);
-                    }
+                if (isLoggedIn) {
+                    newPanel.innerHTML = `
+                        <div class="user-panel-content">
+                            <div class="mobile-user-wrapper">
+                                <div class="mobile-logged-menu">
+                                    <a href="${getUserCenterLink()}" class="mobile-menu-item">
+                                        <i class="fa fa-user-circle"></i>
+                                        <span>会员中心</span></a>
+                                        ${isAdmin() ? `
+                                    <a href="${window.ajax_object?.adminurl || '/wp-admin/'}" class="mobile-menu-item">
+                                        <i class="fa fa-cog"></i>
+                                        <span>后台管理</span></a>
+                                        ` : ''}
+                                    <a href="${getLogoutUrl()}" class="mobile-menu-item">
+                                        <i class="fa fa-sign-out"></i>
+                                        <span>注销登录</span></a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    newPanel.innerHTML = `
+                        <div class="user-panel-content">
+                            <div class="mobile-user-wrapper">
+                                <div class="mobile-logged-menu">
+                                <div class="user-wrapper d-lg-flex">
+                            <div class="user-login-wrap">
+                            <a href="${getLoginLink()}" class="user-login">
+                            <span class="login-text">登录</span></a>
+                            </div>
+                            <span class="divider">or</span>
+                            <div class="user-reg-wrap">
+                            <a href="${getRegisterLink()}" class="user-reg">
+                            <span class="reg-text">注册</span></a></div>
+                            </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('创建用户面板HTML失败:', error);
+                return;
+            }
+            
+            if (mobileUserBtn && mobileUserBtn.parentElement) {
+                try {
+                    mobileUserBtn.parentElement.appendChild(newPanel);
+                } catch (error) {
+                    console.warn('添加移动端用户面板失败:', error);
                 }
             }
             
             // 处理桌面端用户面板
             const desktopUserWrappers = document.querySelectorAll('.user-wrapper, .logged-user-wrapper');
             
-            if (desktopUserWrappers.length > 0) {
-                // 移除所有现有面板
-                desktopUserWrappers.forEach(wrapper => {
-                    try {
-                        wrapper.remove();
-                    } catch (error) {
-                        console.warn('移除桌面端用户面板失败:', error);
-                    }
-                });
+            desktopUserWrappers.forEach(wrapper => {
+                try {
+                    wrapper.remove();
+                } catch (error) {
+                    console.warn('移除桌面端用户面板失败:', error);
+                }
+            });
+            
+            // 创建新的桌面用户面板
+            const navRightSection = document.querySelector('.nav-right-section');
+            if (navRightSection) {
+                const newWrapper = document.createElement('div');
                 
-                // 创建新的桌面用户面板
-                const navRightSection = document.querySelector('.nav-right-section');
-                if (navRightSection) {
-                    const newWrapper = document.createElement('div');
+                try {
+                    // 确保ajax_object和themeurl存在
+                    const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
                     
-                    try {
-                        // 确保ajax_object和themeurl存在
-                        const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
+                    if (isLoggedIn) {
+                        newWrapper.className = 'logged-user-wrapper d-none d-lg-flex';
+                        // 获取头像URL
+                        const avatarUrl = getUserAvatarUrl(userInfo.user_id || 0, userInfo);
                         
-                        if (isLoggedIn) {
-                            newWrapper.className = 'logged-user-wrapper d-none d-lg-flex';
-                            // 获取头像URL
-                            const avatarUrl = getUserAvatarUrl(userInfo.user_id || 0);
-                            
-                            newWrapper.innerHTML = `
-                                <div class="user-info-wrap d-flex align-items-center dropdown">
-                                    <a href="${getUserCenterLink()}" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
-                                        ${avatarUrl ? `
-                                        <div class="user-avatar">
-                                        <img src="${themeUrl}/assets/images/loading.gif" data-src="${avatarUrl}" alt="avatar" class="img-fluid rounded-3 lazy">
-                                    </div>` : ''}
-                                        <div class="user-info">
-                                            <div class="user-name">${userInfo.display_name || '用户'}</div>
-                                            <div class="user-email">${userInfo.user_email || ''}</div>
-                                    </div>
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                      <li>
-                                        <a class="dropdown-item" href="${getUserCenterLink()}">
-                                          <i class="fa fa-user-circle"></i>会员中心</a>
-                                      </li>
-                                      ${isAdmin() ? `
-                                      <li>
-                                        <a class="dropdown-item" target="_blank" href="${window.ajax_object?.adminurl || '/wp-admin/'}">
-                                          <i class="fa fa-cog"></i>后台管理</a>
-                                      </li>
-                                      ` : ''}
-                                      <li>
-                                        <a class="dropdown-item" href="${getLogoutUrl()}">
-                                          <i class="fa fa-sign-out"></i>注销登录</a>
-                                      </li>
-                                    </ul>
+                        newWrapper.innerHTML = `
+                            <div class="user-info-wrap d-flex align-items-center dropdown">
+                                <a href="${getUserCenterLink()}" class="dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                                    ${avatarUrl ? `
+                                    <div class="user-avatar">
+                                    <img src="${themeUrl}/assets/images/loading.gif" data-src="${avatarUrl}" alt="avatar" class="img-fluid rounded-3 lazy">
+                                </div>` : ''}
+                                    <div class="user-info">
+                                        <div class="user-name">${userInfo.display_name || '用户'}</div>
+                                        <div class="user-email">${userInfo.user_email || ''}</div>
                                 </div>
-                            `;
-                        } else {
-                            newWrapper.className = 'user-wrapper d-none d-lg-flex';
-                            newWrapper.innerHTML = `
-                                <div class="user-login-wrap">
-                                <a href="${getLoginLink()}" class="user-login">
-                                <span class="login-text">登录</span></a>
-                                </div>
-                                <span class="divider">or</span>
-                                <div class="user-reg-wrap">
-                                <a href="${getRegisterLink()}" class="user-reg">
-                                <span class="reg-text">注册</span></a></div>
-                            `;
-                        }
-                    } catch (error) {
-                        console.error('创建桌面用户面板HTML失败:', error);
-                        return;
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                  <li>
+                                    <a class="dropdown-item" href="${getUserCenterLink()}">
+                                      <i class="fa fa-user-circle"></i>会员中心</a>
+                                  </li>
+                                  ${isAdmin() ? `
+                                  <li>
+                                    <a class="dropdown-item" target="_blank" href="${window.ajax_object?.adminurl || '/wp-admin/'}">
+                                      <i class="fa fa-cog"></i>后台管理</a>
+                                  </li>
+                                  ` : ''}
+                                  <li>
+                                    <a class="dropdown-item" href="${getLogoutUrl()}">
+                                      <i class="fa fa-sign-out"></i>注销登录</a>
+                                  </li>
+                                </ul>
+                            </div>
+                        `;
+                    } else {
+                        newWrapper.className = 'user-wrapper d-none d-lg-flex';
+                        newWrapper.innerHTML = `
+                            <div class="user-login-wrap">
+                            <a href="${getLoginLink()}" class="user-login">
+                            <span class="login-text">登录</span></a>
+                            </div>
+                            <span class="divider">or</span>
+                            <div class="user-reg-wrap">
+                            <a href="${getRegisterLink()}" class="user-reg">
+                            <span class="reg-text">注册</span></a></div>
+                        `;
                     }
-                    
-                    try {
-                        navRightSection.appendChild(newWrapper);
-                    } catch (error) {
-                        console.warn('添加桌面端用户面板失败:', error);
-                    }
+                } catch (error) {
+                    console.error('创建桌面用户面板HTML失败:', error);
+                    return;
+                }
+                
+                try {
+                    navRightSection.appendChild(newWrapper);
+                } catch (error) {
+                    console.warn('添加桌面端用户面板失败:', error);
                 }
             }
         } catch (error) {
@@ -895,22 +898,25 @@ const LoginStatusManager = (() => {
     /**
      * 辅助函数：获取用户头像URL
      */
-    const getUserAvatarUrl = (userId) => {
+    const getUserAvatarUrl = (userId, userInfo) => {
         try {
             // 确保ajax_object和themeurl存在
             const themeUrl = window.ajax_object && window.ajax_object.themeurl ? window.ajax_object.themeurl : '';
             
-            // 检查localStorage中是否有用户信息
-            const userInfo = JSON.parse(localStorage.getItem('user_info'));
+            // 优先使用传入的userInfo中的头像信息
             if (userInfo && userInfo.user_avatar) {
                 return userInfo.user_avatar;
             }
             
-            // 直接返回PHP生成的头像URL，避免覆盖
-            const existingAvatar = document.querySelector('.user-avatar img');
-            if (existingAvatar) {
-                // 如果是data-src，返回data-src，否则返回src
-                return existingAvatar.getAttribute('data-src') || existingAvatar.getAttribute('src');
+            // 检查localStorage中是否有用户信息
+            const storedUserInfo = JSON.parse(localStorage.getItem('user_info'));
+            if (storedUserInfo && storedUserInfo.user_avatar) {
+                return storedUserInfo.user_avatar;
+            }
+            
+            // 直接调用PHP函数生成头像URL，确保与文章头头像一致
+            if (typeof boxmoe_get_avatar_url === 'function') {
+                return boxmoe_get_avatar_url(userId, 100);
             }
             
             // 检查是否有默认头像URL
@@ -986,7 +992,7 @@ const LoginStatusManager = (() => {
         
         // 监听网络状态变化，网络恢复时更新状态
         window.addEventListener('online', () => {
-            console.log('网络连接恢复，检查登录状态');
+
             checkLoginStatus();
         });
         
@@ -1190,6 +1196,28 @@ function initPrettyPrint() {
     const prettyprintElements = document.querySelectorAll('.prettyprint');
     if (prettyprintElements.length && window.prettyPrint) {
         window.prettyPrint();
+        
+        // 修复行号显示问题：当行号超过9时，从10开始显示而不是从0开始
+        setTimeout(() => {
+            const codeBlocks = document.querySelectorAll('.prettyprint ol.linenums');
+            codeBlocks.forEach((codeBlock) => {
+                // 确保代码块使用我们的CSS计数器样式
+                codeBlock.style.counterReset = 'line-number';
+                codeBlock.style.listStyleType = 'none';
+                
+                const lines = codeBlock.querySelectorAll('li');
+                lines.forEach((line, index) => {
+                    // 移除Prettify库生成的value属性，避免与CSS计数器冲突
+                    line.removeAttribute('value');
+                    // 移除所有内联样式，使用CSS中定义的样式
+                    line.removeAttribute('style');
+                    // 确保每一行都正确应用计数器递增
+                    line.style.counterIncrement = 'line-number';
+                    // 为每一行设置正确的class，避免Prettify库的样式影响
+                    line.className = `L${index % 10}`;
+                });
+            });
+        }, 200);
     }
 }
 
@@ -1332,7 +1360,7 @@ function initTaskList() {
     const container = document.querySelector('.single-content');
     if (!container) return;
     
-    console.log('初始化任务清单交互功能');
+    // console.log('初始化任务清单交互功能');
     
     // 获取文章ID的多种方式
     let postId = document.body.getAttribute('data-post-id');
@@ -1426,7 +1454,7 @@ function initTaskList() {
             document.head.appendChild(style);
         }
         
-        console.log('本地切换任务状态:', newStatus);
+
         
         // 自动保存任务状态到服务器
         saveTaskState(taskItem, currentStatus);
@@ -1587,22 +1615,22 @@ function initTaskList() {
             formData.append('task_content', taskContent);
             formData.append('current_status', currentStatus);
             // 添加nonce验证
-            if (window.ajax_object && window.ajax_object.nonce) {
-                formData.append('nonce', window.ajax_object.nonce);
+            if (window.task_ajax_object && window.task_ajax_object.nonce) {
+                formData.append('nonce', window.task_ajax_object.nonce);
             } else {
                 showNotification('更新任务状态失败: 缺少安全验证', 'error');
                 removeSyncingState(taskItem, currentStatus);
                 return;
             }
             
-            // 确保ajax_object存在
-            if (!window.ajax_object || !window.ajax_object.ajaxurl) {
+            // 确保task_ajax_object存在
+            if (!window.task_ajax_object || !window.task_ajax_object.ajaxurl) {
                 showNotification('更新任务状态失败: 无法获取服务器地址', 'error');
                 removeSyncingState(taskItem, currentStatus);
                 return;
             }
             
-            const response = await fetch(window.ajax_object.ajaxurl, {
+            const response = await fetch(window.task_ajax_object.ajaxurl, {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: formData
@@ -1615,7 +1643,7 @@ function initTaskList() {
             const data = await response.json();
             
             if (data.success) {
-                console.log('任务状态保存成功，新状态:', data.data.new_status);
+
                 // 如果服务器返回了新状态，使用服务器返回的状态
                 if (data.data && data.data.new_status) {
                     taskItem.dataset.taskStatus = data.data.new_status;
@@ -1726,31 +1754,31 @@ function initTaskList() {
         e.preventDefault();
         e.stopPropagation();
         
-        console.log('任务项点击事件触发:', e.target);
+
         
         // 查找最近的任务项
         const taskItem = this.closest('.md-task-item') || e.target.closest('.md-task-item');
         if (!taskItem) {
-            console.log('未找到任务项');
+
             return;
         }
         
-        console.log('找到任务项:', taskItem);
+
         
         // 检查是否为可交互任务项
         if (!taskItem.classList.contains('md-task-item-interactive')) {
-            console.log('任务项不可交互');
+
             return;
         }
         
-        console.log('任务项可交互，切换状态');
+
         toggleTaskState(taskItem);
     };
     
     // 页面加载时初始化任务状态
     const initTaskStates = () => {
         const taskItems = document.querySelectorAll('.md-task-item');
-        console.log('初始化任务项数量:', taskItems.length);
+        // console.log('初始化任务项数量:', taskItems.length);
         
         // 为每个可交互的任务项添加点击事件
         taskItems.forEach(taskItem => {

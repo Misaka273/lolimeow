@@ -153,6 +153,8 @@ class Options_Framework_Admin {
 
 		wp_enqueue_style( 'optionsframework', OPTIONS_FRAMEWORK_DIRECTORY . 'css/optionsframework.css', array(),  Options_Framework::VERSION );
 		wp_enqueue_style( 'wp-color-picker' );
+		// 引入主题主样式文件，包含.copy-banner的样式
+		wp_enqueue_style( 'boxmoe-style', get_template_directory_uri() . '/assets/css/style.css', array(),  Options_Framework::VERSION );
 	}
 
 	/**
@@ -273,6 +275,37 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
+
+  // 🎉 显示顶部横幅提示
+  function showTopBanner(message, duration = 5000) {
+    let banner = document.querySelector('.copy-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.className = 'copy-banner';
+      document.body.appendChild(banner);
+    }
+    banner.innerHTML = '<i class="fa fa-check-circle"></i> ' + message;
+    let timer = null;
+    const show = function() {
+      if (timer) { try { clearTimeout(timer); } catch(_) {} }
+      banner.classList.remove('mask-run');
+      void banner.offsetWidth;
+      banner.classList.add('mask-run');
+      banner.classList.add('show');
+      timer = setTimeout(function() {
+        banner.classList.remove('show');
+        banner.classList.remove('mask-run');
+      }, duration);
+    };
+    show();
+  }
+
+  // 📡 检测URL参数并显示相应提示
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('settings-updated')) {
+    // 直接显示默认的保存成功提示
+    showTopBanner('设置已保存成功！', 5000);
+  }
 });
 
 // 📡 获取并更新最新版本信息
@@ -338,7 +371,9 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 		 */
 
 		if ( isset( $_POST['reset'] ) ) {
-			add_settings_error( 'options-framework', 'restore_defaults', __( '已恢复默认选项!', 'textdomain' ), 'updated fade' );
+			// 不使用默认的WordPress提示框，改为使用自定义的顶部横幅提示
+			// add_settings_error( 'options-framework', 'restore_defaults', __( '已恢复默认选项!', 'textdomain' ), 'updated fade' );
+			// 提示信息将通过JavaScript在前端显示
 			return $this->get_default_values();
 		}
 
@@ -369,7 +404,9 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 					$current[$key] = $defaults[$key];
 				}
 			}
-			add_settings_error( 'options-framework', 'restore_slogan_defaults', __( '页面标语已恢复默认值！', 'textdomain' ), 'updated fade' );
+			// 不使用默认的WordPress提示框，改为使用自定义的顶部横幅提示
+			// add_settings_error( 'options-framework', 'restore_slogan_defaults', __( '页面标语已恢复默认值！', 'textdomain' ), 'updated fade' );
+			// 提示信息将通过JavaScript在前端显示
 			return $current;
 		}
 
@@ -414,6 +451,26 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 		// Hook to run after validation
 		do_action( 'optionsframework_after_validate', $clean );
 
+		// WordPress会自动添加settings-updated参数，我们不需要手动添加
+		// 我们可以直接使用JavaScript检测这个参数来显示提示
+		// 对于不同的操作，我们可以通过检查POST数据来确定显示什么提示
+		// 但是由于WordPress的设置API会自动重定向，我们无法直接在重定向后获取POST数据
+		// 所以我们直接在JavaScript中处理不同的操作类型
+		// 不需要使用transient API来存储操作类型
+
+		// 修改WordPress的重定向URL，添加操作类型参数
+		if ( isset( $_POST['reset'] ) ) {
+			// 恢复默认设置
+			add_filter( 'redirect_post_location', function( $location ) {
+				return add_query_arg( array( 'reset' => 'true' ), $location );
+			} );
+		} elseif ( isset( $_POST['reset_slogan'] ) ) {
+			// 重置页面标语
+			add_filter( 'redirect_post_location', function( $location ) {
+				return add_query_arg( array( 'reset_slogan' => 'true' ), $location );
+			} );
+		}
+
 		return $clean;
 	}
 
@@ -422,7 +479,9 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 	 */
 
 	function save_options_notice() {
-		add_settings_error( 'options-framework', 'save_options', __( '设置已保存成功！', 'textdomain' ), 'updated fade' );
+		// 不使用默认的WordPress提示框，改为使用自定义的顶部横幅提示
+		// add_settings_error( 'options-framework', 'save_options', __( '设置已保存成功！', 'textdomain' ), 'updated fade' );
+		// 提示信息将通过JavaScript在前端显示
 	}
 
 	/**

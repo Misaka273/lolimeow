@@ -59,7 +59,7 @@ get_header();
                                                 <div class="info">
                                                     <h3>
                                                         <span class="link-title"><?php echo esc_html($link->link_name); ?></span>
-                                                        <span class="link-count">0</span>
+                                                        <span class="link-count"><?php echo esc_html(isset($link->link_clicked) ? $link->link_clicked : 0); ?></span>
                                                     </h3>
                                                     <?php if (!empty($link->link_description)) : ?>
                                                         <p title="<?php echo esc_attr($link->link_description); ?>"><?php echo esc_html($link->link_description); ?></p>
@@ -120,7 +120,7 @@ get_header();
                                         <div class="info">
                                             <h3>
                                                 <span class="link-title"><?php echo esc_html($link->link_name); ?></span>
-                                                <span class="link-count">0</span>
+                                                <span class="link-count"><?php echo esc_html(isset($link->link_clicked) ? $link->link_clicked : 0); ?></span>
                                             </h3>
                                             <?php if (!empty($link->link_description)) : ?>
                                                 <p title="<?php echo esc_attr($link->link_description); ?>"><?php echo esc_html($link->link_description); ?></p>

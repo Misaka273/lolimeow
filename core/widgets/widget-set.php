@@ -16,6 +16,7 @@ function unregister_d_widget(){
 $widgets = array(
 	'ads',
 	'postlist',
+	'random-posts',
 	'comments',
 	'category',
 	'archive',
@@ -24,6 +25,7 @@ $widgets = array(
 	'currentuser',
 	'search',
 	'postauthor',
+	'clock',
 
 );
 
@@ -35,7 +37,8 @@ add_action( 'widgets_init', 'widget_ui_loader' );
 function widget_ui_loader() {
 	global $widgets;
 	foreach ($widgets as $widget) {
-		register_widget( 'widget_'.$widget );
+		$class_name = str_replace('-', '_', $widget);
+		register_widget( 'widget_'.$class_name );
 	}
 }
 

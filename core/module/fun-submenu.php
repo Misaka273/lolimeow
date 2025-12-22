@@ -42,7 +42,12 @@ function boxmoe_add_erphpdown_submenu() {
     if (function_exists('erphpdown_main_page')) {
         // 添加erphpdown作为主题设置子菜单
         global $wpdb;
-        $tx_count = $wpdb->get_var("SELECT count(ice_id) FROM $wpdb->iceget where ice_success != 1");
+        $tx_count = '';
+        
+        // 检查iceget表是否存在，避免数据库错误
+        if ($wpdb->get_var("SHOW TABLES LIKE '{$wpdb->prefix}iceget'")) {
+            $tx_count = $wpdb->get_var("SELECT count(ice_id) FROM {$wpdb->prefix}iceget where ice_success != 1");
+        }
         
         if (current_user_can('administrator')) {
             add_submenu_page(

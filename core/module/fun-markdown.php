@@ -4,20 +4,26 @@ if(!defined('ABSPATH')){echo 'Look your sister';exit;}
 function boxmoe_markdown_to_html($text){
     $text = str_replace(["\r\n","\r"],"\n",$text);
     $blocks = [];
-    $text = preg_replace_callback('/```([\s\S]*?)```/m', function($m) use (&$blocks){
+    // 代码块解析，确保与主题自带语法兼容
+    $text = preg_replace_callback('/```(\w+)?\s*([\s\S]*?)```/m', function($m) use (&$blocks){
         $key = '__MD_CODE_'.count($blocks).'__';
-        $blocks[$key] = '<pre class="prettyprint linenums"><code>'.esc_html($m[1]).'</code></pre>';
+        $language = $m[1] ? $m[1] : '';
+        $code = $m[2];
+        $lang_class = $language ? ' lang-'.esc_attr($language) : '';
+        // 确保生成的HTML结构与主题样式兼容，包含必要的<code>标签
+        $blocks[$key] = '<pre class="prettyprint linenums'.esc_attr($lang_class).'"><code'.esc_attr($lang_class).'>'.esc_html($code).'</code></pre>';
         return $key;
     }, $text);
-    $text = preg_replace('/^######\s*(.+)$/m','<h6>$1</h6>',$text);
-    $text = preg_replace('/^#####\s*(.+)$/m','<h5>$1</h5>',$text);
-    $text = preg_replace('/^####\s*(.+)$/m','<h4>$1</h4>',$text);
-    $text = preg_replace('/^###\s*(.+)$/m','<h3>$1</h3>',$text);
-    $text = preg_replace('/^##\s*(.+)$/m','<h2>$1</h2>',$text);
-    $text = preg_replace('/^#\s*(.+)$/m','<h1>$1</h1>',$text);
-    $text = preg_replace('/^>\s?(.+)$/m','<blockquote><p>$1</p></blockquote>',$text);
-    // 支持三种任务状态：未完成[- [ ]]、进行中[- [>]]、已完成[- [x]]
-    $text = preg_replace_callback('/(^|\n)(?:-\s*\[( |x|>)\]\s+.+(?:\n|$))+/', function($m){
+    // 标题解析，确保与主题自带语法兼容
+    $text = preg_replace('/^\s*######\s*(.+)$/m','<h6>$1</h6>',$text);
+    $text = preg_replace('/^\s*#####\s*(.+)$/m','<h5>$1</h5>',$text);
+    $text = preg_replace('/^\s*####\s*(.+)$/m','<h4>$1</h4>',$text);
+    $text = preg_replace('/^\s*###\s*(.+)$/m','<h3>$1</h3>',$text);
+    $text = preg_replace('/^\s*##\s*(.+)$/m','<h2>$1</h2>',$text);
+    $text = preg_replace('/^\s*#\s*(.+)$/m','<h1>$1</h1>',$text);
+    $text = preg_replace('/^\s*>\s?(.+)$/m','<blockquote><p>$1</p></blockquote>',$text);
+    // 支持三种任务清单状态：未完成[- [ ]]、进行中[- [>]]、已完成[- [x]]
+    $text = preg_replace_callback('/(^|\n)(?:-\s*\[( |x|>)\]\s+.+)(?:\n(?:-\s*\[( |x|>)\]\s+.+))*/', function($m){
         $items = preg_split('/\n/', trim($m[0]));
         $lis = '';
         global $post;
@@ -63,17 +69,7 @@ function boxmoe_markdown_to_html($text){
         return '<ul class="md-task-list ' . $list_class . '">' . $lis . '</ul>';
     }, $text);
     
-    // 确保进行中状态的样式正确显示
-    add_action('wp_head', function(){
-        ?> <style>
-        .md-task-list-static .md-task-item[data-task-status="in-progress"] .md-task-emoji:before {
-            content: "🔄";
-        }
-        .md-task-list-interactive .md-task-item[data-task-status="in-progress"] .md-task-emoji:before {
-            content: "🔄";
-        }
-        </style><?php
-    });
+
     $text = preg_replace_callback('/(^|\n)(?:-\s+.+(?:\n|$))+/', function($m){
         $items = preg_split('/\n/', trim($m[0]));
         $lis = '';
@@ -90,14 +86,16 @@ function boxmoe_markdown_to_html($text){
         }
         return '<ol>'.$lis.'</ol>';
     }, $text);
-    // 卡片式内容解析
-    $text = preg_replace_callback('/名称：\s*(.+?)\s*\n头像链接：\s*(.+?)\s*\n描述：\s*(.+?)\s*\n链接：\s*(.+?)\s*\n勋章：\s*(.+?)\s*(\n|$)/s', function($m){
+    // 解析卡片内容，将其替换为临时占位符
+    $card_placeholders = [];
+    $text = preg_replace_callback('/名称：\s*(.+?)\s*\n头像链接：\s*(.+?)\s*\n描述：\s*(.+?)\s*\n链接：\s*(.+?)\s*\n勋章：\s*(.+?)\s*(\n|$)/s', function($m) use (&$card_placeholders){
         $name = $m[1];
         $avatar = $m[2];
         $desc = $m[3];
         $link = $m[4];
         $badge = $m[5];
-        return '<a href="'.$link.'" target="_blank" class="md-card-link-wrap">
+        
+        $card_html = '<a href="'.$link.'" target="_blank" class="md-card-link-wrap">
             <div class="md-card">
                 <div class="md-card-avatar">
                     <img src="'.$avatar.'" alt="'.$name.'" />
@@ -109,23 +107,67 @@ function boxmoe_markdown_to_html($text){
                 </div>
             </div>
         </a>';
+        
+        $placeholder = '__MD_CARD_'.count($card_placeholders).'__';
+        $card_placeholders[$placeholder] = $card_html;
+        return $placeholder;
     }, $text);
-    // 支持链接跳转（点击卡片任意位置跳转）
-    // 注意：这里不需要额外的处理，因为链接已经包含在卡片数据中
-    // 可以通过将整个卡片包裹在链接中实现点击跳转
+    
+    // 处理其他Markdown元素，包括链接转换
+    // 🔤 文本格式：粗体
     $text = preg_replace('/\*\*(.+?)\*\*/s','<strong>$1</strong>',$text);
+    // 🔤 文本格式：斜体
     $text = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s','<em>$1</em>',$text);
+    // 📋 文本格式：行内代码
     $text = preg_replace('/`([^`]+)`/s','<code>$1</code>',$text);
+    // 📷 图片
     $text = preg_replace('/!\[([^\]]*)\]\(([^\)]+)\)/','<img src="$2" alt="$1" />',$text);
+    // 🔗 链接
     $text = preg_replace('/\[([^\]]+)\]\(([^\)]+)\)/','<a href="$2"'.(is_admin()?'':' target="_blank"').'>$1</a>',$text);
+    // 📊 表格支持
+    $text = preg_replace_callback('/(^|\n)(?:[|].+[|](?:\n|$))+(?:[|].+[|](?:\n|$))+/', function($m){
+        $lines = preg_split('/\n/', trim($m[0]));
+        $thead = true;
+        $html = '<table class="md-table"><thead>';
+        foreach($lines as $line){
+            if(preg_match('/^[|](.*)[|]$/', $line, $mm)){
+                $cells = array_map('trim', explode('|', $mm[1]));
+                if($thead){
+                    $html .= '<tr>';
+                    foreach($cells as $cell){
+                        $html .= '<th>'.$cell.'</th>';
+                    }
+                    $html .= '</tr></thead><tbody>';
+                    $thead = false;
+                } else {
+                    $html .= '<tr>';
+                    foreach($cells as $cell){
+                        $html .= '<td>'.$cell.'</td>';
+                    }
+                    $html .= '</tr>';
+                }
+            }
+        }
+        $html .= '</tbody></table>';
+        return $html;
+    }, $text);
+    // 📏 水平分割线
+    $text = preg_replace('/^---$/m','<hr class="md-hr" />',$text);
+    $text = preg_replace('/^___$/m','<hr class="md-hr" />',$text);
+    $text = preg_replace('/^\*\*\*$/m','<hr class="md-hr" />',$text);
+    
+    // 将卡片占位符替换回完整的HTML
+    foreach($card_placeholders as $placeholder => $card_html){
+        $text = str_replace($placeholder, $card_html, $text);
+    }
     $parts = preg_split('/\n\n+/', trim($text));
     foreach($parts as &$p){
-        if(!preg_match('/^\s*<(h\d|ul|ol|pre|blockquote|img)/i',$p)){
+        if(!preg_match('/^\s*<(h\d|ul|ol|pre|blockquote|img|a|table)/i',$p)){
             $p = '<p>'.$p.'</p>';
         }
     }
     $html = implode("\n", $parts);
-    foreach($blocks as $k=>$v){$html = str_replace($k,$v,$html);}    
+    foreach($blocks as $k=>$v){$html = str_replace($k,$v,$html);}
     return $html;
 }
 
@@ -136,7 +178,8 @@ function boxmoe_md_the_content($content){
     }
     return $content;
 }
-add_filter('the_content', 'boxmoe_md_the_content', 9);
+// 调整执行Markdown转换优先级
+add_filter('the_content', 'boxmoe_md_the_content', 2);
 
 // 修复后台编辑器中的HTML实体问题
 function boxmoe_fix_md_editor_content($content){
@@ -184,7 +227,8 @@ add_action('wp_ajax_nopriv_update_task_status', 'boxmoe_update_task_status_nopri
 add_action('wp_enqueue_scripts', function(){
     // 只在单页文章和页面中加载任务清单脚本
     if(is_singular()){
-        wp_localize_script('boxmoe-script', 'ajax_object', array(
+        // 使用不同的对象名，避免覆盖ajax_object
+        wp_localize_script('boxmoe-script', 'task_ajax_object', array(
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('boxmoe_task_status')
         ));
@@ -220,15 +264,15 @@ function boxmoe_update_task_status(){
     // 检查用户是否有修改权限
     $is_allowed = false;
     
-    // 1. 检查WordPress内置权限（管理员、编辑、作者等）
+    // 检查WordPress内置权限（管理员、编辑、作者等）
     if(current_user_can('edit_post', $post_id)){
         $is_allowed = true;
     } else {
-        // 2. 检查用户是否是文章作者
+        // 检查用户是否是文章作者
         if($current_user_id === $post->post_author){
             $is_allowed = true;
         } else {
-            // 3. 检查用户是否是被授权的编辑者
+            // 检查用户是否是被授权的编辑者
             $editors = get_post_meta($post_id, '_boxmoe_post_editors', true);
             
             // 添加详细调试日志
@@ -302,11 +346,11 @@ function boxmoe_update_task_status(){
     error_log('完整文章内容: '.str_replace('\n', '\\n', $content));
     
     // 当所有任务内容完全相同时，我们需要使用更智能的匹配策略
-    // 1. 首先将文章内容按行分割（使用双引号确保换行符被正确解释）
+    // 首先将文章内容按行分割（使用双引号确保换行符被正确解释）
     $lines = explode("\n", $content);
     $updated = false;
     
-    // 2. 遍历每一行，查找需要更新的任务行
+    // 遍历每一行，查找需要更新的任务行
     for($i = 0; $i < count($lines); $i++){
         $line = $lines[$i];
         
@@ -327,9 +371,9 @@ function boxmoe_update_task_status(){
             error_log('  内容匹配: ' . ($clean_line_content === $clean_task_content ? '是' : '否'));
             error_log('  当前状态: "' . $current_status . '"');
             
-            // 匹配条件：
-            // 1. 任务内容完全匹配
-            // 2. 当前状态字符与请求的当前状态匹配
+            // 匹配条件🔽
+            // 任务内容完全匹配
+            // 当前状态字符与请求的当前状态匹配
             $status_matched = false;
             if($current_status == 'pending' && $current_status_char == ' ') {
                 $status_matched = true;

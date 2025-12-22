@@ -1,6 +1,7 @@
-<?php 
+<?php
 /** 
 * Template Name: 外链直跳版
+* Description:白木重构页面UI
 */
 //=======安全设置，阻止直接访问主题文件=======
 if (!defined('ABSPATH')) {echo'Look your sister';exit;}
@@ -17,26 +18,32 @@ if(strlen($_SERVER['REQUEST_URI']) > 384 || strpos($_SERVER['REQUEST_URI'], "eva
 @header("Connection: Close");
 @exit;
 }
-$go_url=htmlspecialchars(preg_replace('/^url=(.*)$/i','$1',$_SERVER["QUERY_STRING"]));
+$go_url=preg_replace('/^url=(.*)$/i','$1',$_SERVER["QUERY_STRING"]);
 //自定义URL
 foreach($my_urls as $key => $url_info)
 {
 	if($go_url==$url_info[0]) {
-		echo $go_url = $url_info[1];	
-		}
+		$go_url = $url_info[1];	
+	}
 }
 if(!empty($go_url)) {
-if ($go_url == base64_encode(base64_decode($go_url))) {
-$go_url = base64_decode($go_url);
+// 首先尝试解码URL（如果被URL编码）
+$decoded_url = urldecode($go_url);
+
+// 检查是否是base64编码
+if ($decoded_url == base64_encode(base64_decode($decoded_url))) {
+    $decoded_url = base64_decode($decoded_url);
 }
-preg_match('/^(http|https|thunder|qqdl|ed2k|Flashget|qbrowser):\/\//i',$go_url,$matches);
+
+// 检查是否已经包含协议
+preg_match('/^(http|https|thunder|qqdl|ed2k|Flashget|qbrowser):\/\//i', $decoded_url, $matches);
 if($matches){
-$url=$go_url;
+$url=$decoded_url;
 $title= '页面加载中,请稍候...';
 } else {
-preg_match('/\./i',$go_url,$matche);
+preg_match('/\./i',$decoded_url,$matche);
 if($matche){
-$url='https://'.$go_url;
+$url='https://'.$decoded_url;
 $title= '页面加载中,请稍候...';
 } else {
 $url = 'https://'.$_SERVER['HTTP_HOST'];
@@ -50,32 +57,300 @@ $url = 'https://'.$_SERVER['HTTP_HOST'];
 echo "<script>setTimeout(function(){window.opener=null;window.close();}, 3000);</script>";
 }
 
+// 获取倒计时秒数
+$delay = get_boxmoe('boxmoe_external_link_countdown', 3);
 ?>
-
-<html>
-
+<html <?php language_attributes(); ?>>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta http-equiv="refresh" content="1;url='<?php echo $url;?>';">
-    <title>
-        <?php echo $title;?>
-    </title>
-    <style type="text/css">
-        body{background:#999;margin:0;}.loader{-webkit-animation:fadein 2s;-moz-animation:fadein 2s;-o-animation:fadein 2s;animation:fadein 2s;position:absolute;top:0;left:0;right:0;bottom:0;background-color:#fff;}@-moz-keyframes fadein{from{opacity:0}to{opacity:1}}@-webkit-keyframes fadein{from{opacity:0}to{opacity:1}}@-o-keyframes fadein{from{opacity:0}to{opacity:1}}@keyframes fadein{from{opacity:0}to{opacity:1}}.loader-inner{position:absolute;z-index:300;top:40%;left:50%;-webkit-transform:translate(-50%,-50%);-moz-transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%);-o-transform:translate(-50%,-50%);transform:translate(-50%,-50%);}@-webkit-keyframes rotate_pacman_half_up{0%{-webkit-transform:rotate(270deg);transform:rotate(270deg);}50%{-webkit-transform:rotate(360deg);transform:rotate(360deg);}100%{-webkit-transform:rotate(270deg);transform:rotate(270deg);}}@keyframes rotate_pacman_half_up{0%{-webkit-transform:rotate(270deg);transform:rotate(270deg);}50%{-webkit-transform:rotate(360deg);transform:rotate(360deg);}100%{-webkit-transform:rotate(270deg);transform:rotate(270deg);}}@-webkit-keyframes rotate_pacman_half_down{0%{-webkit-transform:rotate(90deg);transform:rotate(90deg);}50%{-webkit-transform:rotate(0deg);transform:rotate(0deg);}100%{-webkit-transform:rotate(90deg);transform:rotate(90deg);}}@keyframes rotate_pacman_half_down{0%{-webkit-transform:rotate(90deg);transform:rotate(90deg);}50%{-webkit-transform:rotate(0deg);transform:rotate(0deg);}100%{-webkit-transform:rotate(90deg);transform:rotate(90deg);}}@-webkit-keyframes pacman-balls{75%{opacity:0.7;}100%{-webkit-transform:translate(-100px,-6.25px);transform:translate(-100px,-6.25px);}}@keyframes pacman-balls{75%{opacity:0.7;}100%{-webkit-transform:translate(-100px,-6.25px);transform:translate(-100px,-6.25px);}}.pacman > div:nth-child(2){-webkit-animation:pacman-balls 1s 0s infinite linear;animation:pacman-balls 1s 0s infinite linear;}.pacman > div:nth-child(3){-webkit-animation:pacman-balls 1s 0.33s infinite linear;animation:pacman-balls 1s 0.33s infinite linear;}.pacman > div:nth-child(4){-webkit-animation:pacman-balls 1s 0.66s infinite linear;animation:pacman-balls 1s 0.66s infinite linear;}.pacman > div:nth-child(5){-webkit-animation:pacman-balls 1s 0.99s infinite linear;animation:pacman-balls 1s 0.99s infinite linear;}.pacman > div:first-of-type{width:0px;height:0px;border-right:25px solid transparent;border-top:25px solid #e1244e;border-left:25px solid #e1244e;border-bottom:25px solid #e1244e;border-radius:25px;-webkit-animation:rotate_pacman_half_up 0.5s 0s infinite;animation:rotate_pacman_half_up 0.5s 0s infinite;}.pacman > div:nth-child(2){width:0px;height:0px;border-right:25px solid transparent;border-top:25px solid #e1244e;border-left:25px solid #e1244e;border-bottom:25px solid #e1244e;border-radius:25px;-webkit-animation:rotate_pacman_half_down 0.5s 0s infinite;animation:rotate_pacman_half_down 0.5s 0s infinite;margin-top:-50px;}.pacman > div:nth-child(3),.pacman > div:nth-child(4),.pacman > div:nth-child(5),.pacman > div:nth-child(6){background-color:#e1244e;width:15px;height:15px;border-radius:100%;margin:2px;width:10px;height:10px;position:absolute;-webkit-transform:translate(0,-6.25px);-ms-transform:translate(0,-6.25px);transform:translate(0,-6.25px);top:25px;left:100px;}.loader-text{margin:20px 0 0 -16px;display:block;font-size: 18px;}
-    </style>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="robots" content="noindex, nofollow"/>
+<meta http-equiv="refresh" content="<?php echo $delay;?>;url=<?php echo $url;?>">
+<meta charset="UTF-8">
+<link rel="shortcut icon" href="<?php echo boxmoe_favicon(); ?>">
+<!--[if IE 8]>
+<style>
+.ie8 .alert-circle,.ie8 .alert-footer{display:none}.ie8 .alert-box{padding-top:75px}.ie8 .alert-sec-text{top:45px}
+</style>
+<![endif]--><title><?php echo $title;?></title>
+
+<style type="text/css">
+/* 🥳 背景样式「采用登录页面UI」 */
+.login-page-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(<?php echo get_boxmoe('boxmoe_user_login_bg')? get_boxmoe('boxmoe_user_login_bg') :'https://api.boxmoe.com/random.php'; ?>);
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -2;
+    opacity: 0; /* ⬅️ 初始透明度为0 */
+    animation: fadeIn 0.3s ease-in-out forwards; /* ⬅️ 添加0.3秒渐显动画 */
+}
+
+/* ✨ 渐显动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0; /* ⬅️ 开始时完全透明 */
+    }
+    to {
+        opacity: 1; /* ⬅️ 结束时完全不透明 */
+    }
+}
+
+/* ✨ 高斯模糊磨砂质感遮盖层 */
+.login-page-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3); /* ⬅️ 背景遮罩，提升文字可读性 */
+    backdrop-filter: blur(12px); /* ⬅️ 全局背景模糊 */
+    -webkit-backdrop-filter: blur(12px);
+    z-index: -1;
+}
+
+/* 🎨 主体动画样式 */
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent; /* ⬅️ 透明背景，显示下层背景图 */
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    width: 8em;
+    height: 1em;
+    font-size: 35px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 1;
+    position: relative;
+}
+
+.container span {
+    width: 1em;
+    height: 1em;
+    --duration: 1.5s;
+}
+
+.girl {
+    animation: slide var(--duration) ease-in-out infinite alternate
+}
+
+@keyframes slide {
+    0% {
+        transform: translateX(0);
+        filter: brightness(1)
+    }
+    to {
+        transform: translatex(6.75em);
+        filter: brightness(1.45)
+    }
+}
+
+.boys {
+    width: 6em;
+    display: flex;
+    justify-content: space-between
+}
+
+.boys span {
+    animation: var(--duration) ease-in-out infinite alternate
+}
+
+.boys span:nth-child(1) {
+    animation-name: jump-off-1
+}
+
+.boys span:nth-child(2) {
+    animation-name: jump-off-2
+}
+
+.boys span:nth-child(3) {
+    animation-name: jump-off-3
+}
+
+.boys span:nth-child(4) {
+    animation-name: jump-off-4
+}
+
+@keyframes jump-off-1 {
+    0%, 15% {
+        transform: rotate(0deg)
+    }
+    35%, to {
+        transform-origin: -50% center;
+        transform: rotate(-180deg)
+    }
+}
+
+@keyframes jump-off-2 {
+    0%, 30% {
+        transform: rotate(0deg)
+    }
+    50%, to {
+        transform-origin: -50% center;
+        transform: rotate(-180deg)
+    }
+}
+
+@keyframes jump-off-3 {
+    0%, 45% {
+        transform: rotate(0deg)
+    }
+    65%, to {
+        transform-origin: -50% center;
+        transform: rotate(-180deg)
+    }
+}
+
+@keyframes jump-off-4 {
+    0%, 60% {
+        transform: rotate(0deg)
+    }
+    80%, to {
+        transform-origin: -50% center;
+        transform: rotate(-180deg)
+    }
+}
+
+.container span:before {
+    content: '';
+    position: absolute;
+    width: inherit;
+    height: inherit;
+    border-radius: 15%;
+    box-shadow: 0 0 .1em rgba(0, 0, 0, .3)
+}
+
+.girl:before {
+    background-color: hotpink
+}
+
+.boys span:before {
+    background-color: #1e90ff;
+    animation: var(--duration) ease-in-out infinite alternate
+}
+
+.boys span:nth-child(1):before {
+    filter: brightness(1);
+    animation-name: jump-down-1
+}
+
+.boys span:nth-child(2):before {
+    filter: brightness(1.15);
+    animation-name: jump-down-2
+}
+
+.boys span:nth-child(3):before {
+    filter: brightness(1.3);
+    animation-name: jump-down-3
+}
+
+.boys span:nth-child(4):before {
+    filter: brightness(1.45);
+    animation-name: jump-down-4
+}
+
+@keyframes jump-down-1 {
+    5% {
+        transform: scale(1, 1)
+    }
+    15% {
+        transform-origin: center bottom;
+        transform: scale(1.3, 0.7)
+    }
+    20%, 25% {
+        transform-origin: center bottom;
+        transform: scale(0.8, 1.3)
+    }
+    30%, to {
+        transform: scale(1, 1)
+    }
+}
+
+@keyframes jump-down-2 {
+    20% {
+        transform: scale(1, 1)
+    }
+    30% {
+        transform-origin: center bottom;
+        transform: scale(1.3, 0.7)
+    }
+    35%, 40% {
+        transform-origin: center bottom;
+        transform: scale(0.8, 1.3)
+    }
+    45%, to {
+        transform: scale(1, 1)
+    }
+}
+
+@keyframes jump-down-3 {
+    35% {
+        transform: scale(1, 1)
+    }
+    45% {
+        transform-origin: center bottom;
+        transform: scale(1.3, 0.7)
+    }
+    50%, 55% {
+        transform-origin: center bottom;
+        transform: scale(0.8, 1.3)
+    }
+    60%, to {
+        transform: scale(1, 1)
+    }
+}
+
+@keyframes jump-down-4 {
+    50% {
+        transform: scale(1, 1)
+    }
+    60% {
+        transform-origin: center bottom;
+        transform: scale(1.3, 0.7)
+    }
+    65%, 70% {
+        transform-origin: center bottom;
+        transform: scale(0.8, 1.3)
+    }
+    75%, to {
+        transform: scale(1, 1)
+    }
+}
+
+/* 📱 响应式调整 */
+@media (max-width: 768px) {
+    .container {
+        font-size: 25px;
+    }
+}
+</style>
 </head>
-
 <body>
-    <div class="loader">
-        <div class="loader-inner pacman">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <span class="loader-text">页面加载中，请稍候...</span>
-        </div>
-    </div>
-</body>
+<!-- 🖼️ 全屏背景容器 -->
+<div class="login-page-bg"></div>
 
+<div class="container">
+  <span class="girl"></span>
+  <div class="boys">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</div>
+
+</body>
 </html>

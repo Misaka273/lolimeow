@@ -151,6 +151,7 @@ function boxmoe_load_assets_header(){
     wp_enqueue_style('theme-style', boxmoe_theme_url() . '/assets/css/theme.min.css', array(), THEME_VERSION);
     wp_enqueue_style('boxmoe-style', boxmoe_theme_url() . '/assets/css/style.css', array(), THEME_VERSION);
     wp_enqueue_style('image-viewer-style', boxmoe_theme_url() . '/assets/css/image-viewer.css', array(), THEME_VERSION);
+    wp_enqueue_style('shiroki-md-card', boxmoe_theme_url() . '/assets/css/shiroki-md-card.css', array(), THEME_VERSION);
     if(get_boxmoe('boxmoe_jquery_switch')){
         wp_enqueue_script('jquery-script', boxmoe_theme_url() . '/assets/js/jquery.min.js', array(), THEME_VERSION, true);
     }
@@ -163,7 +164,7 @@ function boxmoe_load_assets_header(){
         wp_enqueue_script('sakura-script', boxmoe_theme_url() . '/assets/js/sakura.js', array(), THEME_VERSION, true);
     }
 
-    wp_localize_script('theme-script', 'ajax_object', array(
+    wp_localize_script('boxmoe-script', 'ajax_object', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'themeurl' => boxmoe_theme_url(),
         'is_user_logged_in' => is_user_logged_in() ? 'true' : 'false',
@@ -358,21 +359,21 @@ function boxmoe_lazy_load_images(){
 }
 
 
-// 边框设置--------------------------boxmoe.com--------------------------
+// 🎨 边框设置--------------------------boxmoe.com--------------------------
 function boxmoe_border_setting(){
     $border = get_boxmoe('boxmoe_blog_border');
     if($border){
         if($border == 'default'){
-            echo '';
+            return '';
         }elseif($border == 'border'){
-            echo 'blog-border';
+            return 'blog-border';
         }elseif($border == 'shadow'){
-            echo 'blog-shadow';
+            return 'blog-shadow';
         }elseif($border == 'lines'){
-            echo 'blog-lines';
+            return 'blog-lines';
         }
     }else{
-        echo 'blog-border';
+        return 'blog-border';
     }
 }
 
@@ -409,6 +410,7 @@ function boxmoe_check_login_status() {
             'display_name' => $user->display_name,
             'user_email' => $user->user_email,
             'user_id' => $user->ID,
+            'user_avatar' => boxmoe_get_avatar_url($user->ID, 100), // 新增：返回用户头像URL
             'is_admin' => current_user_can('administrator') // 检查是否为管理员
         );
     }

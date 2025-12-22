@@ -7,7 +7,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     align-items: flex-start;
-    padding: 20px;
+    padding: 10px;
     border-radius: var(--bs-border-radius-lg) !important;
     background: none;
     margin-bottom: 2.5rem;
@@ -104,7 +104,7 @@
     display: inline-block !important;
     width: auto !important;
     white-space: nowrap;
-    z-index: 3;
+    z-index: 30;
     pointer-events: none;
     padding: 4px 10px;
     font-size: 0.72rem;
@@ -137,7 +137,7 @@
 .layout-single .post-list-content {
     flex: 1;
     min-width: 0;
-    padding-left: 0;
+    padding: 0 10px;
 }
 
 .layout-single .post-content {
@@ -312,48 +312,38 @@
 }
 
 /* 📱 响应式布局优化 */
-@media (max-width: 1200px) {
+@media (max-width: 991px) {
+    /* 布局调整 */
     .layout-single .post-list {
         flex-direction: column !important;
         display: flex !important;
         align-items: stretch !important;
         justify-content: flex-start !important;
-        padding: 20px !important;
+        padding: 15px 0 !important;
         background-image: none !important;
         width: 100% !important;
         box-sizing: border-box !important;
+        margin-bottom: 2rem;
     }
+    
+    /* 图片容器调整 */
     .layout-single .post-list-img {
         flex: 0 0 100% !important;
         width: 100% !important;
         margin-right: 0 !important;
-        margin-bottom: 1.5rem !important;
+        margin-bottom: 0 !important;
         padding: 0 !important;
         order: 1 !important;
     }
+    
+    /* 内容容器调整 */
     .layout-single .post-list-content {
         flex: 1 1 100% !important;
         width: 100% !important;
+        padding: 20px !important;
         padding-left: 0 !important;
         margin: 0 !important;
         order: 2 !important;
-    }
-}
-
-/* 📱 991px以下统一使用移动端样式 */
-@media (max-width: 991px) {
-    .layout-single .post-list {
-        padding: 15px 0;
-        margin-bottom: 2rem;
-    }
-    
-    .layout-single .post-list-img {
-        margin-right: 0;
-        margin-bottom: 0;
-    }
-    
-    .layout-single .post-list-content {
-        padding: 20px !important;
         display: block !important;
         position: relative !important;
         z-index: 1 !important;
@@ -362,15 +352,17 @@
         box-sizing: border-box !important;
     }
     
+    /* 图片高度调整 */
     .layout-single .zoom-img img {
         height: 160px;
     }
     
+    /* 标题字体调整 */
     .layout-single h3 {
         font-size: 0.9rem;
     }
     
-    /* 继承991px原有的样式 */
+    /* 徽章样式调整 */
     .layout-single .post-protected-badge,
     .layout-single .post-private-badge,
     .layout-single .post-sticky-badge {
@@ -401,6 +393,7 @@
         color: var(--bs-body-color);
     }
     
+    /* 元信息样式 */
     .layout-single .post-meta {
         margin-top: 15px;
         padding-top: 15px;

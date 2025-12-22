@@ -85,9 +85,9 @@ $options[] = array(
         $options[] = array(
             'name' => __('文章卡片看板娘图片', 'ui_boxmoe_com'),
             'id' => 'boxmoe_article_card_kanban_image',
-            'type' => 'upload',
+            'type' => 'text',
             'std' => get_template_directory_uri() . '/assets/images/post-list.png',
-            'desc' => __('上传文章页左下角看板娘图片，支持JPG、PNG、GIF格式，留空则不显示', 'ui_boxmoe_com') . '<br><span style="color: #17a2b8;">【建议分辨率160x75为最佳尺寸】</span>',
+            'desc' => __('输入文章页左下角看板娘图片链接，支持JPG、PNG、GIF格式，留空则不显示', 'ui_boxmoe_com') . '<br><span style="color: #17a2b8;">【固定尺寸162x75px，会被挤压变形】</span>',
         );
         $options[] = array(
             'name' => __('文章卡片看板娘显示范围', 'ui_boxmoe_com'),

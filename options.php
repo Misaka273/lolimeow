@@ -66,7 +66,7 @@ require_once get_template_directory() . '/core/panel/settings/set-optimize.php';
 //消息通知-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-msg.php';
 //音乐播放器设置-----------------------------------------------------------
-// 🎵 由初叶🍂www.chuyel.top提供，白木🥰gl.baimu.live集成
+// 由初叶www.chuyel.top提供👍🏻，白木gl.baimu.live集成🎉
 require_once get_template_directory() . '/core/panel/settings/set-music.php';
 //主题信息-----------------------------------------------------------
 require_once get_template_directory() . '/core/panel/settings/set-theme.php';

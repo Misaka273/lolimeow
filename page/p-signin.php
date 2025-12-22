@@ -17,6 +17,14 @@ if (is_user_logged_in()){
            exit;
        }
    }
+   
+   // 检查用户是否是管理员，如果是管理员则跳转到后台
+   if (current_user_can('manage_options')) {
+       wp_safe_redirect( admin_url() );
+       exit;
+   }
+   
+   // 普通用户跳转到首页
    wp_safe_redirect( get_option('home') );
    exit;
 }
@@ -249,7 +257,7 @@ if (is_user_logged_in()){
                    }
                }
                ?>
-               <h3 class="mt-3 mb-1 fw-bold"><?php echo $is_admin_redirect ? '欢迎回来站长大人' : '欢迎回来'; ?></h3>
+               <h3 class="mt-3 mb-1 fw-bold">欢迎回来站长大人</h3>
                <p class="text-muted small mb-0">
                   如果你还没有账号可以点击
                   <a href="<?php echo boxmoe_sign_up_link_page(); ?>" class="text-primary fw-bold text-decoration-none">注册</a>

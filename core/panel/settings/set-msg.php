@@ -122,7 +122,7 @@ $options[] = array(
         // 🔗 外链跳转设置
         $options[] = array(
             'group' => 'start',
-            'group_title' => '外链跳转设置',
+            'group_title' => '外链跳转设置「二选一」',
             'name' => __('外链提醒版开关', 'ui_boxmoe_com'),
             'id' => 'boxmoe_external_link_notice_switch',
             'type' => 'checkbox',
@@ -135,6 +135,15 @@ $options[] = array(
             'type' => 'checkbox',
             'std' => false,
             'desc' => __('开启后，外链将使用直跳版跳转页面', 'ui_boxmoe_com'),
+        );
+        $options[] = array(
+            'group' => 'end',
+            'name' => __('跳转倒计时秒数「同用于直跳版」', 'ui_boxmoe_com'),
+            'id' => 'boxmoe_external_link_countdown',
+            'type' => 'text',
+            'class' => 'small-text',
+            'std' => 3,
+            'desc' => __('设置外链跳转的倒计时秒数，范围1-10秒', 'ui_boxmoe_com'),
         );
 
 

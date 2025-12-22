@@ -5,19 +5,21 @@
  */
 //boxmoe.com===安全设置=阻止直接访问主题文件
 if(!defined('ABSPATH')){echo'Look your sister';exit;}
-?>                      <div class="post-toc-container">
-                            <div class="post-toc-btn">
-                                <i class="fa fa-list-ul"></i>
-                            </div>
-                            <div class="post-toc">
-                                <div class="toc-title">文章导读</div>
-                                <div class="toc-list"></div>
-                            </div>
-                        </div>
+?>
             <div class="<?php echo boxmoe_layout_setting(); ?>">
             <div class="blog-single <?php echo boxmoe_border_setting(); ?>">
             <?php while (have_posts()) : the_post(); ?>
                 <div class="post-single">
+                    <!-- 📋 文章目录容器 -->
+                    <div class="post-toc-container">
+                        <div class="post-toc-btn">
+                            <i class="fa fa-list"></i>
+                        </div>
+                        <div class="post-toc">
+                            <div class="toc-title">文章导读</div>
+                            <div class="toc-list"></div>
+                        </div>
+                    </div>
                     <div class="single-category">
                         <?php 
                         $categories = get_the_category();

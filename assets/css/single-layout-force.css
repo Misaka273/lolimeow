@@ -1,89 +1,5 @@
 /* 📋 强制移动端单排布局以上图下文字形式呈现 */
 
-/* 新增：覆盖992px到1200px断点，确保这个区间也是上图下文字 */
-@media (max-width: 1200px) and (min-width: 992px) {
-    /* 针对 layout-single 类的选择器，确保优先级足够高 */
-    .layout-single > .row > [class*="col-12"] > .post-list.list-one,
-    .row > [class*="col-12"] > .post-list.list-one {
-        flex-direction: column !important;
-        display: flex !important;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
-        padding: 0 !important;
-        background-image: none !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    /* 确保新增的容器元素正确显示 */
-    .layout-single .single-row-layout,
-    .layout-single .post-list-card {
-        display: flex !important;
-        flex-direction: column !important;
-        width: 100% !important;
-        overflow: visible !important;
-    }
-    
-    /* 确保卡片内部元素正确布局 */
-    .layout-single .post-list-card {
-        background: transparent !important;
-        border-radius: var(--bs-border-radius-lg) !important;
-        overflow: hidden !important;
-        box-shadow: none !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    /* 针对 layout-single 类的图片区域，确保在上 */
-    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-img,
-    .row > [class*="col-12"] > .post-list.list-one > .post-list-img {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-        margin-right: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        order: 1 !important;
-    }
-    
-    /* 针对 layout-single 类的内容区域，确保在下 */
-    .layout-single > .row > [class*="col-12"] > .post-list.list-one > .post-list-content,
-    .row > [class*="col-12"] > .post-list.list-one > .post-list-content {
-        flex: 1 1 100% !important;
-        width: 100% !important;
-        padding-left: 0 !important;
-        margin: 0 !important;
-        order: 2 !important;
-    }
-    
-    /* 额外针对 layout-single 类的直接子元素 */
-    .layout-single .post-list {
-        flex-direction: column !important;
-        display: flex !important;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
-        padding: 20px !important;
-        background-image: none !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
-    }
-    
-    .layout-single .post-list-img {
-        flex: 0 0 100% !important;
-        width: 100% !important;
-        margin-right: 0 !important;
-        margin-bottom: 0 !important;
-        padding: 0 !important;
-        order: 1 !important;
-    }
-    
-    .layout-single .post-list-content {
-        flex: 1 1 100% !important;
-        width: 100% !important;
-        padding-left: 0 !important;
-        margin: 0 !important;
-        order: 2 !important;
-    }
-}
-
 /* 原有：覆盖991px以下断点，确保是上图下文字 */
 @media (max-width: 991px) {
     /* 针对 layout-single 类的选择器，确保优先级足够高 */
@@ -93,7 +9,6 @@
         display: flex !important;
         align-items: stretch !important;
         justify-content: flex-start !important;
-        padding: 0 !important;
         background-image: none !important;
         width: 100% !important;
         box-sizing: border-box !important;

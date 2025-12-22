@@ -20,6 +20,26 @@ define( 'OPTIONS_FRAMEWORK_DIRECTORY', get_template_directory_uri() . '/core/pan
 require_once dirname( __FILE__ ) . '/core/panel/options-framework.php';
 require_once dirname( __FILE__ ) . '/options.php';
 require_once dirname( __FILE__ ) . '/core/panel/options-framework-js.php';
+
+// 🎯 设置登录cookie过期时间为7天
+function boxmoe_set_cookie_expiry( $expiration, $user_id, $remember ) {
+    if ( $remember ) {
+        // 记住我时，设置为7天
+        return 60 * 60 * 24 * 7;
+    }
+    // 否则使用默认过期时间
+    return $expiration;
+}
+add_filter( 'auth_cookie_expiration', 'boxmoe_set_cookie_expiry', 10, 3 );
+
+// 🎯 确保注册时的cookie也使用7天过期时间
+function boxmoe_set_auth_cookie_expiry( $cookie_values, $user_id, $remember ) {
+    if ( $remember ) {
+        $cookie_values['expiration'] = time() + 60 * 60 * 24 * 7;
+    }
+    return $cookie_values;
+}
+add_filter( 'auth_cookie_values', 'boxmoe_set_auth_cookie_expiry', 10, 3 );
 //boxmoe.com===功能模块
 require_once  get_stylesheet_directory() . '/core/module/fun-basis.php';
 require_once  get_stylesheet_directory() . '/core/module/fun-admin.php';
@@ -45,6 +65,18 @@ require_once  get_stylesheet_directory() . '/core/module/fun-music.php'; // ⬅�
 //boxmoe.com===自定义代码
 add_filter('protected_title_format', function($format){return '%s';});
 add_filter('private_title_format', function($format){return '%s';});
+
+// 🔧 加载修复Prettify行号的脚本
+function boxmoe_enqueue_fix_prettify_script() {
+    wp_enqueue_script(
+        'fix-prettify-line-numbers',
+        get_template_directory_uri() . '/assets/js/fix-prettify-line-numbers.js',
+        array('jquery'),
+        '1.0.0',
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'boxmoe_enqueue_fix_prettify_script');
 
 //自定义文章密码保护表单
 function custom_password_protected_form($form) {
@@ -72,6 +104,208 @@ function lolimeow_change_bookmark_title($args) {
     return $args;
 }
 add_filter('widget_links_args', 'lolimeow_change_bookmark_title');
+
+// 📊 重写友链输出函数，确保显示正确的点击次数
+function lolimeow_custom_wp_list_bookmarks($args = '') {
+    $defaults = array(
+        'orderby'          => 'name',
+        'order'            => 'ASC',
+        'limit'            => -1,
+        'category'         => '',
+        'exclude_category' => '',
+        'category_name'    => '',
+        'hide_invisible'   => 1,
+        'show_updated'     => 0,
+        'echo'             => 1,
+        'categorize'       => 1,
+        'title_li'         => __('Links'),
+        'title_before'     => '<h2>',
+        'title_after'      => '</h2>',
+        'category_orderby' => 'name',
+        'category_order'   => 'ASC',
+        'class'            => 'linkcat',
+        'category_before'  => '<li id="%id" class="%class">',
+        'category_after'   => '</li>',
+    );
+
+    $parsed_args = wp_parse_args($args, $defaults);
+
+    if (!is_array($parsed_args['class'])) {
+        $parsed_args['class'] = explode(' ', $parsed_args['class']);
+    }
+    $parsed_args['class'] = array_map('sanitize_html_class', $parsed_args['class']);
+    $parsed_args['class'] = trim(implode(' ', $parsed_args['class']));
+
+    $output = '';
+
+    if ($parsed_args['categorize']) {
+        $cats = get_terms(array(
+            'taxonomy'     => 'link_category',
+            'name__like'   => $parsed_args['category_name'],
+            'include'      => $parsed_args['category'],
+            'exclude'      => $parsed_args['exclude_category'],
+            'orderby'      => $parsed_args['category_orderby'],
+            'order'        => $parsed_args['category_order'],
+            'hierarchical' => 0,
+        ));
+
+        if (empty($cats)) {
+            $parsed_args['categorize'] = false;
+        }
+    }
+
+    if ($parsed_args['categorize']) {
+        foreach ((array) $cats as $cat) {
+            $bookmarks = get_bookmarks(array(
+                'category' => $cat->term_id,
+                'orderby'  => $parsed_args['orderby'],
+                'order'    => $parsed_args['order'],
+                'limit'    => $parsed_args['limit'],
+            ));
+
+            if (empty($bookmarks)) {
+                continue;
+            }
+
+            $output .= str_replace(
+                array('%id', '%class'),
+                array("linkcat-{$cat->term_id}", $parsed_args['class']),
+                $parsed_args['category_before']
+            );
+
+            $catname = apply_filters('link_category', $cat->name);
+            $output .= "{$parsed_args['title_before']}{$catname}{$parsed_args['title_after']}\n";
+            $output .= "<ul class='xoxo blogroll bookmark'>\n";
+
+            foreach ((array) $bookmarks as $bookmark) {
+                $output .= '<li>';
+                $output .= '<a class="on" href="' . esc_url($bookmark->link_url) . '" target="_blank">';
+                $output .= '<div class="info">';
+                $output .= '<h3>';
+                $output .= '<span class="link-title">' . esc_html($bookmark->link_name) . '</span>';
+                $output .= '<span class="link-count">' . esc_html(isset($bookmark->link_clicked) ? $bookmark->link_clicked : 0) . '</span>';
+                $output .= '</h3>';
+                $output .= '</div>';
+                $output .= '</a>';
+                $output .= '</li>\n';
+            }
+
+            $output .= '</ul>\n';
+            $output .= "{$parsed_args['category_after']}\n";
+        }
+    } else {
+        $bookmarks = get_bookmarks($parsed_args);
+
+        if (!empty($bookmarks)) {
+            if (!empty($parsed_args['title_li'])) {
+                $output .= str_replace(
+                    array('%id', '%class'),
+                    array('linkcat-' . $parsed_args['category'], $parsed_args['class']),
+                    $parsed_args['category_before']
+                );
+                $output .= "{$parsed_args['title_before']}{$parsed_args['title_li']}{$parsed_args['title_after']}\n";
+                $output .= "<ul class='xoxo blogroll bookmark'>\n";
+
+                foreach ((array) $bookmarks as $bookmark) {
+                    $output .= '<li>';
+                    $output .= '<a class="on" href="' . esc_url($bookmark->link_url) . '" target="_blank">';
+                    $output .= '<div class="info">';
+                    $output .= '<h3>';
+                    $output .= '<span class="link-title">' . esc_html($bookmark->link_name) . '</span>';
+                    $output .= '<span class="link-count">' . esc_html(isset($bookmark->link_clicked) ? $bookmark->link_clicked : 0) . '</span>';
+                    $output .= '</h3>';
+                    $output .= '</div>';
+                    $output .= '</a>';
+                    $output .= '</li>\n';
+                }
+
+                $output .= '</ul>\n';
+                $output .= "{$parsed_args['category_after']}\n";
+            } else {
+                foreach ((array) $bookmarks as $bookmark) {
+                    $output .= '<li>';
+                    $output .= '<a class="on" href="' . esc_url($bookmark->link_url) . '" target="_blank">';
+                    $output .= '<div class="info">';
+                    $output .= '<h3>';
+                    $output .= '<span class="link-title">' . esc_html($bookmark->link_name) . '</span>';
+                    $output .= '<span class="link-count">' . esc_html(isset($bookmark->link_clicked) ? $bookmark->link_clicked : 0) . '</span>';
+                    $output .= '</h3>';
+                    $output .= '</div>';
+                    $output .= '</a>';
+                    $output .= '</li>\n';
+                }
+            }
+        }
+    }
+
+    if ($parsed_args['echo']) {
+        echo $output;
+    } else {
+        return $output;
+    }
+}
+
+// 使用自定义函数替换默认函数
+remove_filter('widget_links_args', 'lolimeow_change_bookmark_title');
+add_filter('widget_links_args', function($args) {
+    // 直接使用自定义函数输出，忽略默认输出
+    $args['echo'] = false;
+    return $args;
+});
+
+// 添加自定义小部件显示逻辑
+add_action('widgets_init', function() {
+    // 移除默认链接小部件
+    unregister_widget('WP_Widget_Links');
+    
+    // 注册自定义链接小部件
+    class Custom_Links_Widget extends WP_Widget_Links {
+        public function widget($args, $instance) {
+            echo $args['before_widget'];
+            if (!empty($instance['title'])) {
+                echo $args['before_title'] . apply_filters('widget_title', $instance['title']) . $args['after_title'];
+            }
+            
+            // 使用自定义函数输出友链
+            $widget_links_args = array(
+                'title_before'     => '',
+                'title_after'      => '',
+                'category_before'  => '',
+                'category_after'   => '',
+                'show_images'      => isset($instance['images']) ? $instance['images'] : true,
+                'show_description' => isset($instance['description']) ? $instance['description'] : false,
+                'show_name'        => isset($instance['name']) ? $instance['name'] : false,
+                'show_rating'      => isset($instance['rating']) ? $instance['rating'] : false,
+                'category'         => isset($instance['category']) ? $instance['category'] : false,
+                'orderby'          => isset($instance['orderby']) ? $instance['orderby'] : 'name',
+                'order'            => 'rating' === $instance['orderby'] ? 'DESC' : 'ASC',
+                'limit'            => isset($instance['limit']) ? $instance['limit'] : -1,
+            );
+            
+            // 使用自定义函数输出友链
+            echo '<ul class="bookmark">';
+            $bookmarks = get_bookmarks($widget_links_args);
+            foreach ($bookmarks as $bookmark) {
+                echo '<li class="text-reveal">';
+                echo '<a class="on" href="' . esc_url($bookmark->link_url) . '" target="_blank">';
+                echo '<div class="info">';
+                echo '<h3>';
+                echo '<span class="link-title">' . esc_html($bookmark->link_name) . '</span>';
+                echo '<span class="link-count">' . esc_html(isset($bookmark->link_clicked) ? $bookmark->link_clicked : 0) . '</span>';
+                echo '</h3>';
+                echo '</div>';
+                echo '</a>';
+                echo '</li>';
+            }
+            echo '</ul>';
+            
+            echo $args['after_widget'];
+        }
+    }
+    
+    // 注册自定义小部件
+    register_widget('Custom_Links_Widget');
+});
 
 // 🎨 美化注销提示页面 - 重新实现
 function lolimeow_custom_logout_page() {

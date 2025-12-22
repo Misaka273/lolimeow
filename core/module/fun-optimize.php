@@ -57,14 +57,27 @@ add_action( 'wp_enqueue_scripts', function() {
 
 // 禁止非管理员访问后台--------------------------boxmoe.com--------------------------
 if(get_boxmoe('boxmoe_no_admin_switch')){
-    if ( is_admin() && ( !defined( 'DOING_AJAX' ) || !DOING_AJAX ) ) {
-        $current_user = wp_get_current_user();
-        if($current_user->roles[0] == get_option('default_role')) {
+    function boxmoe_restrict_admin_access_optimize() {
+        // 避免重定向循环：检查当前是否正在执行AJAX请求
+        if (wp_doing_ajax()) {
+            return;
+        }
+        // 检查是否是登录页面相关请求
+        if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false) {
+            return;
+        }
+        // 检查用户是否已登录
+        if (!is_user_logged_in()) {
+            return;
+        }
+        // 检查用户是否有管理权限，只有非管理员才需要重定向
+        if (!current_user_can('manage_options') && '/wp-admin/admin-ajax.php' != $_SERVER['PHP_SELF']) {
             wp_safe_redirect( home_url() );
             exit();
         }
     }
-}   
+    add_action('admin_init', 'boxmoe_restrict_admin_access_optimize');
+}
 
 // 关闭古藤堡编辑器，使用经典编辑器--------------------------boxmoe.com--------------------------
 if(get_boxmoe('boxmoe_gutenberg_switch')){
@@ -242,10 +255,3 @@ function boxmoe_disable_pingbacks() {
 }
 add_action('init', 'boxmoe_disable_pingbacks');
 }
-
-
-
-
-
-
-

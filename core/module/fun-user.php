@@ -600,31 +600,66 @@ function boxmoe_user_login_ip($user_login){
 // 🔄 登录页面自动重定向
 function boxmoe_custom_login_redirect() {
     global $pagenow;
+    
     // 检查是否在 wp-login.php 页面，且不是登出或密码保护操作
     if ( 'wp-login.php' == $pagenow && (!isset($_GET['action']) || ($_GET['action'] != 'logout' && $_GET['action'] != 'postpass')) && !isset($_GET['key'])) {
-        // 检查是否已经是自定义登录页面，避免重定向循环
-        if ( isset($_SERVER['HTTP_REFERER']) && strpos($_SERVER['HTTP_REFERER'], home_url()) !== false ) {
-            return; // 已经来自本站，避免循环
-        }
+        // 获取自定义登录页面链接
         $login_page = boxmoe_sign_in_link_page(); // ⬅️ 获取主题设置的自定义登录页链接
         if ( $login_page ) {
-            // 🔗 检查是否有 redirect_to 参数，如果有则附加到重定向 URL 中
-            if ( isset($_GET['redirect_to']) ) {
-                $redirect_to = urlencode( $_GET['redirect_to'] );
-                // 检查 redirect_to 是否会导致循环
-                if ( strpos(urldecode($redirect_to), 'wp-login.php') === false ) {
-                    $login_page = add_query_arg( 'redirect_to', $redirect_to, $login_page );
-                }
-            }
             // 确保登录页面不是 wp-login.php 本身，避免循环
             if ( strpos($login_page, 'wp-login.php') === false ) {
-                wp_redirect( $login_page ); // ⬅️ 执行重定向
+                // 🔗 检查是否有 redirect_to 参数，如果有则附加到重定向 URL 中
+                $redirect_to = '';
+                if ( isset($_GET['redirect_to']) ) {
+                    $redirect_to = urlencode( $_GET['redirect_to'] );
+                    // 检查 redirect_to 是否会导致循环
+                    if ( strpos(urldecode($redirect_to), 'wp-login.php') === false ) {
+                        $login_page = add_query_arg( 'redirect_to', $redirect_to, $login_page );
+                    }
+                }
+                
+                // 执行重定向，替换默认登录页面
+                wp_safe_redirect( $login_page );
                 exit();
             }
         }
     }
 }
-add_action( 'init', 'boxmoe_custom_login_redirect' ); // ⬅️ 挂载到 init 钩子
+// 将钩子从 init 改为 template_redirect，确保在认证完成后执行
+add_action( 'template_redirect', 'boxmoe_custom_login_redirect' ); // ⬅️ 挂载到 template_redirect 钩子
+
+// 🔄 替换登录链接
+function boxmoe_replace_login_url( $login_url, $redirect, $force_reauth ) {
+    // 使用自定义登录页面链接替换默认登录链接
+    $custom_login_url = boxmoe_sign_in_link_page();
+    if ( $custom_login_url ) {
+        // 如果有重定向参数，附加到自定义登录页面链接
+        if ( $redirect ) {
+            $custom_login_url = add_query_arg( 'redirect_to', urlencode( $redirect ), $custom_login_url );
+        }
+        // 如果需要强制重新认证，附加参数
+        if ( $force_reauth ) {
+            $custom_login_url = add_query_arg( 'reauth', '1', $custom_login_url );
+        }
+        return $custom_login_url;
+    }
+    // 如果没有自定义登录页面，返回默认登录链接
+    return $login_url;
+}
+add_filter( 'login_url', 'boxmoe_replace_login_url', 10, 3 );
+
+// 🔄 替换登录表单
+function boxmoe_replace_login_form( $form_html ) {
+    // 检查是否在 wp-login.php 页面
+    if ( 'wp-login.php' == $GLOBALS['pagenow'] ) {
+        // 重定向到自定义登录页面
+        wp_safe_redirect( boxmoe_sign_in_link_page() );
+        exit();
+    }
+    // 否则返回默认表单
+    return $form_html;
+}
+add_filter( 'login_form', 'boxmoe_replace_login_form' );
 
 // 🆔 生成随机且唯一的6位以上数字ID
 function boxmoe_generate_custom_uid() {
@@ -644,10 +679,25 @@ function boxmoe_generate_custom_uid() {
 // 🔒 修复登录失败重定向问题
 function boxmoe_login_failed_redirect() {
     $login_page = boxmoe_sign_in_link_page(); // ⬅️ 获取主题设置的自定义登录页链接
+    
+    // 避免重定向循环：检查当前是否已经在登录页面
+    if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false || strpos($_SERVER['REQUEST_URI'], basename($login_page)) !== false) {
+        return;
+    }
+    
     if ($login_page) {
+        // 检查是否有 redirect_to 参数，如果有则附加到重定向 URL 中
+        if (isset($_GET['redirect_to'])) {
+            $redirect_to = urlencode($_GET['redirect_to']);
+            if (strpos(urldecode($redirect_to), 'wp-login.php') === false) {
+                $login_page = add_query_arg('redirect_to', $redirect_to, $login_page);
+            }
+        }
+        // 添加登录失败参数，方便前端显示错误信息
+        $login_page = add_query_arg('login', 'failed', $login_page);
         wp_redirect($login_page); // ⬅️ 重定向到自定义登录页面
     } else {
-        wp_redirect(home_url('/wp-login.php')); // ⬅️ 回退到默认登录页面
+        wp_redirect(home_url('/wp-login.php?login=failed')); // ⬅️ 回退到默认登录页面
     }
     exit;
 }
@@ -657,6 +707,12 @@ add_action('wp_login_failed', 'boxmoe_login_failed_redirect'); // ⬅️ 挂载�
 function boxmoe_authenticate_failed_redirect($user, $username, $password) {
     if (is_wp_error($user)) {
         $login_page = boxmoe_sign_in_link_page(); // ⬅️ 获取主题设置的自定义登录页链接
+        
+        // 避免重定向循环：检查当前是否已经在登录页面
+        if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false || strpos($_SERVER['REQUEST_URI'], basename($login_page)) !== false) {
+            return $user;
+        }
+        
         if ($login_page) {
             // 🔗 检查是否有 redirect_to 参数，如果有则附加到重定向 URL 中
             if (isset($_REQUEST['redirect_to'])) {

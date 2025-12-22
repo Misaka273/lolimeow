@@ -14,6 +14,33 @@
     width: 100%;
     clear: both; /* ⬅️ 清除浮动，防止被上方元素遮挡或重叠 */
     align-items: center; /* ⬅️ 垂直居中对齐 */
+    transition: all 0.3s ease;
+}
+
+/* 📌 工具栏固定样式 - 使用sticky定位，固定在编辑器容器顶部 */
+.boxmoe-md-toolbar {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 999 !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    background: #e0f2fe !important;
+    border: 1px solid #93c5fd !important;
+    border-radius: 8px !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    clear: both !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    align-items: center !important;
+}
+
+/* 📌 确保工具栏在所有模式下都能正确显示 */
+#wp-content-editor-container.mode-split .boxmoe-md-toolbar {
+    width: 50% !important;
+    margin-right: 15px !important;
 }
 
 /* 🔘 工具栏按钮样式 */
@@ -341,6 +368,7 @@
     z-index: 10;
     transform: rotate(-10deg);
     border: 1px solid white;
+    transition: all 0.3s ease;
 }
 
 .boxmoe-md-preview .md-card-content {

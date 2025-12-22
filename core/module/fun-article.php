@@ -951,8 +951,21 @@ function boxmoe_external_link_redirect($content) {
     $content = preg_replace_callback($pattern, function($matches) use ($redirect_url) {
         $href = $matches[1];
         $text = $matches[2];
-        $attributes = preg_replace('/href=["\'][^"\']+["\']/', '', $matches[0]);
-        $attributes = str_replace('><', '>', $attributes);
+        // 提取a标签的属性部分，排除href和内容
+        $full_tag = $matches[0];
+        preg_match('/<a\s+([^>]*?)href=["\']([^"\']+)["\']([^>]*?)>/i', $full_tag, $attr_matches);
+        $before_href = isset($attr_matches[1]) ? trim($attr_matches[1]) : '';
+        $after_href = isset($attr_matches[3]) ? trim($attr_matches[3]) : '';
+        
+        // 合并属性
+        $attributes = '';
+        if (!empty($before_href)) {
+            $attributes .= ' ' . $before_href;
+        }
+        if (!empty($after_href)) {
+            $attributes .= ' ' . $after_href;
+        }
+        $attributes = trim($attributes);
         
         // 检查是否为外部链接
         if (strpos($href, home_url()) === 0 || strpos($href, 'http') !== 0) {
@@ -965,7 +978,11 @@ function boxmoe_external_link_redirect($content) {
         $full_redirect_url = "{$redirect_url}?url={$encoded_url}";
         
         // 返回新的链接
-        return "<a href='{$full_redirect_url}'{$attributes}>{$text}</a>";
+        if (!empty($attributes)) {
+            return "<a href='{$full_redirect_url}' {$attributes}>{$text}</a>";
+        } else {
+            return "<a href='{$full_redirect_url}'>{$text}</a>";
+        }
     }, $content);
     
     return $content;

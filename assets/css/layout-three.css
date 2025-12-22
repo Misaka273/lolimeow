@@ -44,7 +44,7 @@
     display: inline-block !important;
     width: auto !important;
     white-space: nowrap;
-    z-index: 3;
+    z-index: 30;
     pointer-events: none;
     padding: 4px 10px;
     font-size: 0.72rem;
@@ -254,7 +254,6 @@
 @media (max-width: 991px) {
     .layout-three.post-list {
         margin: 0 15px;
-        padding: 15px 0;
         background-image: none;
         min-height: auto;
     }

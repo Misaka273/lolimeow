@@ -156,7 +156,28 @@ class Options_Framework_Interface {
 			// Basic text input
 			case 'text':
 				$class = isset($value['class']) ? ' ' . $value['class'] : '';
-				$output .= '<input id="' . esc_attr( $value['id'] ) . '" class="of-input' . $class . '" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '" type="text" value="' . esc_attr( $val ) . '"' . $placeholder . ' />';
+				if ($value['id'] == 'boxmoe_article_card_kanban_image') {
+					$default_image = get_template_directory_uri() . '/assets/images/post-list.png';
+					$output .= '<input id="' . esc_attr( $value['id'] ) . '" class="of-input' . $class . '" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '" type="text" value="' . esc_attr( $val ) . '"' . $placeholder . ' />';
+					$output .= '<div style="margin-top: 10px; display: flex; gap: 10px;">';
+					$output .= '<input id="upload-' . esc_attr( $value['id'] ) . '" class="upload-button button" type="button" value="' . __( '替换', 'textdomain' ) . '" />';
+					$output .= '<input id="confirm-' . esc_attr( $value['id'] ) . '" class="confirm-button button button-primary" type="button" value="' . __( '确认', 'textdomain' ) . '" />';
+					$output .= '<input id="reset-' . esc_attr( $value['id'] ) . '" class="reset-button button" type="button" value="' . __( '重置', 'textdomain' ) . '" data-default="' . esc_attr( $default_image ) . '" />';
+					$output .= '</div>';
+					// 将预览图的HTML存储起来，稍后在描述之后显示
+					$preview_html = '<div class="screenshot" id="' . esc_attr( $value['id'] ) . '-image" style="margin-top: 10px;">';
+					if ( $val ) {
+						$image = preg_match( '/(^.*\.jpg|jpeg|png|gif|ico|svg*)/i', $val );
+						if ( $image ) {
+							$preview_html .= '<img src="' . esc_url( $val ) . '" alt="" style="max-width: 162px; max-height: 75px; object-fit: contain; background: #f5f5f5;" />';
+						}
+					}
+					$preview_html .= '</div>';
+					// 存储预览HTML以便稍后使用
+					$GLOBALS['boxmoe_preview_html'] = $preview_html;
+				} else {
+					$output .= '<input id="' . esc_attr( $value['id'] ) . '" class="of-input' . $class . '" name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '" type="text" value="' . esc_attr( $val ) . '"' . $placeholder . ' />';
+				}
 				break;
 
 			// Password input
@@ -497,9 +518,20 @@ class Options_Framework_Interface {
 			if ( ( $value['type'] != "heading" ) && ( $value['type'] != "info" ) ) {
 				$output .= '</div>';
 				if ( ( $value['type'] != "checkbox" ) && ( $value['type'] != "editor" ) ) {
-					$output .= '<div class="explain">' . wp_kses( $explain_value, $allowedtags) . '</div>'."\n";
+					$output .= '<div class="explain">' . wp_kses( $explain_value, $allowedtags) . '</div>' ."
+";
+					// 如果是看板娘图片设置，在描述之后显示预览图
+					if ($value['id'] == 'boxmoe_article_card_kanban_image' && isset($GLOBALS['boxmoe_preview_html'])) {
+						$output .= $GLOBALS['boxmoe_preview_html'];
+						// 清除全局变量，避免影响其他设置项
+						unset($GLOBALS['boxmoe_preview_html']);
+					}
 				}
 				$output .= '</div>';
+				// 如果不是checkbox或editor，并且不是看板娘图片设置，确保正常显示
+				if ( ( $value['type'] != "checkbox" ) && ( $value['type'] != "editor" ) && $value['id'] != 'boxmoe_article_card_kanban_image' ) {
+					// 普通设置项的正常处理
+				}
 
 				if (isset($value['group']) && $value['group'] == 'end') {
 					// 关闭分组的 boxmoe_group_opened div

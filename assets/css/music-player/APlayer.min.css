@@ -1,45 +1,46 @@
-/* APlayer 扁平圆角拟态渐变色风格样式 */
-/* 🔽 由初叶🍂www.chuyel.top提供，白木🥰gl.baimu.live集成 */
+/* 🎵 APlayer 扁平圆角拟态渐变色风格样式 */
+/* 💝 由初叶🍂www.chuyel.top提供，白木🥰gl.baimu.live集成 */
+/* 🔗 项目地址：https://github.com/Chuyel/aplayer-lyrics-fix */
 
 :root {
-    /* 主色调渐变 */
+    /* 🌈 主色调渐变 */
     --aplayer-primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     --aplayer-secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     --aplayer-accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     --aplayer-success-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
     --aplayer-warning-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     
-    /* 背景色 */
+    /* 🎨 背景色 */
     --aplayer-bg: rgba(255, 255, 255, 0.95);
     --aplayer-bg-light: rgba(255, 255, 255, 0.9);
     --aplayer-bg-lighter: rgba(255, 255, 255, 0.8);
     --aplayer-bg-dark: rgba(245, 245, 245, 0.9);
     
-    /* 边框和阴影 */
+    /* 🖼️ 边框和阴影 */
     --aplayer-border: 1px solid rgba(255, 255, 255, 0.4);
     --aplayer-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     --aplayer-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.12);
     --aplayer-inset-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
     
-    /* 文字颜色 */
+    /* ✏️ 文字颜色 */
     --aplayer-text-primary: #2d3748;
     --aplayer-text-secondary: #718096;
     --aplayer-text-muted: #a0aec0;
     --aplayer-text-light: #e2e8f0;
     
-    /* 尺寸 */
+    /* 📏 尺寸 */
     --aplayer-radius: 20px;
     --aplayer-small-radius: 12px;
     --aplayer-bar-height: 6px;
     --aplayer-bar-radius: 3px;
     --aplayer-button-radius: 50%;
     
-    /* 过渡效果 */
+    /* ⚡ 过渡效果 */
     --aplayer-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --aplayer-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 重置默认样式 */
+/* 🔄 重置默认样式 */
 .aplayer {
     all: unset;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -352,7 +353,7 @@
     min-height: auto !important;
 }
 
-/* 歌曲封面 */
+/* 🎨 歌曲封面 */
 .aplayer .aplayer-pic {
     position: relative;
     flex-shrink: 0;
@@ -421,7 +422,7 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
 }
 
-/* 歌曲信息与封面容器 */
+/* 📋 歌曲信息与封面容器 */
 .aplayer .aplayer-main {
     display: flex;
     align-items: center;
@@ -429,7 +430,7 @@
     width: 100%;
 }
 
-/* 歌曲信息 */
+/* 🎵 歌曲信息 */
 .aplayer .aplayer-info {
     flex: 1;
     min-width: 0;
@@ -482,7 +483,7 @@
     color: #667eea;
 }
 
-/* 播放控制区 */
+/* 🎮 播放控制区 */
 .aplayer .aplayer-controller {
     position: relative;
     display: flex;
@@ -493,7 +494,7 @@
     width: 100%;
 }
 
-/* 进度条 */
+/* 📊 进度条 */
 .aplayer .aplayer-controller .aplayer-bar-wrap {
     margin: 10px auto;
     padding: 8px 0;
@@ -582,7 +583,7 @@
     box-shadow: 0 6px 24px rgba(102, 126, 234, 0.7);
 }
 
-/* 时间显示 */
+/* ⏱️ 时间显示 */
 .aplayer .aplayer-controller .aplayer-time {
     position: relative;
     color: var(--aplayer-text-muted);
@@ -685,7 +686,7 @@
     transform: scaleX(-1) scale(1.15) !important;
 }
 
-/* 音量控制 */
+/* 🔊 音量控制 */
 .aplayer .aplayer-controller .aplayer-volume-wrap {
     position: relative;
     display: inline-flex;
@@ -922,7 +923,7 @@
     color: #667eea;
 }
 
-/* 歌词区域 */
+/* 🎤 歌词区域 */
 .aplayer .aplayer-lrc {
     display: block;
     position: relative;
@@ -946,7 +947,7 @@
     transform: none;
 }
 
-/* 歌单列表 */
+/* 📋 歌单列表 */
 .aplayer .aplayer-lrc .aplayer-lrc-contents {
     position: relative;
     padding: 10px 0;
@@ -1146,7 +1147,7 @@
     }
 }
 
-/* 固定定位样式 */
+/* 📌 固定定位样式 */
 .aplayer.aplayer-fixed {
     position: fixed;
     bottom: 20px;
@@ -1204,7 +1205,7 @@
     opacity: 0;
 }
 
-/* 加载动画 */
+/* ⏳ 加载动画 */
 .aplayer .aplayer-info .aplayer-controller .aplayer-loading-icon {
     display: inline-block;
     animation: rotate 1s linear infinite;
@@ -1226,7 +1227,7 @@
     background-clip: text;
 }
 
-/* 通知样式 */
+/* 🔔 通知样式 */
 .aplayer .aplayer-notice {
     opacity: 0;
     position: absolute;
@@ -1253,7 +1254,7 @@
     transform: translate(-50%, -50%) scale(1);
 }
 
-/* 响应式折叠切换 */
+/* 📱 响应式折叠切换 */
 .aplayer .aplayer-miniswitcher {
     display: flex;
     position: absolute;
@@ -1296,7 +1297,7 @@
     transform: scale(1.1);
 }
 
-/* 优化滚动性能 */
+/* 🚀 优化滚动性能 */
 .aplayer, .aplayer * {
     will-change: auto;
 }
@@ -1309,19 +1310,19 @@
     will-change: transform;
 }
 
-/* 增强动画效果 */
+/* ✨ 增强动画效果 */
 .aplayer .aplayer-pic, .aplayer .aplayer-icon, .aplayer .aplayer-thumb, .aplayer-list ol li, .aplayer-lrc p {
     transform: translateZ(0);
     backface-visibility: hidden;
     perspective: 1000px;
 }
 
-/* 修复iOS点击高亮 */
+/* 📱 修复iOS点击高亮 */
 .aplayer * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* 主题色切换支持 */
+/* 🌓 主题色切换支持 */
 .aplayer.theme-dark {
     --aplayer-bg: rgba(30, 30, 30, 0.95);
     --aplayer-bg-light: rgba(40, 40, 40, 0.9);
@@ -1332,7 +1333,7 @@
     --aplayer-text-muted: #718096;
 }
 
-/* 渐变文本增强 */
+/* 🌈 渐变文本增强 */
 .aplayer .aplayer-title, .aplayer .aplayer-lrc-current, .aplayer .aplayer-list-light .aplayer-list-title {
     background-clip: text;
     -webkit-background-clip: text;

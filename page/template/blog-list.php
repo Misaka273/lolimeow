@@ -79,7 +79,10 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
         while ( have_posts() ) : the_post(); 
         ?>
           <div class="<?php echo ($article_layout_style == 'three') ? 'col-lg-4 col-md-6 col-sm-6' : 'col-lg-12'; ?>">
-          <article class="post-list <?php echo ($article_layout_style == 'three') ? 'list-three' : 'list-one'; ?> <?php echo boxmoe_border_setting(); ?>" onclick="if (!event.target.closest('a') && window.getSelection().toString().length === 0) { <?php echo get_boxmoe('boxmoe_article_new_window_switch', true) ? "window.open('\''.esc_js(get_the_permalink()).'\'', '_blank')" : "location.href='\''.esc_js(get_the_permalink()).'\'" ; ?>; }">
+          <article class="post-list <?php echo ($article_layout_style == 'three') ? 'list-three' : 'list-one'; ?> <?php echo boxmoe_border_setting(); ?>">
+            <!-- 😏一个巨无霸的透明伪容器，实现点击整个卡片跳转 -->
+            <a class="post-card-link" <?php echo boxmoe_article_new_window(); ?> rel="noopener noreferrer" href="<?php echo get_the_permalink(); ?>" title="<?php echo get_the_title().get_the_subtitle(false).boxmoe_title_link().get_bloginfo('name')?>"></a>
+            
             <?php if ( post_password_required() ) : ?>
             <span class="post-protected-badge">密码保护</span>
             <?php elseif ( get_post_status() === 'private' ) : ?>
@@ -88,7 +91,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
             <span class="post-sticky-badge">置顶</span>
             <?php endif; ?>
             <div class="post-list-img">
-              <figure class="mb-4 zoom-img">
+              <figure class="zoom-img">
                 <a <?php echo boxmoe_article_new_window(); ?> rel="noopener noreferrer" href="<?php echo get_the_permalink(); ?>" title="<?php echo get_the_title().get_the_subtitle(false).boxmoe_title_link().get_bloginfo('name')?>">
                   <img src="<?php boxmoe_lazy_load_images(); ?>" data-src="<?php echo boxmoe_article_thumbnail_src(); ?>?id<?php echo get_the_ID(); ?>" alt="<?php the_title(); ?>" class="img-fluid rounded-3 lazy"></a>
               </figure>

@@ -58,18 +58,6 @@ function boxmoe_music_player_html() {
     $theme_color = get_boxmoe('boxmoe_music_player_theme_color', '#8b3dff');
     $custom_css = get_boxmoe('boxmoe_music_player_custom_css', '');
     
-    // 调试：输出自定义CSS到控制台和页面
-    $html = '<script type="text/javascript">';
-    $html .= 'console.log("🎵 自定义CSS加载状态:", "' . (!empty($custom_css) ? '太好惹！是新衣服耶🥰' : '😯坏了，样式没加载') . '");';
-    if (!empty($custom_css)) {
-        $html .= 'console.log("🎵 自定义CSS内容:", `' . addslashes($custom_css) . '`);';
-    }
-    $html .= '</script>';
-    
-    // 在页面底部添加一个调试提示，显示自定义CSS是否加载
-    $html .= '<div style="display: none;" id="custom-css-debug">';
-    $html .= !empty($custom_css) ? '🎵 自定义CSS已加载' : '❌ 😯坏了，样式没加载';
-    $html .= '</div>';
     
     // 获取API设置
     $custom_api = get_boxmoe('boxmoe_music_player_api', '');
@@ -77,11 +65,13 @@ function boxmoe_music_player_html() {
     
     // 确定使用的API地址
     $api_url = '';
-    if (!empty($custom_api)) {
-        // 优先使用自定义API
+    $use_custom_api = !empty($custom_api); // 标记是否使用自定义API
+    
+    if ($use_custom_api) {
+        // 优先使用自定义API，忽略默认API设置
         $api_url = $custom_api;
     } else {
-        // 使用预设API
+        // 只有在没有设置自定义API时，才使用预设API
         switch ($default_api) {
             case 'tencent_vip':
                 $api_url = 'https://musicapi.chuyel.top/meting/api';
@@ -143,43 +133,55 @@ function boxmoe_music_player_html() {
     $html .= <<<EOT
 <script type="text/javascript">
 function toggleMusicPlayer() {
-    var playerContent = document.getElementById("musicPlayerContent");
-    var toggleBtn = document.querySelector(".music-player-toggle-btn");
-    var aplayerPic = document.querySelector(".aplayer-pic");
-    var coverUrl = "";
-    if (aplayerPic) {
-        coverUrl = aplayerPic.style.backgroundImage;
-        // 修复：移除可能的多层url()包装和引号
-        coverUrl = coverUrl.replace(/^url\(['"]?(.*?)['"]?\)$/, "$1");
-        // 再次处理，防止多层嵌套
-        coverUrl = coverUrl.replace(/^url\(['"]?(.*?)['"]?\)$/, "$1");
-        // 移除HTML实体编码
-        coverUrl = coverUrl.replace(/&quot;/g, '"');
-        coverUrl = coverUrl.replace(/&amp;/g, '&');
-    }
-    if (playerContent.style.display === "none" || playerContent.style.display === "") {
-        playerContent.style.display = "block";
-        toggleBtn.innerHTML = "<span class=\"close-btn\">❌</span>";
-        toggleBtn.classList.remove("open-btn");
-    } else {
-        playerContent.style.display = "none";
-        toggleBtn.innerHTML = coverUrl ? "<div class=\"cover-btn\" style=\"background-image: url('" + coverUrl + "'); background-size: cover; background-position: center; background-repeat: no-repeat;\"><div class=\"play-btn-overlay\"><svg class=\"play-icon\" width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"12\" cy=\"12\" r=\"10\" class=\"play-icon-circle\"/><path d=\"M9.5 7.5L16.5 12L9.5 16.5V7.5Z\" fill=\"white\"/></svg></div></div>" : "<span class=\"open-indicator\">🎵</span>";
-        toggleBtn.classList.add("open-btn");
-    }
-}
+		var playerContent = document.getElementById("musicPlayerContent");
+		var toggleBtn = document.querySelector(".music-player-toggle-btn");
+		var aplayerPic = document.querySelector(".aplayer-pic");
+		var coverUrl = "";
+		if (aplayerPic) {
+			coverUrl = aplayerPic.style.backgroundImage;
+			// 修复：移除可能的多层url()包装和引号
+			coverUrl = coverUrl.replace(/^url\(['"]?(.*?)['"]?\)$/, "$1");
+			// 再次处理，防止多层嵌套
+			coverUrl = coverUrl.replace(/^url\(['"]?(.*?)['"]?\)$/, "$1");
+			// 移除HTML实体编码
+			coverUrl = coverUrl.replace(/&quot;/g, '"');
+			coverUrl = coverUrl.replace(/&amp;/g, '&');
+		}
+		
+		// 修复点击两次才打开的问题：使用更可靠的状态检测
+		// 检查元素是否实际可见
+		var isVisible = playerContent.offsetWidth > 0 || playerContent.offsetHeight > 0;
+		
+		if (!isVisible || playerContent.style.display === "none" || playerContent.style.display === "") {
+			// 打开播放器
+			playerContent.style.display = "block";
+			toggleBtn.innerHTML = "<span class=\"close-btn\">❌</span>";
+			toggleBtn.classList.remove("open-btn");
+		} else {
+			// 关闭播放器
+			playerContent.style.display = "none";
+			toggleBtn.innerHTML = coverUrl ? "<div class=\"cover-btn\" style=\"background-image: url('" + coverUrl + "'); background-size: cover; background-position: center; background-repeat: no-repeat;\"><div class=\"play-btn-overlay\"><svg class=\"play-icon\" width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"12\" cy=\"12\" r=\"10\" class=\"play-icon-circle\"/><path d=\"M9.5 7.5L16.5 12L9.5 16.5V7.5Z\" fill=\"white\"/></svg></div></div>" : "<span class=\"open-indicator\">🎵</span>";
+			toggleBtn.classList.add("open-btn");
+		}
+	}
 // 页面加载完成后，初始化播放器和按钮状态
 document.addEventListener("DOMContentLoaded", function() {
     var playerContent = document.getElementById("musicPlayerContent");
     var toggleBtn = document.querySelector(".music-player-toggle-btn");
-    // 确保播放器内容默认隐藏
-    playerContent.style.display = "none";
-    // 设置按钮初始状态为打开状态（显示🎵）
+    
+    // 🚀 预加载音乐资源 - 避免点击打开时等待
+    // 1. 首先，让播放器在不可见状态下初始化，预加载资源
+    playerContent.style.visibility = "hidden";
+    playerContent.style.position = "absolute";
+    playerContent.style.display = "block";
+    
+    // 2. 设置按钮初始状态为打开状态（显示🎵）
     toggleBtn.innerHTML = "<span class=\"open-indicator\">🎵</span>";
     toggleBtn.classList.add("open-btn");
     
-    // 🔊 修复音量滑块点击静音问题 - 终极修复方案
+    // 3. 等待Meting.js和APlayer完全初始化并加载资源
     setTimeout(function() {
-        // 遍历所有播放器实例
+        // 🔊 修复音量滑块点击静音问题 - 终极修复方案
         document.querySelectorAll('.aplayer').forEach(function(aplayerElement) {
             // 获取音量控制相关元素
             const volumeWrap = aplayerElement.querySelector('.aplayer-volume-wrap');
@@ -238,6 +240,13 @@ document.addEventListener("DOMContentLoaded", function() {
                 e.preventDefault();
             });
         });
+        
+        // 4. 资源预加载完成后，恢复播放器的隐藏状态
+        setTimeout(function() {
+            playerContent.style.display = "none";
+            playerContent.style.visibility = "visible";
+            playerContent.style.position = "static";
+        }, 800); // 减少等待时间，优化性能
     }, 2000); // 更长延迟，确保Meting.js完全初始化APlayer
 });
 </script>
@@ -399,11 +408,20 @@ EOT;
     $html .= '<style type="text/css">';
     $html .= '.music-player-toggle-btn {';
     $html .= '    visibility: visible !important;';
-    $html .= '    opacity: 0.9 !important;';
+    $html .= '    opacity: 1 !important;';
     $html .= '    display: flex !important;';
     $html .= '    z-index: 100001 !important;';
+    $html .= '    background: linear-gradient(135deg, #8b3dff 0%, #ff6b6b 100%) !important;';
+    $html .= '    border: 3px solid rgba(255, 255, 255, 0.9) !important;';
+    $html .= '    box-shadow: 0 8px 24px rgba(139, 61, 255, 0.4) !important;';
+    $html .= '}';
+    $html .= '.music-player-toggle-btn:hover {';
+    $html .= '    transform: scale(1.15) !important;';
+    $html .= '    box-shadow: 0 12px 32px rgba(139, 61, 255, 0.6) !important;';
     $html .= '}';
     $html .= '</style>';
+    
+
     
     // 输出播放器位置和大小样式
     $html .= '<style type="text/css">';
@@ -697,7 +715,7 @@ EOT;
     $html .= '    width: 100% !important;';
     $html .= '    height: auto !important;';
     $html .= '    margin: 0 auto !important;';
-    $html .= '    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;';
+    $html .= '    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1) !important;';
     $html .= '    will-change: transform !important;';
     $html .= '    transform-origin: top center !important;';
     $html .= '}';

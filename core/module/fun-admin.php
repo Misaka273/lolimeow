@@ -84,31 +84,7 @@ function boxmoe_remove_admin_head_info() {
 }
 add_action('admin_init', 'boxmoe_remove_admin_head_info');
 
-// 🔒 阻止非管理员访问后台
-function boxmoe_restrict_admin_access() {
-    // 避免重定向循环：检查当前是否正在重定向，或者是否是登录页面相关请求
-    if (wp_doing_ajax()) {
-        return;
-    }
-    // 检查是否是登录、注册或密码重置页面
-    if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false || strpos($_SERVER['REQUEST_URI'], 'wp-register.php') !== false) {
-        return;
-    }
-    // 检查是否已经是首页，避免循环
-    if ($_SERVER['REQUEST_URI'] == '/' || $_SERVER['REQUEST_URI'] == home_url()) {
-        return;
-    }
-    // 检查用户是否已登录
-    if (!is_user_logged_in()) {
-        return;
-    }
-    // 检查用户是否有管理权限，只有非管理员才需要重定向
-    if (!current_user_can('manage_options') && '/wp-admin/admin-ajax.php' != $_SERVER['PHP_SELF']) {
-        wp_redirect(home_url());
-        exit;
-    }
-}
-add_action('admin_menu', 'boxmoe_restrict_admin_access');
+// 🔒 阻止非管理员访问后台 - 已移至 fun-optimize.php，避免陷入死循环重定向
 
 // 🖼️ 自定义头像字段
 function boxmoe_admin_user_avatar_field($user) {
@@ -577,6 +553,8 @@ function boxmoe_duplicate_post_as_draft() {
             }
         }
 
+        // 设置transient，用于显示顶部横幅提示
+        set_transient( 'boxmoe_admin_notice', 'duplicate_post', 30 ); // 30秒过期
         wp_redirect( admin_url( 'post.php?action=edit&post=' . $new_post_id ) );
         exit;
     } else {
@@ -618,6 +596,105 @@ function boxmoe_allow_span_tags_in_options($allowedtags) {
     return $allowedtags;
 }
 add_filter('wp_kses_allowed_html', 'boxmoe_allow_span_tags_in_options');
+
+// 🎉 后台顶部横幅提示
+function boxmoe_admin_top_banner_notice() {
+    // 获取当前页面的URL参数
+    $url_params = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY );
+    parse_str( $url_params, $parsed_params );
+    
+    // 获取操作类型
+    $action_type = '';
+    
+    // 检查URL参数中是否有settings-updated
+    if ( isset( $parsed_params['settings-updated'] ) && $parsed_params['settings-updated'] == 'true' ) {
+        // 检查是否有重置参数
+        if ( isset( $parsed_params['reset'] ) && $parsed_params['reset'] == 'true' ) {
+            $action_type = 'reset';
+        } elseif ( isset( $parsed_params['reset_slogan'] ) && $parsed_params['reset_slogan'] == 'true' ) {
+            $action_type = 'reset_slogan';
+        } else {
+            // 检查是否有POST数据，确定具体操作类型
+            if ( isset( $_POST['reset'] ) ) {
+                $action_type = 'reset';
+            } elseif ( isset( $_POST['reset_slogan'] ) ) {
+                $action_type = 'reset_slogan';
+            } else {
+                $action_type = 'save';
+            }
+        }
+    } else {
+        // 检查transient，用于文章复制等其他操作
+        $action_type = get_transient( 'boxmoe_admin_notice' );
+        // 删除transient，避免重复显示
+        delete_transient( 'boxmoe_admin_notice' );
+    }
+    
+    // 如果没有操作类型，不显示提示
+    if ( ! $action_type ) {
+        return;
+    }
+    
+    // 根据操作类型设置提示信息
+    switch ( $action_type ) {
+        case 'save':
+            $message = '设置已保存成功！';
+            break;
+        case 'reset':
+            $message = '已恢复默认选项!';
+            break;
+        case 'reset_slogan':
+            $message = '页面标语已恢复默认值！';
+            break;
+        case 'duplicate_post':
+            $message = '文章复制成功！';
+            break;
+        default:
+            $message = '操作成功！';
+            break;
+    }
+    ?>  
+    <style>
+    /* 确保样式被正确加载 */
+    .copy-banner{position:fixed;top:0;left:0;right:0;z-index:9999;transform:translateY(-100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);padding:10px 16px;text-align:center;background-color:#e6f2ff;color:var(--bs-dark);border-bottom:1px solid var(--bs-dark);box-shadow:0 1px 6px rgba(32,33,36,0.28);overflow:hidden;}
+    .copy-banner i{margin-right:8px;color:var(--bs-dark);}
+    .copy-banner::after{content:"";position:absolute;left:0;top:0;height:100%;width:0;background:rgba(139,61,255,0.35);border-radius:0 18px 18px 0;}
+    .copy-banner.mask-run::after{animation:copyMaskSweep 1100ms ease forwards;}
+    .copy-banner.show{transform:translateY(0);}
+    @keyframes copyMaskSweep{0%{width:0;border-radius:0 18px 18px 0}80%{width:100%;border-radius:0 18px 18px 0}100%{width:calc(100% + 40px);border-radius:0}}
+    [data-bs-theme="dark"] .copy-banner{background-color:#e6f2ff;color:#000;border-bottom:1px solid rgba(255,255,255,0.1);box-shadow:0 1px 6px rgba(255,255,255,0.15);}
+    [data-bs-theme="dark"] .copy-banner i{color:#000;}
+    @media (max-width:991px){.copy-banner{font-size:0.9rem;padding:8px 12px;}}
+    </style>
+    <script>
+    // 显示顶部横幅提示
+    document.addEventListener('DOMContentLoaded', function() {
+        const message = '<?php echo esc_js( $message ); ?>';
+        let banner = document.querySelector('.copy-banner');
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.className = 'copy-banner';
+            document.body.appendChild(banner);
+        }
+        banner.innerHTML = '<i class="fa fa-check-circle"></i> ' + message;
+        let timer = null;
+        const show = function() {
+            if (timer) { try { clearTimeout(timer); } catch(_) {} }
+            banner.classList.remove('mask-run');
+            void banner.offsetWidth;
+            banner.classList.add('mask-run');
+            banner.classList.add('show');
+            timer = setTimeout(function() {
+                banner.classList.remove('show');
+                banner.classList.remove('mask-run');
+            }, 5000);
+        };
+        show();
+    });
+    </script>
+    <?php
+}
+add_action('admin_footer', 'boxmoe_admin_top_banner_notice');
 
 // 🔤 修改后台页面浏览器标签，显示网站副标题
 function boxmoe_admin_title($admin_title, $title) {
@@ -686,7 +763,7 @@ function boxmoe_fix_comment_date_column($column_output, $column_name, $comment_i
     if ('date' === $column_name) {
         $comment = get_comment($comment_id);
         if ($comment) {
-            $date = get_comment_datetime($comment);
+            $date = new DateTime($comment->comment_date, wp_timezone());
             if ($date) {
                 // 确保日期对象使用正确的时区
                 $date = $date->setTimezone(wp_timezone());

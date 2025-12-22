@@ -18,9 +18,13 @@
       var sel = val.substring(start,end)|| (placeholder||'');
       var out = val.substring(0,start)+prefix+sel+suffix+val.substring(end);
       $ta.val(out);
+      // 保存当前滚动位置
+      var scrollTop = $(window).scrollTop();
       el.focus();
       el.selectionStart = start+prefix.length;
       el.selectionEnd = start+prefix.length+sel.length;
+      // 恢复滚动位置，防止页面下移
+      $(window).scrollTop(scrollTop);
       
     };
     $bar.append(btn('加粗','md-bold').on('click',function(){insert('**','**','bold');}));
@@ -53,22 +57,33 @@
       var $emoji = $('.quicktags-toolbar-emoji');
       var $qtToolbar = $('#qt_content_toolbar'); // ⬅️ 获取默认的Quicktags工具栏
       var $editorTools = $('#wp-content-editor-tools'); // ⬅️ 获取编辑器工具栏容器
+      var $textarea = $('#content'); // 获取编辑区
       
       if($editorTools.length){
-        // 🔄 改为一上一下布局，将Markdown工具栏放置在原生工具栏容器之后
-        // 这样可以确保它位于原生工具栏（包括媒体按钮和Quicktags）的下方，且互不干扰
-        $editorTools.after($bar); 
+        // 将Markdown工具栏挂载到编辑器工具栏容器内部，与原生工具栏同一层级
+        $editorTools.append($bar); 
       } else if($qtToolbar.length){
-        // 🔄 降级方案：如果找不到容器，则尝试插在Quicktags之后
+        // 降级方案：如果找不到容器，则尝试插在Quicktags之后
         $qtToolbar.after($bar); 
       } else if($emoji.length){
         $emoji.after($bar);
+      } else if($textarea.length){
+        // 最终方案：将Markdown工具栏挂载到编辑区之前，确保在编辑器容器内
+        $textarea.before($bar);
       } else{
         $wrap.prepend($bar);
       }
       $wrap.append($preview);
     }
     mountMdToolbar();
+    
+    // 📌 实现工具栏固定功能 - CSS已直接实现，无需JavaScript
+    function initStickyToolbar() {
+        // 确保编辑器容器有相对定位
+        $('#wp-content-editor-container').css({ position: 'relative' });
+    }
+    initStickyToolbar();
+    
     function render(){
       $.post(BoxmoeMdEditor.ajaxUrl,{action:'boxmoe_md_preview',nonce:BoxmoeMdEditor.nonce,markdown:$ta.val()},function(resp){
         if(resp && resp.success){

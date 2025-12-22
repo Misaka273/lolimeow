@@ -1,6 +1,7 @@
 <?php
 /**
 * Template Name:外链提醒版
+* Description:白木重构页面UI
 */
 $my_urls = array(
 array('boxmoe','https://www.boxmoe.com'),
@@ -15,36 +16,39 @@ if(strlen($_SERVER['REQUEST_URI']) > 384 || strpos($_SERVER['REQUEST_URI'], "eva
 @header("Connection: Close");
 @exit;
 }
-$go_url=htmlspecialchars(preg_replace('/^url=(.*)$/i','$1',$_SERVER["QUERY_STRING"]));
+$go_url=preg_replace('/^url=(.*)$/i','$1',$_SERVER["QUERY_STRING"]);
 //自定义URL
 foreach($my_urls as $x=>$x_value)
 {
 	if($go_url==$x_value[0]) {
-		echo $go_url = $x_value[1];	
-		}
+		$go_url = $x_value[1];	
+	}
 }
 if(!empty($go_url)) {
-if (!empty($go_url) && $go_url === base64_encode(base64_decode($go_url))) {
-$go_url = base64_decode($go_url);
+// 首先尝试解码URL（如果被URL编码）
+$decoded_url = urldecode($go_url);
+
+// 检查是否是base64编码
+if (!empty($decoded_url) && $decoded_url === base64_encode(base64_decode($decoded_url))) {
+    $decoded_url = base64_decode($decoded_url);
 }
-preg_match('/^(http|https|thunder|qqdl|ed2k|Flashget|qbrowser):\/\//i', $go_url, $matches);
-if (preg_match('/^(http|https|thunder|qqdl|ed2k|Flashget|qbrowser):\/\//i', $go_url, $matches) === false) {
-    // 处理错误
-    $err = "1";
-}
+
+// 检查是否已经包含协议
+preg_match('/^(http|https|thunder|qqdl|ed2k|Flashget|qbrowser):\/\//i', $decoded_url, $matches);
 if($matches){
-$url=$go_url;
-$title= '安全中心 | 加载中...';
+    $url = $decoded_url;
+    $title= '安全中心 | 加载中...';
 } else {
-preg_match('/\./i',$go_url,$matche);
-if($matche){
-$url='https://'.$go_url;
-$title= '安全中心 | 加载中...';
-} else {
-$err = "1";
-$url = 'https://'.$_SERVER['HTTP_HOST'];
-$title='参数错误，中止跳转！正在返回首页...';
-}
+    // 检查是否包含域名（有.符号）
+    preg_match('/\./i', $decoded_url, $matche);
+    if($matche){
+        $url = 'https://' . $decoded_url;
+        $title= '安全中心 | 加载中...';
+    } else {
+        $err = "1";
+        $url = 'https://' . $_SERVER['HTTP_HOST'];
+        $title='参数错误，中止跳转！正在返回首页...';
+    }
 }
 } else {
 $err = "1";	
@@ -52,119 +56,236 @@ $title ='参数缺失，中止跳转！正在返回首页...';
 $url = 'https://'.$_SERVER['HTTP_HOST'];
 }
 ?>
-<!DOCTYPE html>
-<html lang="zh-CN" class="io-white-mode">
-<head>
-<script>
-    var default_c = "io-white-mode";
-    var night = document.cookie.replace(/(?:(?:^|.*;\s*)io_night_mode\s*\=\s*([^;]*).*$)|^.*$/, "$1"); 
-    try {
-        if (night === "0" || (!night && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-            document.documentElement.classList.add("io-black-mode");
-            document.documentElement.classList.remove(default_c);
-        } else {
-            document.documentElement.classList.remove("io-black-mode");
-            document.documentElement.classList.add(default_c);
+<html <?php language_attributes(); ?>>
+    <head>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <title><?php echo boxmoe_theme_title(); ?></title>
+   <link rel="icon" href="<?php echo boxmoe_favicon(); ?>" type="image/x-icon">
+    <?php boxmoe_keywords(); ?>
+    <?php boxmoe_description(); ?>
+    <?php ob_start();wp_head();$wp_head_output = ob_get_clean();echo preg_replace('/\n/', "\n    ", trim($wp_head_output))."\n    ";?>
+    <style>
+        /* 🥳 跳转页样式 - 玻璃拟态设计 */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            background-color: #f0f2f5;
         }
-    } catch (_) {}
-</script><meta charset="utf-8">
-<meta http-equiv="content-type" content="text/html; charset=UTF-8">
-<meta name="viewport" content="width=device-width,height=device-height, initial-scale=1.0, user-scalable=no" />
-<meta name="apple-mobile-web-app-capable" content="yes"> 
-<meta name="robots" content="noindex,follow">
-<title><?php bloginfo('name'); ?>-<?php echo $title;?></title>
-<style>
-body{margin:0;padding:0}body{height:100%}#loading{-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;display:-webkit-box;display:-ms-flexbox;display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:#e8eaec}.io-black-mode #loading{background:#1b1d1f}
-.loading-content{position:absolute;top:10%;padding:0 10px;max-width:580px;z-index:10000000}.flex{display:flex}.flex-center{align-items:center}.flex-end{display:flex;justify-content:flex-end}.flex-fill{-ms-flex:1 1 auto !important;flex:1 1 auto !important}.logo-img{text-align:center}.logo-img img{width:200px;height:auto;margin-bottom:20px}.loading-info{padding:20px;background:#fff;border-radius:10px;box-shadow:0 15px 20px rgba(18,19,20,.2)}.loading-tip{background:rgba(255,158,77,.1);border-radius:6px;padding:5px}.loading-text{color:#b22e12;font-weight:bold}.loading-topic{padding:20px 0;border-bottom:1px solid rgba(136,136,136,.2);margin-bottom:20px;font-size:12px;word-break:break-all}a{text-decoration:none}.loading-btn,.loading-btn:active,.loading-btn:visited{color:#fc5531;border-radius:5px;border:1px solid #fc5531;padding:5px 20px;transition:.3s}.loading-btn:hover{color:#fff;background:#fc5531;box-shadow:0 15px 15px -10px rgba(184,56,25,0.8)}.loading-url{color:#fc5531}.taxt-auto{color:#787a7d;font-size:14px}.auto-second{color:#fc5531;font-size:16px;margin-right:5px;font-weight:bold}
-.warning-ico{width:30px;height:26px;margin-right:5px;background-image:url("data:image/svg+xml,%3Csvg class='icon' viewBox='0 0 1024 1024' xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cpath d='M872.7 582.6L635.2 177c-53.5-91.3-186.6-88.1-235.6 5.7L187.7 588.3c-46.8 89.7 18.2 197 119.4 197h449.4c104 0 168.8-112.9 116.2-202.7zM496.6 295.2c0-20.5 11.7-31.5 35.1-32.9 22 1.5 33.7 12.5 35.1 32.9V315l-26.4 267.9h-13.2L496.6 315v-19.8zm35.2 406.3c-22-1.5-34.4-13.2-37.3-35.1 1.4-19 13.2-29.3 35.1-30.7 23.4 1.5 36.6 11.7 39.5 30.7-1.5 21.9-13.9 33.6-37.3 35.1z' fill='%23f55d49'/%3E%3C/svg%3E")}
-.io-black-mode .loading-info{color:#eee;background:#2b2d2f}.io-black-mode .loading-text{color:#ff8369}
-@media (min-width:768px){.loading-content{min-width:450px}}
-</style>
+        .login-page-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url(<?php echo get_boxmoe('boxmoe_user_login_bg')? get_boxmoe('boxmoe_user_login_bg') :'https://api.boxmoe.com/random.php'; ?>);
+            background-size: 100% 100%;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: -1;
+            opacity: 0; /* ⬅️ 初始透明度为0 */
+            animation: fadeIn 0.3s ease-in-out forwards; /* ⬅️ 添加0.3秒渐显动画 */
+        }
+        
+        /* ✨ 渐显动画 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0; /* ⬅️ 开始时完全透明 */
+            }
+            to {
+                opacity: 1; /* ⬅️ 结束时完全不透明 */
+            }
+        }
+        .login-page-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.2); /* ⬅️ 背景遮罩，提升文字可读性 */
+            backdrop-filter: blur(8px); /* ⬅️ 全局背景模糊 */
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            position: relative; /* ⬅️ 确保在粒子层之上 */
+            z-index: 1;
+        }
+        /* ✨ 玻璃拟态卡片 */
+        .glass-card {
+            background: radial-gradient(circle at top left, rgba(255, 192, 203, 0.75), rgba(173, 216, 230, 0.75)); /* ⬅️ 浅粉色到浅蓝色圆形扩散渐变 */
+            backdrop-filter: blur(20px); /* ⬅️ 局部高斯模糊 */
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; /* ⬅️ 圆角风格 */
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            width: 100%;
+            max-width: 460px;
+            padding: 3rem 2.5rem;
+            position: relative;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
+        }
+        /* 🌙 暗色模式适配 */
+        [data-bs-theme="dark"] .glass-card {
+            background: rgba(30, 30, 35, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            color: #e0e0e0;
+        }
+        [data-bs-theme="dark"] .text-body-tertiary {
+            color: #adb5bd !important;
+        }
+        [data-bs-theme="dark"] .text-danger {
+            color: #ff8369 !important;
+        }
+        [data-bs-theme="dark"] .text-primary {
+            color: #6c8cff !important;
+        }
+        [data-bs-theme="dark"] .btn-primary {
+            background-color: #6c8cff;
+            border-color: #6c8cff;
+        }
+        [data-bs-theme="dark"] .btn-primary:hover {
+            background-color: #5a77e6;
+            border-color: #5a77e6;
+        }
+
+        /* 🔔 警告图标 */
+        .warning-icon {
+            font-size: 4rem;
+            color: #ffc107;
+            margin-bottom: 1.5rem;
+            display: block;
+            text-align: center;
+        }
+        [data-bs-theme="dark"] .warning-icon {
+            color: #ffd54f;
+        }
+
+        /* 📱 响应式调整 */
+        @media (max-width: 576px) {
+            .glass-card {
+                padding: 2rem 1.5rem;
+            }
+            .warning-icon {
+                font-size: 3rem;
+            }
+        }
+
+        /* 🏷️ 跳转信息样式 */
+        .redirect-info {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        [data-bs-theme="dark"] .redirect-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+        }
+
+        /* ⏱️ 倒计时样式 */
+        .countdown {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--bs-primary);
+            margin: 1rem 0;
+            display: block;
+            text-align: center;
+        }
+
+        /* 🎯 按钮样式 */
+        .btn-primary {
+            border-radius: 12px;
+            padding: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: none;
+            box-shadow: 0 4px 6px rgba(var(--bs-primary-rgb), 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(var(--bs-primary-rgb), 0.4);
+        }
+        /* ✨ 按钮扫光动画 */
+        .btn-primary::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.6),
+                transparent
+            );
+            transition: all 0.6s;
+        }
+        .btn-primary:hover::after {
+            left: 100%;
+        }
+
+        /* 🛠️ 主题切换按钮 */
+        .theme-toggle-fixed {
+            position: absolute;
+            bottom: 1.5rem;
+            left: 1.5rem;
+        }
+    </style>
 </head>
-<body class="go-to">
-<div id="loading">
-    <style>   
-.loader{width:130px;height:170px;position:relative}
-.loader::before,.loader::after{content:"";width:0;height:0;position:absolute;bottom:30px;left:15px;z-index:1;border-left:50px solid transparent;border-right:50px solid transparent;border-bottom:20px solid rgba(107,122,131,.15);transform:scale(0);transition:all 0.2s ease}
-.loader::after{border-right:15px solid transparent;border-bottom:20px solid rgba(102,114,121,.2)}
-.loader .getting-there{width:120%;text-align:center;position:absolute;bottom:0;left:-7%;font-family:"Lato";font-size:12px;letter-spacing:2px;color:#555}
-.loader .binary{width:100%;height:140px;display:block;color:#555;position:absolute;top:0;left:15px;z-index:2;overflow:hidden}
-.loader .binary::before,.loader .binary::after{font-family:"Lato";font-size:24px;position:absolute;top:0;left:0;opacity:0}
-.loader .binary:nth-child(1)::before{content:"0";-webkit-animation:a 1.1s linear infinite;animation:a 1.1s linear infinite}
-.loader .binary:nth-child(1)::after{content:"0";-webkit-animation:b 1.3s linear infinite;animation:b 1.3s linear infinite}
-.loader .binary:nth-child(2)::before{content:"1";-webkit-animation:c 0.9s linear infinite;animation:c 0.9s linear infinite}
-.loader .binary:nth-child(2)::after{content:"1";-webkit-animation:d 0.7s linear infinite;animation:d 0.7s linear infinite}
-.loader.JS_on::before,.loader.JS_on::after{transform:scale(1)}
-@-webkit-keyframes a{0%{transform:translate(30px,0) rotate(30deg);opacity:0}
-100%{transform:translate(30px,150px) rotate(-50deg);opacity:1}
-}@keyframes a{0%{transform:translate(30px,0) rotate(30deg);opacity:0}
-100%{transform:translate(30px,150px) rotate(-50deg);opacity:1}
-}@-webkit-keyframes b{0%{transform:translate(50px,0) rotate(-40deg);opacity:0}
-100%{transform:translate(40px,150px) rotate(80deg);opacity:1}
-}@keyframes b{0%{transform:translate(50px,0) rotate(-40deg);opacity:0}
-100%{transform:translate(40px,150px) rotate(80deg);opacity:1}
-}@-webkit-keyframes c{0%{transform:translate(70px,0) rotate(10deg);opacity:0}
-100%{transform:translate(60px,150px) rotate(70deg);opacity:1}
-}@keyframes c{0%{transform:translate(70px,0) rotate(10deg);opacity:0}
-100%{transform:translate(60px,150px) rotate(70deg);opacity:1}
-}@-webkit-keyframes d{0%{transform:translate(30px,0) rotate(-50deg);opacity:0}
-100%{transform:translate(45px,150px) rotate(30deg);opacity:1}
-}@keyframes d{0%{transform:translate(30px,0) rotate(-50deg);opacity:0}
-100%{transform:translate(45px,150px) rotate(30deg);opacity:1}
-}
-.io-black-mode .loader .getting-there,.io-black-mode .loader .binary{color:#bbb}
-</style>
-<div class="loader JS_on">
-	<span class="binary"></span>
-	<span class="binary"></span>
-	<span class="getting-there">LOADING STUFF...</span>
-</div>    <div class="loading-content">
-        <div class="logo-img">
-            <?php echo boxmoe_logo();?>
-        </div>
-		<?php if($err != "1"){?>
-        <div class="loading-info">                        
-            <div class="flex flex-center loading-tip">                          
-                <div class="warning-ico"></div><div class="loading-text">请注意您的账号和财产安全</div>                        
-            </div>                        
-            <div class="loading-topic">
-                您即将离开 <?php bloginfo('name'); ?>，去往：<span class="loading-url"><?php echo $url;?></span>                       
-            </div>                        
-            <div class="flex flex-center"> 
-                                <div class="taxt-auto"><span id="time" class="auto-second">2</span>秒后自动跳转</div> 
+
+<body>
+   <main>
+      <!-- 🖼️ 全屏背景容器 -->
+      <div class="login-page-bg"></div>
+
+      <div class="login-container">
+         <div class="glass-card">
+            <!-- Logo区域 -->
+            <div class="text-center mb-4">
+               <a href="<?php echo get_option('home'); ?>" class="d-inline-block transition-hover">
+                   <?php boxmoe_logo(); ?>
+               </a>
+               <h3 class="mt-3 mb-1 fw-bold">安全提醒</h3>
+            </div>
+
+            <?php if($err != "1"){?>
+            <!-- 跳转提醒内容 -->
+            <div class="text-center">
+                <i class="bi bi-exclamation-triangle warning-icon"></i>
+                <h4 class="mb-3 text-danger">请注意您的账号和财产安全</h4>
+                <p class="mb-4">您即将离开 <strong><?php bloginfo('name'); ?></strong>，去往以下链接：</p>
+                <div class="redirect-info">
+                    <?php echo htmlspecialchars($url);?>
+                </div>
+                <p class="mt-3">
+                    <span id="time" class="countdown"><?php echo get_boxmoe('boxmoe_external_link_countdown', 3);?></span>秒后自动跳转
+                </p>
                 <script type="text/javascript">  
                     delayURL();    
                     function delayURL() { 
-                        var delay = document.getElementById("time").innerHTML;
-                        var t = setTimeout("delayURL()", 2000);
-                        if (delay > 0) {
-                            delay--;
-                            document.getElementById("time").innerHTML = delay;
-                        } else {
-                        clearTimeout(t); 
-                            window.location.href = "<?php echo $url;?>";
-                        }        
-                    } 
-                </script>                  
-                <div class="flex-fill"></div>                     
-                <a class="loading-btn" href="<?php echo $url;?>" rel="external nofollow">继续</a>                        
-            </div>                      
-        </div>
-		<?php }else{ ?>
-		<div class="loading-info">                        
-            <div class="flex flex-center loading-tip">                          
-                <div class="warning-ico"></div><div class="loading-text">目标网址未通过检测</div>                        
-            </div>                        
-            <div class="loading-topic">
-                <?php echo $title;?>                       
-            </div>                        
-            <div class="flex flex-center"> 
-                                <div class="taxt-auto"><span id="time" class="auto-second">2</span>秒后自动跳转</div> 
-                <script type="text/javascript">  
-                    delayURL();    
-                    function delayURL() { 
-                        var delay = document.getElementById("time").innerHTML;
-                        var t = setTimeout("delayURL()", 2000);
+                        var delay = parseInt(document.getElementById("time").innerHTML);
+                        var t = setTimeout(delayURL, 1000);
                         if (delay > 0) {
                             delay--;
                             document.getElementById("time").innerHTML = delay;
@@ -174,20 +295,100 @@ body{margin:0;padding:0}body{height:100%}#loading{-webkit-box-pack:center;-ms-fl
                         }        
                     } 
                 </script>
-                   
-                <div class="flex-fill"></div>                     
-                <a class="loading-btn" href="<?php echo $url;?>" rel="external nofollow">继续</a>                        
-            </div>                      
-        </div>
-		<?php }?>
-   </div>
-    </div>
-<script>
-    //延时30S关闭跳转页面，用于文件下载后不会关闭跳转页的问题
-    setTimeout(function() {
-        window.opener = null;
-        window.close();
-    }, 30000);
-</script>
-</body>
-</html>
+                <div class="d-grid gap-2 mt-4">
+                    <a class="btn btn-primary" href="<?php echo $url;?>" rel="external nofollow">立即前往</a>
+                    <a class="btn btn-outline-secondary" href="<?php echo get_option('home'); ?>">取消返回</a>
+                </div>
+            </div>
+            <?php }else{ ?>
+            <!-- 错误提醒内容 -->
+            <div class="text-center">
+                <i class="bi bi-x-circle warning-icon" style="color: #dc3545;"></i>
+                <h4 class="mb-3 text-danger">目标网址未通过检测</h4>
+                <p class="mb-4"><?php echo $title;?></p>
+                <p class="mt-3">
+                    <span id="time" class="countdown"><?php echo get_boxmoe('boxmoe_external_link_countdown', 3);?></span>秒后自动返回首页
+                </p>
+                <script type="text/javascript">  
+                    delayURL();    
+                    function delayURL() { 
+                        var delay = parseInt(document.getElementById("time").innerHTML);
+                        var t = setTimeout(delayURL, 1000);
+                        if (delay > 0) {
+                            delay--;
+                            document.getElementById("time").innerHTML = delay;
+                        } else {
+                        clearTimeout(t); 
+                            window.location.href = "<?php echo $url;?>";
+                        }        
+                    } 
+                </script>
+                <div class="d-grid gap-2 mt-4">
+                    <a class="btn btn-primary" href="<?php echo $url;?>" rel="external nofollow">返回首页</a>
+                </div>
+            </div>
+            <?php }?>
+
+            <!-- 底部版权 -->
+            <div class="text-center mt-5 pt-3 border-top border-light">
+               <div class="small text-body-tertiary">
+                  Copyright © <?php echo date('Y'); ?> 
+                  <span class="text-primary"><a href="<?php echo get_option('home'); ?>" class="text-reset text-decoration-none fw-bold"><?php echo get_bloginfo('name'); ?></a></span>
+                  <br> Theme by
+                  <span class="text-primary"><a href="https://www.boxmoe.com" class="text-reset text-decoration-none fw-bold">Boxmoe</a></span> powered by WordPress
+                  <br> 页面由
+                  <span class="text-primary"><a href="https://gl.baimu.live" class="text-reset text-decoration-none fw-bold">白木</a></span> 重构
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- 🛠️ 主题切换按钮 -->
+      <div class="position-absolute start-0 bottom-0 m-4">
+         <div class="dropdown">
+            <button
+                    class="float-btn bd-theme btn btn-light btn-icon rounded-circle d-flex align-items-center shadow-sm"
+                    type="button"
+                    aria-expanded="false"
+                    data-bs-toggle="dropdown"
+                    aria-label="Toggle theme (auto)">
+                    <i class="fa fa-adjust"></i>
+                    <span class="visually-hidden bs-theme-text">主题颜色切换</span>
+            </button>
+            <ul class="bs-theme dropdown-menu dropdown-menu-end shadow" aria-labelledby="bs-theme-text">
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g stroke="currentColor" stroke-linecap="round" stroke-width="2" data-swindex="0"><path fill="currentColor" fill-opacity="0" stroke-dasharray="34" stroke-dashoffset="34" d="M12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="34;0"/><animate fill="freeze" attributeName="fill-opacity" begin="0.9s" dur="0.5s" values="0;1"/></path><g fill="none" stroke-dasharray="2" stroke-dashoffset="2"><path d="M0 0"><animate fill="freeze" attributeName="d" begin="0.5s" dur="0.2s" values="M12 19v1M19 12h1M12 5v-1M5 12h-1;M12 21v1M21 12h1M12 3v-1M3 12h-1"/><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.5s" dur="0.2s" values="2;0"/></path><path d="M0 0"><animate fill="freeze" attributeName="d" begin="0.7s" dur="0.2s" values="M17 17l0.5 0.5M17 7l0.5 -0.5M7 7l-0.5 -0.5M7 17l-0.5 0.5;M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"/><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.7s" dur="0.2s" values="2;0"/></path><animateTransform attributeName="transform" dur="30s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></g></g></svg>
+                        <span class="ms-2">亮色</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" data-swindex="0"><g stroke-dasharray="2"><path d="M12 21v1M21 12h1M12 3v-1M3 12h-1"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="4;2"/></path><path d="M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.2s" values="4;2"/></path></g><path fill="currentColor" d="M7 6 C7 12.08 11.92 17 18 17 C18.53 17 19.05 16.96 19.56 16.89 C17.95 19.36 15.17 21 12 21 C7.03 21 3 16.97 3 12 C3 8.83 4.64 6.05 7.11 4.44 C7.04 4.95 7 5.47 7 6 Z" opacity="0"><set attributeName="opacity" begin="0.5s" to="1"/></path></g><g fill="currentColor" fill-opacity="0"><path d="m15.22 6.03l2.53-1.94L14.56 4L13.5 1l-1.06 3l-3.19.09l2.53 1.94l-.91 3.06l2.63-1.81l2.63 1.81z"><animate id="lineMdSunnyFilledLoopToMoonFilledLoopTransition0" fill="freeze" attributeName="fill-opacity" begin="0.6s;lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+6s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.2s" dur="0.4s" values="1;0"/></path><path d="M13.61 5.25L15.25 4l-2.06-.05L12.5 2l-.69 1.95l-2.06.05l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+3s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+5.2s" dur="0.4s" values="1;0"/></path><path d="M19.61 12.25L21.25 11l-2.06-.05L18.5 9l-.69 1.95l-2.06.05l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+0.4s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.6s" dur="0.4s" values="1;0"/></path></g></svg>
+                        <span class="ms-2">暗色</span>
+                    </button>
+                </li>
+                <li>
+                    <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
+                        <i class="fa fa-adjust"></i>
+                        <span class="ms-2">跟随系统</span>
+                    </button>
+                </li>
+            </ul>
+         </div>
+      </div>
+   </main>
+   <?php 
+    ob_start();
+    wp_footer();
+    $wp_footer_output = ob_get_clean();
+    echo preg_replace('/\n/', "\n    ", trim($wp_footer_output))."\n    ";
+    ?>
+    <script>
+      // 延时30S关闭跳转页面，用于文件下载后不会关闭跳转页的问题
+      setTimeout(function() {
+          window.opener = null;
+          window.close();
+      }, 30000);
+    </script>
+</body></html>

@@ -152,7 +152,10 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
             <div class="mobile-logged-user-wrapper d-block d-lg-none">
               <a href="<?php echo boxmoe_user_center_link_page(); ?>" class="user-info-wrap d-flex align-items-center">
                   <div class="user-avatar">
-                  <?php $avatar_url = boxmoe_get_avatar_url(get_current_user_id(), 100); ?>
+                  <?php 
+                  $user_id = get_current_user_id();
+                  $avatar_url = boxmoe_get_avatar_url($user_id, 100); 
+                  ?>                  
                   <img src="<?php echo !empty($avatar_url) ? $avatar_url : boxmoe_default_avatar_url(); ?>" alt="avatar" class="img-fluid rounded-3" onerror="this.src='<?php echo boxmoe_default_avatar_url(); ?>'">
                 </div>
                 <div class="user-info">

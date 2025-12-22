@@ -18,12 +18,12 @@ jQuery(document).ready(function($){
 			// Create the media frame.
 			optionsframework_upload = wp.media.frames.optionsframework_upload =  wp.media({
 				// Set the title of the modal.
-				title: $el.data('choose'),
+				title: $el.data('choose') || '选择图片',
 
 				// Customize the submit button.
 				button: {
 					// Set the text of the button.
-					text: $el.data('update'),
+					text: $el.data('update') || '使用此图片',
 					// Tell the button not to close the modal, since we're
 					// going to refresh the page when the image is selected.
 					close: false
@@ -35,19 +35,14 @@ jQuery(document).ready(function($){
 				// Grab the selected attachment.
 				var attachment = optionsframework_upload.state().get('selection').first();
 				optionsframework_upload.close();
-				optionsframework_selector.find('.upload').val(attachment.attributes.url);
+				// 更新输入框的值
+				var uploadInput = optionsframework_selector.find('.upload, .of-input');
+				uploadInput.val(attachment.attributes.url);
+				// 更新预览图，确保预览图等比例显示
+				var screenshot = optionsframework_selector.find('.screenshot');
 				if ( attachment.attributes.type == 'image' ) {
-					optionsframework_selector.find('.screenshot').empty().hide().append('<img src="' + attachment.attributes.url + '"><a class="remove-image">Remove</a>').slideDown('fast');
+					screenshot.empty().append('<img src="' + attachment.attributes.url + '" style="max-width: 162px; max-height: 75px; object-fit: contain; background: #f5f5f5;">').show();
 				}
-				if (optionsframework_selector.attr('id') === 'section-boxmoe_background_image') {
-					optionsframework_selector.find('.upload-button').val('替换');
-				} else {
-					optionsframework_selector.find('.upload-button').unbind().addClass('remove-file').removeClass('upload-button').val(optionsframework_l10n.remove);
-				}
-				optionsframework_selector.find('.of-background-properties').slideDown();
-				optionsframework_selector.find('.remove-image, .remove-file').on('click', function() {
-					optionsframework_remove_file( $(this).parents('.section') );
-				});
 			});
 
 		}
@@ -56,32 +51,56 @@ jQuery(document).ready(function($){
 		optionsframework_upload.open();
 	}
 
-	function optionsframework_remove_file(selector) {
-		selector.find('.remove-image').hide();
-		selector.find('.upload').val('');
-		selector.find('.of-background-properties').hide();
-		selector.find('.screenshot').slideUp();
-		if (selector.attr('id') === 'section-boxmoe_background_image') {
-			selector.find('.upload-button').unbind().val(optionsframework_l10n.upload);
+	// 重置功能
+	function optionsframework_reset_file(selector, defaultUrl) {
+		// 重置输入框的值
+		var uploadInput = selector.find('.upload, .of-input');
+		uploadInput.val(defaultUrl);
+		// 重置预览图，确保预览图等比例显示
+		var screenshot = selector.find('.screenshot');
+		if (defaultUrl) {
+			screenshot.empty().append('<img src="' + defaultUrl + '" style="max-width: 162px; max-height: 75px; object-fit: contain; background: #f5f5f5;">').show();
 		} else {
-			selector.find('.remove-file').unbind().addClass('upload-button').removeClass('remove-file').val(optionsframework_l10n.upload);
+			screenshot.empty().hide();
 		}
-		// We don't display the upload button if .upload-notice is present
-		// This means the user doesn't have the WordPress 3.5 Media Library Support
-		if ( $('.section-upload .upload-notice').length > 0 ) {
-			$('.upload-button').remove();
-		}
-		selector.find('.upload-button').on('click', function(event) {
-			optionsframework_add_file(event, $(this).parents('.section'));
-		});
 	}
 
-	$('.remove-image, .remove-file').on('click', function() {
-		optionsframework_remove_file( $(this).parents('.section') );
+	// 绑定替换按钮事件
+	$('.upload-button').click( function( event ) {
+    	optionsframework_add_file(event, $(this).parents('.section'));
     });
 
-    $('.upload-button').click( function( event ) {
-    	optionsframework_add_file(event, $(this).parents('.section'));
+    // 绑定重置按钮事件
+    $('.reset-button').click(function(event) {
+    	event.preventDefault();
+    	var defaultUrl = $(this).data('default');
+    	optionsframework_reset_file($(this).parents('.section'), defaultUrl);
+    });
+
+    // 绑定确认按钮事件，显示顶部横幅提示
+    $('.confirm-button').click(function(event) {
+    	event.preventDefault();
+    	// 显示顶部横幅提示
+    	let banner = document.querySelector('.copy-banner');
+    	if (!banner) {
+    		banner = document.createElement('div');
+    		banner.className = 'copy-banner';
+    		document.body.appendChild(banner);
+    	}
+    	banner.innerHTML = '<i class="fa fa-check-circle"></i> 已替换，点击保存设置即可生效🎉';
+    	let timer = null;
+    	const show = function() {
+    		if (timer) { try { clearTimeout(timer); } catch(_) {} }
+    		banner.classList.remove('mask-run');
+    		void banner.offsetWidth;
+    		banner.classList.add('mask-run');
+    		banner.classList.add('show');
+    		timer = setTimeout(function() {
+    			banner.classList.remove('show');
+    			banner.classList.remove('mask-run');
+    		}, 5000);
+    	};
+    	show();
     });
 
 });
