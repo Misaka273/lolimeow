@@ -93,7 +93,7 @@ navOffCanvas && (navOffCanvas.addEventListener('show.bs.offcanvas', function () 
 function showToast(message, isSuccess = true) {
     const toastId = 'toast-' + Date.now();
     // 动态读取当前网站设置的Favicon地址
-    let siteLogo = '${ajax_object.themeurl}/assets/images/msg-tip.png'; // 默认图标
+    let siteLogo = '${window.ajax_object.themeurl}/assets/images/msg-tip.png'; // 默认图标
     const faviconLink = document.querySelector('link[rel*="icon"]');
     if (faviconLink && faviconLink.href) {
         siteLogo = faviconLink.href;
@@ -581,9 +581,9 @@ const LoginStatusManager = (() => {
             // 使用FormData来构建请求体，确保WordPress能正确解析
             const formData = new FormData();
             formData.append('action', 'boxmoe_check_login_status');
-            formData.append('nonce', ajax_object.nonce);
+            formData.append('nonce', window.ajax_object.nonce);
             
-            const response = await fetch(ajax_object.ajaxurl, {
+            const response = await fetch(window.ajax_object.ajaxurl, {
                 method: 'POST',
                 credentials: 'same-origin',
                 body: formData
@@ -1031,7 +1031,7 @@ function initPostLikes() {
                 formData.append('action', 'post_like');
                 formData.append('post_id', postId);
                 
-                const response = await fetch(ajax_object.ajaxurl, {
+                const response = await fetch(window.ajax_object.ajaxurl, {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: formData
@@ -1105,7 +1105,7 @@ function initPostFavorites() {
                 formData.append('action', 'post_favorite');
                 formData.append('post_id', postId);
                 
-                const response = await fetch(ajax_object.ajaxurl, {
+                const response = await fetch(window.ajax_object.ajaxurl, {
                     method: 'POST',
                     credentials: 'same-origin',
                     body: formData
@@ -1282,8 +1282,15 @@ function initPreloader() {
     });
 }
 
+// 🎭 初始化WOW.js动画效果
+function initWow() {
+    if (typeof WOW !== 'undefined') {
+        new WOW().init();
+    }
+}
+
 function initRunningDays() {
-    const start = new Date(ajax_object.running_days);
+    const start = new Date(window.ajax_object.running_days);
     const daysEl = document.getElementById('runtime-days');
     const hoursEl = document.getElementById('runtime-hours');
     const minutesEl = document.getElementById('runtime-minutes');
@@ -2456,7 +2463,7 @@ function initVideoPlayer() {
                 if (knbImg.startsWith('http') || knbImg.startsWith('//')) {
                     knbSrc = knbImg;
                 } else {
-                    knbSrc = `${ajax_object.themeurl}/assets/images/top/${knbImg}.gif`;
+                    knbSrc = `${window.ajax_object.themeurl}/assets/images/top/${knbImg}.gif`;
                 }
                 knb.style.backgroundImage = `url(${knbSrc})`;
             }
@@ -2490,6 +2497,7 @@ function initBackToTop() {
 document.addEventListener("DOMContentLoaded", () => {
     const run = fn => { try { fn(); } catch(_) {} };
     run(initPreloader);
+    run(initWow);
     run(initSearchBox);
     run(initLazyLoad);
     run(initMobileUserPanel);

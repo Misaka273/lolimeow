@@ -6,9 +6,10 @@
 
 //boxmoe.com===后台登录页美化
 function boxmoe_admin_login_style() {
-    wp_enqueue_style('lolimeow-admin-login', get_template_directory_uri() . '/assets/css/admin-login.css', array(), '1.1');
+    // 删除不存在的CSS文件引用，避免加载错误
 }
-add_action('login_enqueue_scripts', 'boxmoe_admin_login_style');
+// 移除登录样式钩子，避免与fun-user.php中的自定义登录样式冲突
+// add_action('login_enqueue_scripts', 'boxmoe_admin_login_style');
 
 // 🔗 后台所有链接新窗口打开
 function boxmoe_admin_all_links_new_tab() {
@@ -407,6 +408,7 @@ add_action('admin_enqueue_scripts', 'boxmoe_admin_view_links_newtab_enqueue');
 function boxmoe_admin_clear_format_scripts($hook){
 	if ($hook === 'post.php' || $hook === 'post-new.php') {
 		wp_enqueue_script('boxmoe-clear-format-quicktags', get_template_directory_uri() . '/assets/js/clear-format-quicktags.js', array('quicktags'), THEME_VERSION, true);
+		wp_enqueue_script('boxmoe-quicktags-shiroki', get_template_directory_uri() . '/assets/js/quicktags-shiroki.js', array('quicktags', 'jquery'), THEME_VERSION, true);
 	}
 }
 add_action('admin_enqueue_scripts', 'boxmoe_admin_clear_format_scripts');

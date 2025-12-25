@@ -10,6 +10,10 @@ if(!defined('ABSPATH')){
     exit;
 }
 
+// 📁 定义图片路径变量
+$theme_url = get_template_directory_uri();
+$image_path = $theme_url . '/assets/images/';
+
 $options[] = array(
     'name' => __('基础设置', 'ui_boxmoe_com'),
     'icon' => 'dashicons-admin-settings',

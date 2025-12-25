@@ -120,7 +120,9 @@ function boxmoe_markdown_to_html($text){
     $text = preg_replace('/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/s','<em>$1</em>',$text);
     // 📋 文本格式：行内代码
     $text = preg_replace('/`([^`]+)`/s','<code>$1</code>',$text);
-    // 📷 图片
+    // 📷 图片（支持自定义尺寸语法：![alt](url =widthxheight) 或 ![alt](url =widthxheightxalignment)）
+    $text = preg_replace('/!\[([^\]]*)\]\(([^\)]+)\s*=\s*(\d+)x(\d+)(x(\w+))?\)/i','<img src="$2" alt="$1" width="$3" height="$4" $5$6 />',$text);
+    // 处理基础图片语法（无尺寸）
     $text = preg_replace('/!\[([^\]]*)\]\(([^\)]+)\)/','<img src="$2" alt="$1" />',$text);
     // 🔗 链接
     $text = preg_replace('/\[([^\]]+)\]\(([^\)]+)\)/','<a href="$2"'.(is_admin()?'':' target="_blank"').'>$1</a>',$text);
@@ -155,6 +157,27 @@ function boxmoe_markdown_to_html($text){
     $text = preg_replace('/^---$/m','<hr class="md-hr" />',$text);
     $text = preg_replace('/^___$/m','<hr class="md-hr" />',$text);
     $text = preg_replace('/^\*\*\*$/m','<hr class="md-hr" />',$text);
+    
+    // 📦 折叠语法支持
+    // 支持:::details 标题
+    // 内容
+    // ::: 格式
+    $text = preg_replace_callback('/:::details\s+(.+)\s*([\s\S]*?):::/m', function($m){
+        $title = $m[1];
+        $content = trim($m[2]);
+        // 对内容进行递归处理，确保内部Markdown语法也能被正确解析
+        $content_html = boxmoe_markdown_to_html($content);
+        return '<details class="shiroki-collapse"><summary class="shiroki-collapse-title">' . $title . '</summary><div class="shiroki-collapse-content">' . $content_html . '</div></details>';
+    }, $text);
+    
+    // 支持<details>和<summary>HTML标签
+    $text = preg_replace_callback('/<details>\s*<summary>(.+?)<\/summary>\s*([\s\S]*?)<\/details>/i', function($m){
+        $title = $m[1];
+        $content = trim($m[2]);
+        // 对内容进行递归处理，确保内部Markdown语法也能被正确解析
+        $content_html = boxmoe_markdown_to_html($content);
+        return '<details class="shiroki-collapse"><summary class="shiroki-collapse-title">' . $title . '</summary><div class="shiroki-collapse-content">' . $content_html . '</div></details>';
+    }, $text);
     
     // 将卡片占位符替换回完整的HTML
     foreach($card_placeholders as $placeholder => $card_html){

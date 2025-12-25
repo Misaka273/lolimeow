@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', function() {
             formData.append('action', 'ajax_comment');
             formData.append('security', document.querySelector('#comment_nonce_field').value);
 
-            fetch(ajax_object.ajaxurl, {
+            fetch(window.ajax_object.ajaxurl, {
                 method: 'POST',
                 body: formData,
                 credentials: 'same-origin'
@@ -31,10 +31,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     // 更新用户信息显示
                     const userNameElement = document.querySelector('.user-info .user-name');
                     const userEmailElement = document.querySelector('.user-info .user-email');
-                    if (userNameElement && !ajax_object .is_user_logged_in) {
+                    if (userNameElement && !window.ajax_object .is_user_logged_in) {
                         userNameElement.textContent = formData.get('author');
                     }
-                    if (userEmailElement && !ajax_object .is_user_logged_in) {
+                    if (userEmailElement && !window.ajax_object .is_user_logged_in) {
                         userEmailElement.textContent = formData.get('email');
                     }
                     

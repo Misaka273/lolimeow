@@ -66,12 +66,48 @@ if(get_boxmoe('boxmoe_no_admin_switch')){
         if (strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false) {
             return;
         }
+        // 检查是否是注册页面相关请求
+        if (strpos($_SERVER['REQUEST_URI'], 'wp-register.php') !== false) {
+            return;
+        }
+        // 检查是否是密码重置页面相关请求
+        if (strpos($_SERVER['REQUEST_URI'], 'action=lostpassword') !== false || strpos($_SERVER['REQUEST_URI'], 'action=resetpass') !== false) {
+            return;
+        }
+        // 检查是否是后台登录后跳转请求，包含reauth参数的情况
+        if (strpos($_SERVER['REQUEST_URI'], 'reauth=1') !== false) {
+            return;
+        }
         // 检查用户是否已登录
         if (!is_user_logged_in()) {
             return;
         }
         // 检查用户是否有管理权限，只有非管理员才需要重定向
         if (!current_user_can('manage_options') && '/wp-admin/admin-ajax.php' != $_SERVER['PHP_SELF']) {
+            // 避免重定向循环：检查是否已经在首页或首页相关页面
+            $home_url = home_url();
+            $home_path = parse_url($home_url, PHP_URL_PATH);
+            if (empty($home_path)) {
+                $home_path = '/';
+            }
+            
+            // 检查当前请求是否已经是首页，避免循环
+            if ($_SERVER['REQUEST_URI'] == $home_path || 
+                $_SERVER['REQUEST_URI'] == $home_path . '/' || 
+                $_SERVER['REQUEST_URI'] == $home_path . '/index.php') {
+                exit;
+            }
+            
+            // 检查是否已经由erphpdown插件处理过重定向
+            if (function_exists('erphpdown_noadmin_redirect')) {
+                $erphpdown_front_noadmin = get_option('erphp_url_front_noadmin');
+                if ($erphpdown_front_noadmin == 'yes') {
+                    // 如果erphpdown插件已经设置了重定向，就不再执行主题的重定向
+                    return;
+                }
+            }
+            
+            // 执行重定向
             wp_safe_redirect( home_url() );
             exit();
         }

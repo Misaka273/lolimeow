@@ -8,7 +8,26 @@
 if(!defined('ABSPATH')){echo'Look your sister';exit;}
 //如果用户已经登陆那么跳转到首页
 if (!is_user_logged_in()){
-    wp_safe_redirect( get_option('home') );
+    // 避免重定向循环：检查当前是否已经在首页或登录页面
+    $home_url = get_option('home');
+    $home_path = parse_url($home_url, PHP_URL_PATH);
+    if (empty($home_path)) {
+        $home_path = '/';
+    }
+    
+    $current_uri = $_SERVER['REQUEST_URI'];
+    $is_signin_page = false;
+    
+    // 检查当前是否在登录页面
+    $signin_url = boxmoe_sign_in_link_page();
+    $signin_path = parse_url($signin_url, PHP_URL_PATH);
+    
+    if ($current_uri == $home_path || $current_uri == $home_path . '/' || $current_uri == $signin_path || $current_uri == $signin_path . '/') {
+        // 如果已经在首页或登录页面，直接退出，避免循环
+        exit;
+    }
+    
+    wp_safe_redirect( boxmoe_sign_in_link_page() );
     exit;
  }
 get_header();

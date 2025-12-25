@@ -337,10 +337,23 @@ function login_to_read($atts, $content=null) {
 	extract(shortcode_atts(array("notice" => '
 	<div class="alerts error"><strong>该段内容只有登录才可以查看</strong></div>'), $atts));
 	if ( is_user_logged_in() && !is_null( $content ) && !is_feed() )
-					return $content;
-			return $notice;
+				return $content;
+		return $notice;
 	}
 	add_shortcode('userreading', 'login_to_read');
+
+// 📦 折叠内容短代码
+add_shortcode('shiroki_collapse', 'shiroki_collapse_shortcode');
+function shiroki_collapse_shortcode( $atts , $content = '' ) {
+    $atts = shortcode_atts( array(
+        'title' => '折叠内容',
+        'open' => '0'
+    ), $atts );
+    $title = isset( $atts['title'] ) ? $atts['title'] : '折叠内容';
+    $open = isset( $atts['open'] ) ? ( $atts['open'] === '1' || $atts['open'] === 'true' ) : false;
+    $open_attr = $open ? ' open' : '';
+    return '<details class="shiroki-collapse"' . $open_attr . '><summary class="shiroki-collapse-title">' . $title . '</summary><div class="shiroki-collapse-content">' . do_shortcode( $content ) . '</div></details>';
+}
 	
 
 
@@ -365,6 +378,8 @@ echo '
 	<option value="[pwd_protected_post key=\'保护密码\']文章密码保护内容[/pwd_protected_post]">文章密码保护</option>
 	<option value="[audio link=\'音频链接\'][/audio]">插入音频</option>
 	<option value="[video link=\'视频链接\'][/video]">插入视频</option>
+	<option value="[shiroki_collapse title=\'折叠内容\']内容[/shiroki_collapse]">折叠内容</option>
+	<option value="[shiroki_collapse title=\'折叠内容\' open=\'1\']内容[/shiroki_collapse]">折叠内容（默认展开）</option>
 	<option value="<!--nextpage-->">文章分页</option>
 	<option value="<div class=\'timeline timeline-one-side\' data-timeline-content=\'axis\' data-timeline-axis-style=\'dashed\'>
 <div class=\'timeline-block\'>

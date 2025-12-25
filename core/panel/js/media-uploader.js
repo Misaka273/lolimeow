@@ -37,12 +37,17 @@ jQuery(document).ready(function($){
 				optionsframework_upload.close();
 				// 更新输入框的值
 				var uploadInput = optionsframework_selector.find('.upload, .of-input');
-				uploadInput.val(attachment.attributes.url);
+				uploadInput.val(attachment.attributes.url).addClass('has-file');
 				// 更新预览图，确保预览图等比例显示
 				var screenshot = optionsframework_selector.find('.screenshot');
 				if ( attachment.attributes.type == 'image' ) {
 					screenshot.empty().append('<img src="' + attachment.attributes.url + '" style="max-width: 162px; max-height: 75px; object-fit: contain; background: #f5f5f5;">').show();
 				}
+				// 更新按钮状态
+				var uploadButton = optionsframework_selector.find('.upload-button');
+				var removeButton = optionsframework_selector.find('.remove-file');
+				uploadButton.val('替换');
+				removeButton.show();
 			});
 
 		}
@@ -101,6 +106,24 @@ jQuery(document).ready(function($){
     		}, 5000);
     	};
     	show();
+    });
+    
+    // 绑定删除按钮事件
+    $('.remove-file').click(function(event) {
+    	event.preventDefault();
+    	const btn = $(this);
+    	const selector = btn.parents('.section');
+    	const uploadInput = selector.find('.upload, .of-input');
+    	const screenshot = selector.find('.screenshot');
+    	const uploadButton = selector.find('.upload-button');
+    	
+    	// 清空输入框
+    	uploadInput.val('').removeClass('has-file');
+    	// 清空预览图
+    	screenshot.empty().hide();
+    	// 重置按钮状态
+    	btn.hide();
+    	uploadButton.show().val('上传');
     });
 
 });

@@ -20,7 +20,8 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
     <?php if (get_boxmoe('boxmoe_banner_height_switch')){ boxmoe_banner_height_load(); }?>
     <?php 
     // 🖼️ 自定义背景装饰图
-    $bg_image = get_boxmoe('boxmoe_background_image');
+    $default_bg = get_template_directory_uri() . '/assets/images/background.svg';
+    $bg_image = get_boxmoe('boxmoe_background_image', $default_bg);
     if (!empty($bg_image)) {
         echo '<style>.body-background:after,.body-background:before {background-image: url("'.esc_url($bg_image).'") !important;}</style>';
     }
@@ -224,7 +225,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
                 <div class="user-reg-wrap">
                 <a href="<?php echo boxmoe_sign_up_link_page(); ?>" class="user-reg">
                 <span class="reg-text">注册</span></a></div>
-                <img src="<?php echo boxmoe_theme_url(); ?>/assets/images/touxiang.jpg" class="new-tag" alt="up-new-iocn">
+                <img src="<?php echo boxmoe_theme_url(); ?>/assets/images/up-new-iocn.png" class="new-tag" alt="up-new-iocn">
                 </div>
                 <?php endif; ?>
                  <?php if(is_user_logged_in() && get_boxmoe('boxmoe_sign_in_link_switch')):  ?>

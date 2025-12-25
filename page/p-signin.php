@@ -8,25 +8,49 @@
 if(!defined('ABSPATH')){echo'Look your sister';exit;}
 //如果用户已经登陆那么跳转到首页或重定向页面
 if (is_user_logged_in()){
-   // 🔗 检查是否有重定向参数
-   if (isset($_GET['redirect_to'])) {
-       $redirect_url = urldecode($_GET['redirect_to']);
-       // 验证重定向地址的安全性
-       if (wp_validate_redirect($redirect_url)) {
-           wp_safe_redirect($redirect_url);
+   // 🔗 检查是否有 reauth 参数，如果有则不重定向，允许重新认证
+   if (isset($_GET['reauth']) && $_GET['reauth'] == '1') {
+       // 如果是重新认证请求，允许继续访问登录页面
+       // 这里不需要重定向，直接退出条件判断
+   } else {
+       // 🔗 检查是否有重定向参数
+       if (isset($_GET['redirect_to'])) {
+           $redirect_url = urldecode($_GET['redirect_to']);
+           // 验证重定向地址的安全性
+           if (wp_validate_redirect($redirect_url)) {
+               // 避免重定向循环：检查是否已经在目标页面
+               if (strpos($_SERVER['REQUEST_URI'], basename(parse_url($redirect_url, PHP_URL_PATH))) === false) {
+                   wp_safe_redirect($redirect_url);
+                   exit;
+               }
+           }
+       }
+       
+       // 检查用户是否是管理员，如果是管理员则跳转到后台
+       if (current_user_can('manage_options')) {
+           // 避免重定向循环：检查是否已经在后台
+           if (strpos($_SERVER['REQUEST_URI'], 'wp-admin') === false) {
+               wp_safe_redirect( admin_url() );
+               exit;
+           }
+       }
+       
+       // 普通用户跳转到首页
+       // 避免重定向循环：检查是否已经在首页
+       $home_url = get_option('home');
+       $home_path = parse_url($home_url, PHP_URL_PATH);
+       if (empty($home_path)) {
+           $home_path = '/';
+       }
+       
+       // 检查当前请求是否已经是首页，避免循环
+       if ($_SERVER['REQUEST_URI'] == $home_path || $_SERVER['REQUEST_URI'] == $home_path . '/') {
            exit;
        }
-   }
-   
-   // 检查用户是否是管理员，如果是管理员则跳转到后台
-   if (current_user_can('manage_options')) {
-       wp_safe_redirect( admin_url() );
+       
+       wp_safe_redirect( $home_url );
        exit;
    }
-   
-   // 普通用户跳转到首页
-   wp_safe_redirect( get_option('home') );
-   exit;
 }
 ?>
 <html <?php language_attributes(); ?>>
@@ -257,7 +281,7 @@ if (is_user_logged_in()){
                    }
                }
                ?>
-               <h3 class="mt-3 mb-1 fw-bold">欢迎回来站长大人</h3>
+               <h3 class="mt-3 mb-1 fw-bold">欢迎回来~🎉</h3>
                <p class="text-muted small mb-0">
                   如果你还没有账号可以点击
                   <a href="<?php echo boxmoe_sign_up_link_page(); ?>" class="text-primary fw-bold text-decoration-none">注册</a>
@@ -384,12 +408,15 @@ if (is_user_logged_in()){
             login_nonce: newNonce,
             redirect_to: redirect_to // ⬅️ 将重定向参数传给后端
         };                          
+        // 使用FormData来构建请求体，确保WordPress能正确解析
+        const formDataToSend = new FormData();
+        formDataToSend.append('action', 'user_login_action');
+        formDataToSend.append('formData', JSON.stringify(formData));
+        
         fetch(ajax_object.ajaxurl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'action=user_login_action&formData=' + encodeURIComponent(JSON.stringify(formData))
+            credentials: 'same-origin',
+            body: formDataToSend
         })
         .then(response => response.json())
         .then(response => {
@@ -420,8 +447,13 @@ if (is_user_logged_in()){
             spinner.classList.add('d-none');
             btnText.textContent = '登录';
             
+            // 显示更详细的错误信息，帮助用户了解登录失败的原因
+            const errorMessage = error.message || '未知错误';
             document.getElementById('login-message').innerHTML = 
-                '<div class="alert alert-danger mt-3">登录请求失败，请稍后重试</div>';
+                '<div class="alert alert-danger mt-3">登录请求失败: ' + errorMessage + '，请稍后重试</div>';
+            
+            // 在控制台打印完整的错误信息，方便开发者调试
+            console.error('登录请求失败:', error);
         });
     });
 });

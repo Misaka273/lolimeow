@@ -48,6 +48,171 @@ Author URI:https://www.boxmoe.com
     --bs-nav-link-bg: transparent;
 }
 
+/* 📄 文章分页样式 - 纯数字设计 */
+.page-links {
+  margin: 30px 0;
+  padding: 20px 0;
+  text-align: center;
+  border-top: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  background-color: var(--bs-white);
+}
+
+.page-links-title {
+  font-weight: 600;
+  margin-right: 15px;
+  color: var(--bs-body-color);
+  font-size: 0.95rem;
+  letter-spacing: normal;
+}
+
+/* 重置所有分页元素的样式 */
+.page-links a,
+.page-links span {
+  text-decoration: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* 普通页码链接样式 */
+.page-links a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 6px;
+  padding: 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1;
+  font-family: inherit;
+  background-color: white !important;
+  border: 2px solid #e5e7eb !important;
+  color: #6b7280 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  position: static !important;
+  overflow: visible !important;
+  background-image: none !important;
+}
+
+/* 当前页码样式 - 仅针对分页导航中的当前页码 */
+.page-links span.current {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 6px;
+  padding: 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1;
+  font-family: inherit;
+  background-color: #8b5cf6 !important;
+  border: 2px solid #8b5cf6 !important;
+  color: #FFFFFF !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.15) !important;
+  position: static !important;
+  overflow: visible !important;
+  background-image: none !important;
+  /* 确保文字没有任何叠加效果 */
+  -webkit-text-fill-color: #FFFFFF !important;
+  -webkit-text-stroke: 0 !important;
+}
+
+/* 省略号样式 */
+.page-links span.dots {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin: 0 6px;
+  padding: 0;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1;
+  font-family: inherit;
+  background-color: transparent !important;
+  border: 2px solid transparent !important;
+  color: #6b7280 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  position: static !important;
+  overflow: visible !important;
+}
+
+/* 确保没有伪元素 */
+.page-links a::before,
+.page-links a::after,
+.page-links span::before,
+.page-links span::after {
+  display: none !important;
+  content: none !important;
+  background: none !important;
+}
+
+/* 普通页码悬停效果 */
+.page-links a:hover {
+  background-color: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: white !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.15) !important;
+}
+
+/* 🌆 暗色模式下的分页容器样式 */
+[data-bs-theme="dark"] .page-links {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 🌆 暗色模式下的页码标题 */
+[data-bs-theme="dark"] .page-links-title {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* 🌆 暗色模式下的普通页码链接 */
+[data-bs-theme="dark"] .page-links a {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 🌆 暗色模式下的普通页码悬停效果 */
+[data-bs-theme="dark"] .page-links a:hover {
+  background-color: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* 🌆 暗色模式下的当前页码 */
+[data-bs-theme="dark"] .page-links span.current {
+  background-color: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: white !important;
+  box-shadow: 0 2px 4px rgba(139, 92, 246, 0.25) !important;
+}
+
+/* 🌆 暗色模式下的省略号 */
+[data-bs-theme="dark"] .page-links span.dots {
+  color: rgba(255, 255, 255, 0.8) !important;
+  border-color: transparent !important;
+}
+
 /* 🌆 暗色模式下的链接样式 */
 [data-bs-theme="dark"] .single-content a,
 [data-bs-theme="dark"] .toc-list a,
@@ -874,7 +1039,7 @@ to {opacity:1;transform:translateY(0);}
 .boxmoe_header .mobile-search-btn {border:none;background:transparent;padding:8px;color:var(--bs-gray-900);position:absolute;right:0;top:50%;transform:translateY(calc(-50% + 2px));z-index:1;display:flex;align-items:center;justify-content:center;}
 .boxmoe_header .mobile-search-form {position:relative;height:40px;margin-right:10px;display:flex;align-items:center;}
 .boxmoe_header .mobile-search-input {width:0;height:40px;padding:0;border:1px solid #e0e0e0;outline:none;border-radius:20px;background:var(--bs-white);transition:all 0.3s ease;opacity:0;padding-right:40px;}
-.boxmoe_header .mobile-search-form.active .mobile-search-input {width:240px;padding:0 40px 0 15px;opacity:1;background:var(--bs-white);border:1px solid #e0e0e0;}
+.boxmoe_header .mobile-search-form.active .mobile-search-input {width:240px;padding:0 40px 0 15px;opacity:1;background:var(--bs-white);border:1px solid #e0e0e0;transform: translateY(28px);}
 .boxmoe_header .mobile-search-submit {position:absolute;right:0;width:40px;height:40px;border:none;background:transparent;cursor:pointer;display:none !important;}
 .boxmoe_header .mobile-logged-user-wrapper {padding:15px 2rem;}
 .boxmoe_header .mobile-logged-user-wrapper .user-info-wrap {width:100%;padding:10px;background:rgba(0,0,0,0.05);border-radius:8px;border:1px solid rgba(0,0,0,0.1);transition:all 0.3s ease;text-decoration:none;}
@@ -1532,6 +1697,106 @@ to {transform:translateY(0);opacity:1;}
 
 /* 📌 透明伪容器样式，实现点击整个卡片跳转 */
 .post-list {position: relative; overflow: visible;}
+
+/* 📦 折叠内容样式 */
+.shiroki-collapse {
+    margin: 1rem 0;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--bs-white);
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
+
+.shiroki-collapse:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-5px);
+}
+
+/* 亮色模式下标题悬停颜色 */
+.shiroki-collapse:hover .shiroki-collapse-title {
+    color: #ec4899;
+}
+
+/* 暗色模式下标题悬停颜色 */
+[data-bs-theme="dark"] .shiroki-collapse:hover .shiroki-collapse-title {
+    color: #a855f7;
+}
+
+.shiroki-collapse-title {
+    display: block;
+    padding: 1rem 1.25rem 1rem 2.5rem;
+    margin: 0;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(249,250,251,0.95) 100%);
+    color: var(--bs-body-color);
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+    list-style: none;
+}
+
+.shiroki-collapse-title::before {
+    content: "▶";
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform 0.3s ease;
+    font-size: 0.8rem;
+    color: var(--bs-primary);
+}
+
+.shiroki-collapse[open] .shiroki-collapse-title::before {
+    transform: translateY(-50%) rotate(90deg);
+}
+
+.shiroki-collapse-title::-webkit-details-marker {
+    display: none;
+}
+
+.shiroki-collapse-content {
+    padding: 0 1.25rem 1.25rem;
+    color: var(--bs-body-color);
+    line-height: 1.6;
+    background-color: var(--bs-white);
+}
+
+.shiroki-collapse-content > *:first-child {
+    margin-top: 0;
+}
+
+.shiroki-collapse-content > *:last-child {
+    margin-bottom: 0;
+}
+
+/* 🌆 暗色模式适配 */
+[data-bs-theme="dark"] .shiroki-collapse {
+    border-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(20, 20, 20, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .shiroki-collapse:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .shiroki-collapse-title {
+    background: linear-gradient(135deg, rgba(30, 30, 30, 0.95) 0%, rgba(40, 40, 40, 0.95) 100%);
+    color: var(--bs-body-color);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .shiroki-collapse-title::before {
+    color: var(--bs-primary);
+}
+
+[data-bs-theme="dark"] .shiroki-collapse-content {
+    background-color: rgba(20, 20, 20, 0.95);
+    color: var(--bs-body-color);
+}
 .post-list .post-card-link {position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: block; text-decoration: none; color: transparent; background-color: transparent;}
 .post-list-img, .post-list-content {position: relative; z-index: 20; pointer-events: none;}
 .post-list-content a, .post-list-content img, .post-list-img a, .post-list-img img {pointer-events: auto;} /* 确保链接和图片可交互 */
@@ -2538,8 +2803,8 @@ hr:not([size]) {height:1px}
 .single-info-right{align-items:center;display:flex;flex-direction:row;font-weight:400}
 .single-info-right a{margin-bottom:0;color:var(--bs-dark);display:flex;align-items:center;font-size:12px;background-color:var(--bs-white);padding:5px 10px;border-radius:9999px}
 .single-info-right i{margin-right:5px;font-size:13px}
-.single-content img{max-width:100%;border-radius:var(--bs-border-radius-lg) ;box-shadow:0 .125rem .25rem rgba(2,6,23,.075) ;margin:0 0 1rem;height:auto;border: 2px solid var(--bs-gray-300);border-width: 2px 2px 4px;transition:all 0.3s cubic-bezier(.5,2.5,.7,.7);}
-.single-content img:hover{border-color:var(--bs-primary);}
+.single-content img{max-width:100%;border-radius:var(--bs-border-radius-lg) ;box-shadow:0 .125rem .25rem rgba(2,6,23,.075) ;margin:0 0 1rem;height:auto;border: 2px solid var(--bs-gray-300);border-width: 2px 2px 4px;transition:all 0.3s cubic-bezier(.5,2.5,.7,.7);transform:scale(1);}
+.single-content img:hover{border-color:var(--bs-primary);transform:scale(1.05);box-shadow:0 .5rem 1rem rgba(2,6,23,.15);}
 .single-content code{color:#c7254e;padding:0.25rem 0.5rem;margin:0;font-size:.85em;background-color:#f9f2f4;border-radius:2px;word-break:normal;overflow-wrap:break-word}
 .single-content pre code{white-space:pre !important;word-break:normal !important;overflow-wrap:normal !important}
 

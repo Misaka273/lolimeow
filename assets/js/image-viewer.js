@@ -94,7 +94,33 @@
   const collectImages=()=>{
     const container=document.querySelector('.single-content');
     if(!container){state.images=[];return}
-    const imgs=[...container.querySelectorAll('img')];
+    
+    // 只收集用户添加的内容图片，排除所有UI组件、图标、头像等
+    const imgs=[...container.querySelectorAll('img')].filter(el=>{
+      // 只读取直接在文章内容中的图片，排除各种组件
+      const parent=el.closest('div');
+      if(!parent) return false;
+      
+      // 检查图片是否在段落或直接内容容器中
+      const isInContent = parent.tagName === 'P' || 
+                         parent.classList.contains('single-content') || 
+                         parent.parentNode.classList.contains('single-content');
+      
+      if(!isInContent) return false;
+      
+      // 确保图片有有效的src属性
+      const src=el.getAttribute('data-src')||el.currentSrc||el.src;
+      if(!src || !src.trim() || src.endsWith('.gif') || src.endsWith('.ico')) return false;
+      
+      // 排除尺寸过小的图片（可能是图标）
+      const width=el.width||parseInt(el.getAttribute('width'))||0;
+      const height=el.height||parseInt(el.getAttribute('height'))||0;
+      if(width<50 || height<50) return false;
+      
+      return true;
+    });
+    
+    // 确保每次都重新收集，避免重复
     state.images=imgs.map(el=>({el,src:(el.getAttribute('data-src')||el.currentSrc||el.src)}));
     state.images.forEach((it,idx)=>{
       const target=it.el;
@@ -105,9 +131,9 @@
       
       // 创建新的事件监听器
       const handler=(e)=>{
-        // 更严格的条件检查，确保只有图片被点击时才触发
-        if(e.target.tagName !== 'IMG' && e.currentTarget.tagName !== 'A'){
-          return;
+        // 检查点击目标是否是卡片组件的链接
+        if(e.target.closest('.md-card-link-wrap')){
+          return; // 如果是卡片链接，不处理，让它正常跳转
         }
         
         // 检查点击目标是否是任务清单相关元素

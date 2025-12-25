@@ -159,6 +159,10 @@ function boxmoe_load_assets_header(){
     wp_enqueue_script('theme-lib-script', boxmoe_theme_url() . '/assets/js/lib.min.js', array(), THEME_VERSION, true);
     wp_enqueue_script('comments-script', boxmoe_theme_url() . '/assets/js/comments.js', array(), THEME_VERSION, true);
     wp_enqueue_script('boxmoe-script', boxmoe_theme_url() . '/assets/js/boxmoe.js', array(), THEME_VERSION, true);
+    // 🐱 传递主题URL到JavaScript
+    wp_localize_script('boxmoe-script', 'ajax_object', array(
+        'themeurl' => boxmoe_theme_url()
+    ));
     wp_enqueue_script('image-viewer-script', boxmoe_theme_url() . '/assets/js/image-viewer.js', array(), THEME_VERSION, true);
     if(get_boxmoe('boxmoe_sakura_switch')){
         wp_enqueue_script('sakura-script', boxmoe_theme_url() . '/assets/js/sakura.js', array(), THEME_VERSION, true);
@@ -166,13 +170,21 @@ function boxmoe_load_assets_header(){
 
     wp_localize_script('boxmoe-script', 'ajax_object', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
+        'adminurl' => admin_url(),
         'themeurl' => boxmoe_theme_url(),
         'is_user_logged_in' => is_user_logged_in() ? 'true' : 'false',
+        'is_admin' => current_user_can('administrator') ? 'true' : 'false',
         'posts_per_page' => get_option('posts_per_page'),
         'nonce' =>wp_create_nonce('boxmoe_ajax_nonce'),
         'running_days' => get_boxmoe('boxmoe_footer_running_days_time')?:'2025-01-01',
         'hitokoto' => get_boxmoe('boxmoe_banner_hitokoto_text')?:'a'
     ));
+    
+    // 确保登录状态变化时，ajax_object能实时更新
+    if (is_user_logged_in()) {
+        $user = wp_get_current_user();
+        wp_add_inline_script('boxmoe-script', "if (window.ajax_object) { window.ajax_object.is_admin = '" . (current_user_can('administrator') ? 'true' : 'false') . "'; }");
+    }
 }
 add_action('wp_enqueue_scripts', 'boxmoe_load_assets_header');
 add_action('wp_enqueue_scripts', 'boxmoe_body_grey', 12);

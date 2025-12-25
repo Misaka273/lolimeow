@@ -6,9 +6,25 @@
  */
 //boxmoe.com===安全设置=阻止直接访问主题文件
 if(!defined('ABSPATH')){echo'Look your sister';exit;}
-//如果用户已经登陆那么跳转到首页
+//如果用户已经登陆那么跳转到首页或用户中心
 if (is_user_logged_in()){
-    wp_safe_redirect( get_option('home') );
+    // 避免重定向循环：检查当前是否已经在首页或用户中心页面
+    $home_url = get_option('home');
+    $home_path = parse_url($home_url, PHP_URL_PATH);
+    if (empty($home_path)) {
+        $home_path = '/';
+    }
+    
+    $current_uri = $_SERVER['REQUEST_URI'];
+    $user_center_url = boxmoe_user_center_link_page();
+    $user_center_path = parse_url($user_center_url, PHP_URL_PATH);
+    
+    if ($current_uri == $home_path || $current_uri == $home_path . '/' || $current_uri == $user_center_path || $current_uri == $user_center_path . '/') {
+        // 如果已经在首页或用户中心页面，直接退出，避免循环
+        exit;
+    }
+    
+    wp_safe_redirect( $user_center_url );
     exit;
  }
 ?>

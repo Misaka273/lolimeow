@@ -177,13 +177,24 @@ add_action( 'pending_to_publish', 'autoset_featured_image' );
 add_action( 'future_to_publish', 'autoset_featured_image' );
 
 
-// 自适应图片--------------------------boxmoe.com--------------------------
+// 📌 自适应图片与自定义尺寸支持--------------------------shiroki.com--------------------------
 function boxmoe_remove_width_height($content) {
+    // 不再移除所有图片的宽高属性，允许用户自定义尺寸
+    // 只处理没有手动添加尺寸的图片，保持向后兼容
     preg_match_all('/<[img|IMG].*?src=[\'|"](.*?(?:[\.gif|\.jpg|\.png\.bmp\.webp]))[\'|"].*?[\/]?>/', $content, $images);
     if (!empty($images)) {
         foreach ($images[0] as $index => $value) {
-            $new_img = preg_replace('/(width|height)="\d*"\s/', "", $images[0][$index]);
-            $content = str_replace($images[0][$index], $new_img, $content);
+            // 检查图片是否已经有手动添加的 width 或 height 属性
+            // 如果没有手动添加尺寸，才移除自动生成的尺寸属性
+            // 这样用户手动添加的尺寸会被保留
+            $img_tag = $images[0][$index];
+            if (preg_match('/width="[^"]+"/', $img_tag) || preg_match('/height="[^"]+"/', $img_tag)) {
+                // 图片已经有手动添加的尺寸，跳过处理
+                continue;
+            }
+            // 没有手动添加尺寸，移除自动生成的尺寸属性
+            $new_img = preg_replace('/(width|height)="\d*"\s/', "", $img_tag);
+            $content = str_replace($img_tag, $new_img, $content);
         }
     }
     return $content;
