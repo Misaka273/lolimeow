@@ -22,6 +22,16 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
     // 🖼️ 自定义背景装饰图
     $default_bg = get_template_directory_uri() . '/assets/images/background.svg';
     $bg_image = get_boxmoe('boxmoe_background_image', $default_bg);
+    
+    // 检查背景图URL是否有效，如果是外部URL且不可访问，回退到默认值
+    if (!empty($bg_image) && filter_var($bg_image, FILTER_VALIDATE_URL)) {
+        // 简单的外部URL有效性检查
+        $remote_headers = @get_headers($bg_image);
+        if ($remote_headers && strpos($remote_headers[0], '200') === false) {
+            $bg_image = $default_bg;
+        }
+    }
+    
     if (!empty($bg_image)) {
         echo '<style>.body-background:after,.body-background:before {background-image: url("'.esc_url($bg_image).'") !important;}</style>';
     }

@@ -2636,6 +2636,8 @@ document.addEventListener('DOMContentLoaded', function() {
         '#FF1493', '#00CED1', '#FFD700', '#ADFF2F', '#FF69B4'
     ];
 
+    // 将字符串转换为字符数组，正确处理emoji表情
+    const textArray = Array.from(text);
     let isDeleting = false;
     let charIndex = 0;
     let lastColor = '';
@@ -2667,13 +2669,34 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } else {
             // 输入逻辑
-            if (charIndex < text.length) {
+            if (charIndex < textArray.length) {
+                // 创建临时容器，先在内存中完成渲染
+                const tempContainer = document.createElement('div');
+                tempContainer.style.visibility = 'hidden';
+                tempContainer.style.position = 'absolute';
+                document.body.appendChild(tempContainer);
+                
+                // 创建span元素
                 const span = document.createElement('span');
-                span.textContent = text.charAt(charIndex);
                 span.style.color = getRandomColor();
-                target.appendChild(span);
+                span.textContent = textArray[charIndex];
+                
+                // 先将元素添加到临时容器，让浏览器预渲染
+                tempContainer.appendChild(span);
+                
+                // 使用requestAnimationFrame确保浏览器完成渲染
+                requestAnimationFrame(() => {
+                    // 将预渲染好的元素移动到目标容器
+                    target.appendChild(span);
+                    // 移除临时容器
+                    document.body.removeChild(tempContainer);
+                });
+                
                 charIndex++;
-                setTimeout(type, 200);
+                
+                // 为emoji设置适当的延迟，确保渲染完成
+                const delay = 200;
+                setTimeout(type, delay);
             } else {
                 // 完成输入，等待3秒
                 isDeleting = true;

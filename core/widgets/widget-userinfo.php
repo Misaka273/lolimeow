@@ -138,16 +138,22 @@ class widget_userinfo extends WP_Widget {
 			
 			// 显示文章数量
 			if (!empty($instance['show_posts_count'])) {
+				$posts_count = $use_user_id > 0 ? count_user_posts($use_user_id) : wp_count_posts('post')->publish;
 				echo '<div class="stat-item">
-						<div class="stat-value">'. wp_count_posts('post')->publish .'</div>
+						<div class="stat-value">'. $this->format_number($posts_count) .'</div>
 						<div class="stat-label">文章</div>
 					</div>';
 			}
 			
 			// 显示评论数量
 			if (!empty($instance['show_comments_count'])) {
+				$comments_count = $use_user_id > 0 ? get_comments(array(
+					'status'     => 'approve',
+					'user_id'    => $use_user_id,
+					'count'      => true
+				)) : $this->get_admin_comments_count();
 				echo '<div class="stat-item">
-						<div class="stat-value">'. $this->get_admin_comments_count() .'</div>
+						<div class="stat-value">'. $this->format_number($comments_count) .'</div>
 						<div class="stat-label">评论</div>
 					</div>';
 			}

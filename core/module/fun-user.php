@@ -1079,6 +1079,22 @@ function boxmoe_generate_custom_uid() {
             'fields' => 'ID'
         ));
         $system_user = get_user_by('ID', $uid);
+        
+        // 清理僵尸ID：如果找到用户，但该用户不存在于系统中，则删除其自定义UID记录
+        if (!empty($users)) {
+            foreach ($users as $existing_user_id) {
+                $existing_user = get_user_by('ID', $existing_user_id);
+                if (!$existing_user) {
+                    // 清理僵尸ID记录
+                    delete_user_meta($existing_user_id, 'custom_uid');
+                    // 从结果中移除该僵尸用户
+                    $key = array_search($existing_user_id, $users);
+                    if ($key !== false) {
+                        unset($users[$key]);
+                    }
+                }
+            }
+        }
     } while (!empty($users) || $system_user);
     return $uid;
 }

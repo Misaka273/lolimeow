@@ -66,6 +66,81 @@ require_once  get_stylesheet_directory() . '/core/module/fun-music.php'; // ⬅�
 add_filter('protected_title_format', function($format){return '%s';});
 add_filter('private_title_format', function($format){return '%s';});
 
+// 🖼️ 允许SVG文件上传和访问
+function boxmoe_allow_svg_upload($mimes) {
+    $mimes['svg'] = 'image/svg+xml';
+    $mimes['svgz'] = 'image/svg+xml';
+    return $mimes;
+}
+add_filter('upload_mimes', 'boxmoe_allow_svg_upload', 10, 1);
+
+// 🛡️ 修复SVG文件安全检查
+function boxmoe_fix_svg_safety($file) {
+    if (isset($file['type']) && $file['type'] === 'image/svg+xml') {
+        $file['test_type'] = 'image';
+        $file['tmp_name'] = preg_replace('/\.svgz?$/', '.svg', $file['tmp_name']);
+        $file['name'] = preg_replace('/\.svgz?$/', '.svg', $file['name']);
+        $file['type'] = 'image/svg+xml';
+    }
+    return $file;
+}
+add_filter('wp_handle_upload_prefilter', 'boxmoe_fix_svg_safety');
+
+// 🎯 确保SVG文件可以被直接访问
+function boxmoe_fix_svg_headers($headers) {
+    if (isset($_SERVER['REQUEST_URI']) && preg_match('/\.svg$/i', $_SERVER['REQUEST_URI'])) {
+        $headers['Content-Type'] = 'image/svg+xml';
+    }
+    return $headers;
+}
+add_filter('wp_headers', 'boxmoe_fix_svg_headers');
+
+// 🔧 修复WordPress对SVG文件的处理
+function boxmoe_fix_svg_sanitization($data, $file, $filename, $mimes) {
+    $filetype = wp_check_filetype($filename, $mimes);
+    return array(
+        'ext' => $filetype['ext'],
+        'type' => $filetype['type'],
+        'proper_filename' => $data['proper_filename']
+    );
+}
+add_filter('wp_check_filetype_and_ext', 'boxmoe_fix_svg_sanitization', 10, 4);
+
+// 🚀 修复SVG文件的直接访问问题
+function boxmoe_fix_svg_direct_access($rules) {
+    // 在WordPress重写规则之前添加SVG文件的直接访问规则
+    $rules = 'RewriteRule \.svg$ - [L]\n' . $rules;
+    return $rules;
+}
+add_filter('mod_rewrite_rules', 'boxmoe_fix_svg_direct_access');
+
+// 🛡️ 确保SVG文件有正确的文件权限
+function boxmoe_fix_svg_file_permissions($file) {
+    if (isset($file['type']) && $file['type'] === 'image/svg+xml') {
+        // 设置正确的文件权限
+        chmod($file['file'], 0644);
+    }
+    return $file;
+}
+add_filter('wp_handle_upload', 'boxmoe_fix_svg_file_permissions');
+
+// 🎯 禁用WordPress的SVG文件安全扫描（如果有）
+function boxmoe_disable_svg_scan($scan, $file, $context) {
+    if (isset($file['type']) && $file['type'] === 'image/svg+xml') {
+        return false;
+    }
+    return $scan;
+}
+add_filter('wp_check_filetype_and_ext', 'boxmoe_disable_svg_scan', 20, 3);
+
+// 🔧 修复Apache服务器的SVG处理
+function boxmoe_fix_apache_svg_handling() {
+    if (function_exists('apache_get_modules') && in_array('mod_mime', apache_get_modules())) {
+        // 如果mod_mime可用，确保SVG MIME类型已注册
+        apache_setenv('MIME_TYPE_SVG', 'image/svg+xml');
+    }
+}
+
 // 🔧 加载修复Prettify行号的脚本
 function boxmoe_enqueue_fix_prettify_script() {
     wp_enqueue_script(

@@ -162,23 +162,10 @@ class widget_clock extends WP_Widget {
 				<div class="date" id="date-<?php echo $this->id; ?>"></div>
 			</div>
 			<script type="text/javascript">
-				// 立即执行函数，确保代码执行
+				// 🕒 时钟小部件时间更新逻辑
 				(function() {
 					var clockId = "<?php echo $this->id; ?>";
 					var timezone = "<?php echo $timezone; ?>";
-					
-					// 时区偏移映射
-					var timezoneOffsets = {
-						'Asia/Shanghai': 8,
-						'Asia/Tokyo': 9,
-						'Asia/Seoul': 9,
-						'Asia/Hong_Kong': 8,
-						'Europe/London': 0,
-						'Europe/Paris': 1,
-						'America/New_York': -5,
-						'America/Los_Angeles': -8,
-						'UTC': 0
-					};
 					
 					// 获取目标元素
 					var timeElement = document.getElementById('time-' + clockId);
@@ -191,29 +178,45 @@ class widget_clock extends WP_Widget {
 					}
 					
 					function updateClock() {
-						// 获取当前时间
+						// 使用Intl.DateTimeFormat API处理时区，自动支持夏令时
 						var now = new Date();
 						
-						// 获取时区偏移
-						var offset = timezoneOffsets[timezone] || 8; // 默认北京时间
+						// 时间格式化选项
+						var timeOptions = {
+							hour: '2-digit',
+							minute: '2-digit',
+							second: '2-digit',
+							hour12: false,
+							timeZone: timezone
+						};
 						
-						// 计算目标时区时间
-						var targetTime = new Date(now.getTime() + offset * 3600 * 1000);
+						// 日期格式化选项
+						var dateOptions = {
+							year: 'numeric',
+							month: '2-digit',
+							day: '2-digit',
+							weekday: 'long',
+							timeZone: timezone
+						};
 						
-						// 格式化时间
-						var hours = targetTime.getHours().toString().padStart(2, '0');
-						var minutes = targetTime.getMinutes().toString().padStart(2, '0');
-						var seconds = targetTime.getSeconds().toString().padStart(2, '0');
+						// 格式化时间和日期
+						var formattedTime = new Intl.DateTimeFormat('zh-CN', timeOptions).format(now);
+						var formattedDate = new Intl.DateTimeFormat('zh-CN', dateOptions).format(now);
 						
-						// 格式化日期
-						var year = targetTime.getFullYear();
-						var month = (targetTime.getMonth() + 1).toString().padStart(2, '0');
-						var day = targetTime.getDate().toString().padStart(2, '0');
-						var weekday = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][targetTime.getDay()];
+						// 提取时间部分（HH:MM:SS）
+						var timeParts = formattedTime.match(/(\d{2}):(\d{2}):(\d{2})/);
+						var timeString = timeParts ? timeParts[0] : '';
+						
+						// 提取日期部分并转换为指定格式（YYYY-MM-DD 星期X）
+						var dateParts = formattedDate.match(/(\d{4})年(\d{2})月(\d{2})日\s*(.{2})/);
+						var dateString = '';
+						if (dateParts) {
+							dateString = dateParts[1] + '-' + dateParts[2] + '-' + dateParts[3] + ' ' + dateParts[4];
+						}
 						
 						// 更新显示
-						timeElement.innerHTML = hours + ':' + minutes + ':' + seconds;
-						dateElement.innerHTML = year + '-' + month + '-' + day + ' ' + weekday;
+						timeElement.innerHTML = timeString;
+						dateElement.innerHTML = dateString;
 					}
 					
 					// 立即更新一次

@@ -118,16 +118,22 @@ class widget_currentuser extends WP_Widget {
 		
 		// 显示文章数量
 		if (!empty($instance['show_posts_count'])) {
+			$user_posts_count = count_user_posts($user->ID);
 			echo '<div class="stat-item">
-					<div class="stat-value">'. wp_count_posts('post')->publish .'</div>
+					<div class="stat-value">'. $this->format_number($user_posts_count) .'</div>
 					<div class="stat-label">文章</div>
 				</div>';
 		}
 		
 		// 显示评论数量
 		if (!empty($instance['show_comments_count'])) {
+			$user_comments_count = get_comments(array(
+				'status'     => 'approve',
+				'user_id'    => $user->ID,
+				'count'      => true
+			));
 			echo '<div class="stat-item">
-					<div class="stat-value">'. $this->get_admin_comments_count() .'</div>
+					<div class="stat-value">'. $this->format_number($user_comments_count) .'</div>
 					<div class="stat-label">评论</div>
 				</div>';
 		}

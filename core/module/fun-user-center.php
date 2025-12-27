@@ -101,6 +101,22 @@ function boxmoe_update_user_profile() {
                  'number' => 1,
                  'fields' => 'ID'
              ));
+              
+             // 清理僵尸ID：如果找到用户，但该用户不存在于系统中，则删除其自定义UID记录
+             if (!empty($users)) {
+                 foreach ($users as $existing_user_id) {
+                     $existing_user = get_user_by('ID', $existing_user_id);
+                     if (!$existing_user) {
+                         // 清理僵尸ID记录
+                         delete_user_meta($existing_user_id, 'custom_uid');
+                         // 从结果中移除该僵尸用户
+                         $key = array_search($existing_user_id, $users);
+                         if ($key !== false) {
+                             unset($users[$key]);
+                         }
+                     }
+                 }
+             }
              
              // 检查是否与现有用户的系统ID冲突
              $system_user = get_user_by('ID', $custom_uid);
@@ -109,7 +125,14 @@ function boxmoe_update_user_profile() {
                  wp_send_json_error(['message' => 'ID_EXISTS']);
                  return;
              }
-             update_user_meta($user_id, 'custom_uid', $custom_uid);
+             
+             // 更新自定义UID，自动释放原ID
+             if (empty($custom_uid)) {
+                 // 如果留空，删除自定义UID，使用系统默认ID
+                 delete_user_meta($user_id, 'custom_uid');
+             } else {
+                 update_user_meta($user_id, 'custom_uid', $custom_uid);
+             }
         }
     }
 

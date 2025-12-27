@@ -84,7 +84,7 @@ class Options_Framework_Media_Uploader {
 		if ( $value != '' ) {
 			$remove = '<a class="remove-image">Remove</a>';
 			// 🖼️ 支持SVG图片预览
-			$image = preg_match( '/(^.*\.jpg|jpeg|png|gif|ico|svg*)/i', $value );
+			$image = preg_match( '/\.(jpg|jpeg|png|gif|ico|svg)$/i', $value );
 			if ( $image ) {
 				$output .= '<img src="' . $value . '" alt="" />' . $remove;
 			} else {

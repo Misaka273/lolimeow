@@ -167,7 +167,7 @@ function boxmoe_save_new_user_custom_uid($user_id) {
     if ( isset( $_POST['custom_uid'] ) ) {
         $custom_uid = sanitize_text_field( $_POST['custom_uid'] );
         if ( ! empty( $custom_uid ) ) {
-            // 查重
+            // 查重 - 检查是否有其他用户使用了该自定义UID
             $users = get_users(array(
                 'meta_key' => 'custom_uid',
                 'meta_value' => $custom_uid,
@@ -176,11 +176,33 @@ function boxmoe_save_new_user_custom_uid($user_id) {
                 'fields' => 'ID'
             ));
 
-            // 检查系统ID
+            // 检查系统ID是否已存在
             $system_user = get_user_by('ID', $custom_uid);
+
+            // 清理僵尸ID：如果找到用户，但该用户不存在于系统中，则删除其自定义UID记录
+            if (!empty($users)) {
+                foreach ($users as $existing_user_id) {
+                    $existing_user = get_user_by('ID', $existing_user_id);
+                    if (!$existing_user) {
+                        // 清理僵尸ID记录
+                        delete_user_meta($existing_user_id, 'custom_uid');
+                        // 从结果中移除该僵尸用户
+                        $key = array_search($existing_user_id, $users);
+                        if ($key !== false) {
+                            unset($users[$key]);
+                        }
+                    }
+                }
+            }
 
             if (empty($users) && (!$system_user || $system_user->ID == $user_id)) {
                  update_user_meta($user_id, 'custom_uid', $custom_uid);
+            } else {
+                // 如果自定义UID已存在，则自动生成一个新的
+                if (function_exists('boxmoe_generate_custom_uid')) {
+                    $custom_uid = boxmoe_generate_custom_uid();
+                    update_user_meta($user_id, 'custom_uid', $custom_uid);
+                }
             }
         } else {
              // 如果没填，则自动生成
@@ -210,12 +232,8 @@ function boxmoe_admin_user_custom_uid_validate($errors, $update, $user) {
             return;
         }
 
+        // 如果留空，允许用户删除自定义UID，不报错
         if (empty($custom_uid)) {
-            // 如果留空且是新增用户，将在 save 钩子中自动生成，这里不报错
-            // 如果是编辑用户且留空，意味着什么？删除？
-            // 之前的逻辑是 save 中 empty 则 return (不更新)，即保持原样?
-            // 不，save 中如果 empty，确实 return 了。
-            // 但如果用户想删除UID呢？之前的逻辑不支持删除。
             return;
         }
 
@@ -230,6 +248,22 @@ function boxmoe_admin_user_custom_uid_validate($errors, $update, $user) {
 
         // 检查系统ID
         $system_user = get_user_by('ID', $custom_uid);
+
+        // 清理僵尸ID：如果找到用户，但该用户不存在于系统中，则删除其自定义UID记录
+        if (!empty($users)) {
+            foreach ($users as $existing_user_id) {
+                $existing_user = get_user_by('ID', $existing_user_id);
+                if (!$existing_user) {
+                    // 清理僵尸ID记录
+                    delete_user_meta($existing_user_id, 'custom_uid');
+                    // 从结果中移除该僵尸用户
+                    $key = array_search($existing_user_id, $users);
+                    if ($key !== false) {
+                        unset($users[$key]);
+                    }
+                }
+            }
+        }
 
         if (!empty($users) || ($system_user && $system_user->ID != $user_id)) {
             $errors->add('custom_uid_error', '<strong>错误</strong>：该用户ID已存在，请更换其他ID😩');
@@ -252,10 +286,7 @@ function boxmoe_admin_user_custom_uid_save($user_id) {
             return;
         }
 
-        if (empty($custom_uid)) {
-            return; 
-        }
-
+        // 检查是否已有其他用户占用了这个新ID
         $users = get_users(array(
             'meta_key' => 'custom_uid',
             'meta_value' => $custom_uid,
@@ -267,11 +298,32 @@ function boxmoe_admin_user_custom_uid_save($user_id) {
         // 检查系统ID
         $system_user = get_user_by('ID', $custom_uid);
 
-        if (!empty($users) || ($system_user && $system_user->ID != $user_id)) {
-            return;
+        // 清理僵尸ID：如果找到用户，但该用户不存在于系统中，则删除其自定义UID记录
+        if (!empty($users)) {
+            foreach ($users as $existing_user_id) {
+                $existing_user = get_user_by('ID', $existing_user_id);
+                if (!$existing_user) {
+                    // 清理僵尸ID记录
+                    delete_user_meta($existing_user_id, 'custom_uid');
+                    // 从结果中移除该僵尸用户
+                    $key = array_search($existing_user_id, $users);
+                    if ($key !== false) {
+                        unset($users[$key]);
+                    }
+                }
+            }
         }
 
-        update_user_meta($user_id, 'custom_uid', $custom_uid); // ⬅️ 更新UID
+        // 如果新ID可用
+        if (empty($users) && (!$system_user || $system_user->ID == $user_id)) {
+            // 先保存新ID
+            if (empty($custom_uid)) {
+                // 如果留空，删除自定义UID，使用系统默认ID
+                delete_user_meta($user_id, 'custom_uid');
+            } else {
+                update_user_meta($user_id, 'custom_uid', $custom_uid); // ⬅️ 更新为新UID
+            }
+        }
     }
 }
 add_action('personal_options_update', 'boxmoe_admin_user_custom_uid_save'); // ⬅️ 保存自己的UID

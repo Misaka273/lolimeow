@@ -955,8 +955,8 @@ function boxmoe_external_link_redirect($content) {
         return $content;
     }
     
-    // 查找所有链接
-    $pattern = '/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/i';
+    // 查找所有链接，添加s修饰符以匹配包含换行符的链接
+    $pattern = '/<a\s+[^>]*href=["\']([^"\']+)["\'][^>]*>(.*?)<\/a>/is';
     
     // 替换链接为跳转链接
     $content = preg_replace_callback($pattern, function($matches) use ($redirect_url) {
