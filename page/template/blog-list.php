@@ -76,7 +76,26 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
         // 根据布局设置选择容器类和列宽
         echo '<div class="row g-4">';
         
+        // 获取当前页码
+        $paged = get_query_var('paged') ?: 1;
+        
+        // 获取当前的置顶文章
+        $sticky_posts = get_option('sticky_posts');
+        
+        // 初始化已显示文章ID数组
+        $displayed_post_ids = array();
+        
         while ( have_posts() ) : the_post(); 
+            // 获取当前文章ID
+            $post_id = get_the_ID();
+            
+            // 检查文章是否已经显示过
+            if (in_array($post_id, $displayed_post_ids)) {
+                continue; // 跳过已显示的文章
+            }
+            
+            // 将当前文章ID添加到已显示数组
+            $displayed_post_ids[] = $post_id;
         ?>
           <div class="<?php echo ($article_layout_style == 'three') ? 'col-lg-4 col-md-6 col-sm-6' : 'col-lg-12'; ?>">
           <article class="post-list <?php echo ($article_layout_style == 'three') ? 'list-three' : 'list-one'; ?> <?php echo boxmoe_border_setting(); ?>">
@@ -139,4 +158,29 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
           <div class="col-lg-12 col-md-12 pagenav">
             <?php boxmoe_pagination(); ?>            
           </div>
+          <!-- 无限加载相关结构 -->
+          <?php if (get_boxmoe('boxmoe_article_paging_type') == 'infinite') : ?>
+          <div id="infinite-load-container" class="infinite-load-container">
+            <div id="infinite-loader" class="infinite-loader" style="display: none;">
+              <div class="loader-inner">
+                <div class="loader-line-wrap">
+                  <div class="loader-line"></div>
+                </div>
+                <div class="loader-line-wrap">
+                  <div class="loader-line"></div>
+                </div>
+                <div class="loader-line-wrap">
+                  <div class="loader-line"></div>
+                </div>
+              </div>
+            </div>
+            <div id="infinite-end-message" class="infinite-end-message" style="display: none;">
+              <nav class="d-flex justify-content-center">
+                <ul class="pagination">
+                  <li class="page-item active"><a class="page-link" href="#">🎉 全部都在这里啦 🔝</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+          <?php endif; ?>
         </div>

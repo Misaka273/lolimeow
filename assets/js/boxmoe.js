@@ -188,123 +188,922 @@ function initSearchBox() {
         }
     });
 }
-// 用户面板初始化
+// 📱 移动端用户按钮初始化
 function initMobileUserPanel() {
     const mobileUserBtn = document.querySelector('.mobile-user-btn');
-    const mobileUserPanel = document.querySelector('.mobile-user-panel');  
-    if(mobileUserBtn && mobileUserPanel) {
-        mobileUserBtn.addEventListener('click', function() {
-            if (!mobileUserPanel.classList.contains('active')) {
-                mobileUserPanel.classList.remove('closing');
-                mobileUserPanel.classList.add('active');
+    if(!mobileUserBtn) return;
+    
+    // 移除所有现有事件监听器（防止多次绑定）
+    const newBtn = mobileUserBtn.cloneNode(true);
+    mobileUserBtn.parentNode.replaceChild(newBtn, mobileUserBtn);
+    
+    // 重新获取元素
+    const mobileUserBtnEl = newBtn;
+    
+    // 最可靠的登录状态检测：使用header中添加的元数据
+    const isLoggedIn = () => {
+        // 优先使用header中添加的明确登录状态元数据（PHP直接输出，最可靠）
+        const loggedInMeta = document.querySelector('meta[name="logged-in"]');
+        if (loggedInMeta) {
+            return loggedInMeta.content === 'true';
+        }
+        
+        // 次优选择：检查WordPress的body类名
+        if (document.body.classList.contains('logged-in')) {
+            return true;
+        }
+        
+        // 检查是否存在移动端登录用户包装器
+        const mobileLoggedWrapper = document.querySelector('.mobile-logged-user-wrapper');
+        if (mobileLoggedWrapper) {
+            return true;
+        }
+        
+        // 以上都不满足，视为未登录
+        return false;
+    };
+    
+    // 检查是否已登录
+    if (isLoggedIn()) {
+        // 创建下拉菜单容器
+        let dropdownMenu = document.querySelector('.mobile-user-dropdown-menu');
+        if (!dropdownMenu) {
+            dropdownMenu = document.createElement('div');
+            dropdownMenu.className = 'mobile-user-dropdown-menu';
+            dropdownMenu.style.cssText = `
+                position: fixed;
+                top: 70px;
+                right: 20px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                z-index: 99999;
+                min-width: 220px;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 1px solid rgba(0,0,0,0.1);
+                overflow: hidden;
+            `;
+            document.body.appendChild(dropdownMenu);
+        }
+        
+        // 检查是否为管理员
+        const isAdmin = () => {
+            return document.querySelector('.dropdown-menu a[href*="wp-admin"]') !== null ||
+                   document.querySelector('.logged-user-wrapper .dropdown-menu a[href*="wp-admin"]') !== null;
+        };
+        
+        // 获取链接的可靠方法
+        const getUserCenterLink = () => {
+            if (typeof boxmoe_user_center_link_page === 'function') {
+                return boxmoe_user_center_link_page();
+            }
+            const metaLink = document.querySelector('meta[name="user-center-url"]');
+            if (metaLink) {
+                return metaLink.content;
+            }
+            // 从页面现有链接提取
+            const existingLink = document.querySelector('a[href*="user-center"], .dropdown-item[href*="user-center"]');
+            if (existingLink) {
+                return existingLink.href;
+            }
+            return '/user-center/';
+        };
+        
+        const getAdminLink = () => {
+            return window.ajax_object?.adminurl || '/wp-admin/';
+        };
+        
+        const getLogoutLink = () => {
+            if (typeof wp_logout_url === 'function') {
+                return wp_logout_url(home_url());
+            }
+            const existingLink = document.querySelector('a[href*="logout"], .dropdown-item[href*="logout"]');
+            if (existingLink) {
+                return existingLink.href;
+            }
+            return '/wp-login.php?action=logout';
+        };
+        
+        // 渲染菜单内容
+        const renderMenu = () => {
+            const userCenterLink = getUserCenterLink();
+            const adminLink = getAdminLink();
+            const logoutLink = getLogoutLink();
+            const admin = isAdmin();
+            
+            dropdownMenu.innerHTML = `
+                <div class="mobile-dropdown-content" style="padding: 0;">
+                    <a href="${userCenterLink}" class="mobile-dropdown-item" style="
+                        display: flex;
+                        align-items: center;
+                        padding: 14px 20px;
+                        color: #333;
+                        text-decoration: none;
+                        font-size: 15px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                        background: transparent;
+                        border: none;
+                        width: 100%;
+                        text-align: left;
+                        box-sizing: border-box;
+                    ">
+                        <i class="fa fa-user-circle" style="margin-right: 14px; width: 20px; text-align: center; color: #6b7280;"></i>
+                        <span>会员中心</span>
+                    </a>
+                    ${admin ? `
+                        <a href="${adminLink}" class="mobile-dropdown-item" style="
+                            display: flex;
+                            align-items: center;
+                            padding: 14px 20px;
+                            color: #333;
+                            text-decoration: none;
+                            font-size: 15px;
+                            font-weight: 500;
+                            transition: all 0.2s ease;
+                            background: transparent;
+                            border: none;
+                            width: 100%;
+                            text-align: left;
+                            box-sizing: border-box;
+                        ">
+                            <i class="fa fa-cog" style="margin-right: 14px; width: 20px; text-align: center; color: #6b7280;"></i>
+                            <span>后台管理</span>
+                        </a>
+                    ` : ''}
+                    <a href="${logoutLink}" class="mobile-dropdown-item" style="
+                        display: flex;
+                        align-items: center;
+                        padding: 14px 20px;
+                        color: #333;
+                        text-decoration: none;
+                        font-size: 15px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                        background: transparent;
+                        border: none;
+                        width: 100%;
+                        text-align: left;
+                        box-sizing: border-box;
+                    ">
+                        <i class="fa fa-sign-out" style="margin-right: 14px; width: 20px; text-align: center; color: #6b7280;"></i>
+                        <span>注销登录</span>
+                    </a>
+                </div>
+            `;
+            
+            // 添加悬停效果
+            const items = dropdownMenu.querySelectorAll('.mobile-dropdown-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.style.backgroundColor = '#f3f4f6';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.backgroundColor = 'transparent';
+                });
+            });
+        };
+        
+        // 初始渲染
+        renderMenu();
+        
+        // 切换菜单显示/隐藏
+        const toggleMenu = () => {
+            const isVisible = dropdownMenu.style.visibility === 'visible';
+            
+            if (isVisible) {
+                // 关闭菜单
+                dropdownMenu.style.opacity = '0';
+                dropdownMenu.style.visibility = 'hidden';
+                dropdownMenu.style.transform = 'translateY(-10px)';
             } else {
-                mobileUserPanel.classList.add('closing');
-                mobileUserPanel.classList.remove('active');
+                // 重新渲染菜单（确保链接最新）
+                renderMenu();
+                // 显示菜单
+                dropdownMenu.style.opacity = '1';
+                dropdownMenu.style.visibility = 'visible';
+                dropdownMenu.style.transform = 'translateY(0)';
             }
+        };
+        
+        // 点击按钮切换菜单
+        mobileUserBtnEl.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
+            e.preventDefault(); // 阻止默认行为
+            toggleMenu();
+        }, false);
+        
+        // 点击外部关闭菜单
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && !mobileUserBtnEl.contains(e.target)) {
+                dropdownMenu.style.opacity = '0';
+                dropdownMenu.style.visibility = 'hidden';
+                dropdownMenu.style.transform = 'translateY(-10px)';
+            }
+        }, false);
+        
+        // ESC键关闭菜单
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                dropdownMenu.style.opacity = '0';
+                dropdownMenu.style.visibility = 'hidden';
+                dropdownMenu.style.transform = 'translateY(-10px)';
+            }
+        }, false);
+        
+        // 暗色模式适配
+        const applyDarkMode = () => {
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark' ||
+                          document.body.classList.contains('dark-theme');
+            
+            if (isDark) {
+                dropdownMenu.style.backgroundColor = '#1f2937';
+                dropdownMenu.style.borderColor = 'rgba(255,255,255,0.1)';
+                
+                const items = dropdownMenu.querySelectorAll('.mobile-dropdown-item');
+                items.forEach(item => {
+                    item.style.color = '#f9fafb';
+                    item.addEventListener('mouseenter', () => {
+                        item.style.backgroundColor = '#374151';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.backgroundColor = 'transparent';
+                    });
+                });
+            } else {
+                dropdownMenu.style.backgroundColor = 'white';
+                dropdownMenu.style.borderColor = 'rgba(0,0,0,0.1)';
+                
+                const items = dropdownMenu.querySelectorAll('.mobile-dropdown-item');
+                items.forEach(item => {
+                    item.style.color = '#374151';
+                    item.addEventListener('mouseenter', () => {
+                        item.style.backgroundColor = '#f3f4f6';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.backgroundColor = 'transparent';
+                    });
+                });
+            }
+        };
+        
+        // 初始应用暗色模式
+        applyDarkMode();
+        
+        // 监听暗色模式变化
+        const observer = new MutationObserver(applyDarkMode);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-bs-theme']
         });
-        document.addEventListener('click', function(e) {
-            if(!mobileUserPanel.contains(e.target) && !mobileUserBtn.contains(e.target)) {
-                if (mobileUserPanel.classList.contains('active')) {
-                    mobileUserPanel.classList.add('closing');
-                    mobileUserPanel.classList.remove('active');
-                }
+        
+    } else {
+        // 未登录用户：显示下拉菜单
+        // 创建下拉菜单容器
+        let dropdownMenu = document.querySelector('.mobile-user-dropdown-menu');
+        if (!dropdownMenu) {
+            dropdownMenu = document.createElement('div');
+            dropdownMenu.className = 'mobile-user-dropdown-menu';
+            dropdownMenu.style.cssText = `
+                position: fixed;
+                top: 70px;
+                right: 20px;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                z-index: 99999;
+                min-width: 220px;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                border: 1px solid rgba(0,0,0,0.1);
+                overflow: hidden;
+            `;
+            document.body.appendChild(dropdownMenu);
+        }
+        
+        // 获取登录和注册链接
+        const getLoginLink = () => {
+            if (typeof boxmoe_sign_in_link_page === 'function') {
+                return boxmoe_sign_in_link_page();
             }
+            const metaLink = document.querySelector('meta[name="login-url"]');
+            if (metaLink) {
+                return metaLink.content;
+            }
+            return '/signin/';
+        };
+        
+        const getRegisterLink = () => {
+            if (typeof boxmoe_sign_up_link_page === 'function') {
+                return boxmoe_sign_up_link_page();
+            }
+            const metaLink = document.querySelector('meta[name="register-url"]');
+            if (metaLink) {
+                return metaLink.content;
+            }
+            return '/signup/';
+        };
+        
+        // 渲染未登录用户菜单
+        const renderGuestMenu = () => {
+            const loginLink = getLoginLink();
+            const registerLink = getRegisterLink();
+            
+            dropdownMenu.innerHTML = `
+                <div class="mobile-dropdown-content" style="padding: 0;">
+                    <a href="${loginLink}" class="mobile-dropdown-item" style="
+                        display: flex;
+                        align-items: center;
+                        padding: 14px 20px;
+                        color: #333;
+                        text-decoration: none;
+                        font-size: 15px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                        background: transparent;
+                        border: none;
+                        width: 100%;
+                        text-align: left;
+                        box-sizing: border-box;
+                    ">
+                        <i class="fa fa-sign-in" style="margin-right: 14px; width: 20px; text-align: center; color: #6b7280;"></i>
+                        <span>登录</span>
+                    </a>
+                    <a href="${registerLink}" class="mobile-dropdown-item" style="
+                        display: flex;
+                        align-items: center;
+                        padding: 14px 20px;
+                        color: #333;
+                        text-decoration: none;
+                        font-size: 15px;
+                        font-weight: 500;
+                        transition: all 0.2s ease;
+                        background: transparent;
+                        border: none;
+                        width: 100%;
+                        text-align: left;
+                        box-sizing: border-box;
+                    ">
+                        <i class="fa fa-user-plus" style="margin-right: 14px; width: 20px; text-align: center; color: #6b7280;"></i>
+                        <span>注册</span>
+                    </a>
+                </div>
+            `;
+            
+            // 添加悬停效果
+            const items = dropdownMenu.querySelectorAll('.mobile-dropdown-item');
+            items.forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    item.style.backgroundColor = '#f3f4f6';
+                });
+                item.addEventListener('mouseleave', () => {
+                    item.style.backgroundColor = 'transparent';
+                });
+            });
+        };
+        
+        // 初始渲染
+        renderGuestMenu();
+        
+        // 切换菜单显示/隐藏
+        const toggleMenu = () => {
+            const isVisible = dropdownMenu.style.visibility === 'visible';
+            
+            if (isVisible) {
+                // 关闭菜单
+                dropdownMenu.style.opacity = '0';
+                dropdownMenu.style.visibility = 'hidden';
+                dropdownMenu.style.transform = 'translateY(-10px)';
+            } else {
+                // 重新渲染菜单
+                renderGuestMenu();
+                // 显示菜单
+                dropdownMenu.style.opacity = '1';
+                dropdownMenu.style.visibility = 'visible';
+                dropdownMenu.style.transform = 'translateY(0)';
+            }
+        };
+        
+        // 点击按钮切换菜单
+        mobileUserBtnEl.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
+            e.preventDefault(); // 阻止默认行为
+            toggleMenu();
+        }, false);
+        
+        // 点击外部关闭菜单
+        document.addEventListener('click', (e) => {
+            if (!dropdownMenu.contains(e.target) && !mobileUserBtnEl.contains(e.target)) {
+                dropdownMenu.style.opacity = '0';
+                dropdownMenu.style.visibility = 'hidden';
+                dropdownMenu.style.transform = 'translateY(-10px)';
+            }
+        }, false);
+        
+        // ESC键关闭菜单
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                dropdownMenu.style.opacity = '0';
+                dropdownMenu.style.visibility = 'hidden';
+                dropdownMenu.style.transform = 'translateY(-10px)';
+            }
+        }, false);
+        
+        // 暗色模式适配
+        const applyDarkMode = () => {
+            const isDark = document.documentElement.getAttribute('data-bs-theme') === 'dark' ||
+                          document.body.classList.contains('dark-theme');
+            
+            if (isDark) {
+                dropdownMenu.style.backgroundColor = '#1f2937';
+                dropdownMenu.style.borderColor = 'rgba(255,255,255,0.1)';
+                
+                const items = dropdownMenu.querySelectorAll('.mobile-dropdown-item');
+                items.forEach(item => {
+                    item.style.color = '#f9fafb';
+                    item.addEventListener('mouseenter', () => {
+                        item.style.backgroundColor = 'rgba(255,255,255,0.1)';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.backgroundColor = 'transparent';
+                    });
+                });
+            } else {
+                dropdownMenu.style.backgroundColor = 'white';
+                dropdownMenu.style.borderColor = 'rgba(0,0,0,0.1)';
+                
+                const items = dropdownMenu.querySelectorAll('.mobile-dropdown-item');
+                items.forEach(item => {
+                    item.style.color = '#374151';
+                    item.addEventListener('mouseenter', () => {
+                        item.style.backgroundColor = '#f3f4f6';
+                    });
+                    item.addEventListener('mouseleave', () => {
+                        item.style.backgroundColor = 'transparent';
+                    });
+                });
+            }
+        };
+        
+        // 初始应用暗色模式
+        applyDarkMode();
+        
+        // 监听暗色模式变化
+        const observer = new MutationObserver(applyDarkMode);
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-bs-theme']
         });
     }
 }
 
-// 懒加载初始化
+// 🎨 优化的懒加载初始化 - 集成静默预加载
 function initLazyLoad() {
     const lazyImages = document.querySelectorAll('img.lazy');
-    const loadImage = (img) => {
-      let ds = img.dataset && img.dataset.src ? img.dataset.src : '';
-      if (!ds) {
-        const attrs = ['original','lazy','lazySrc','srcLazy'];
-        for (let i=0;i<attrs.length;i++){ const k = 'data-'+attrs[i].replace(/[A-Z]/g, m => '-' + m.toLowerCase()); const v = img.getAttribute(k); if (v) { ds = v; break; } }
-        if (!ds && (img.getAttribute('src')||'').includes('/assets/images/loading.gif')) {
-          const a = img.closest('a');
-          const ah = a ? (a.getAttribute('data-src') || a.getAttribute('href') || '') : '';
-          if (/\.(?:jpe?g|png|webp|gif)(\?.*)?$/i.test(ah)) ds = ah;
-        }
-      }
-      if (!ds) { img.classList.remove('lazy'); return; }
-      let base = ds, query = '';
-      const qm = base.match(/^(.*?)(\?.*)$/);
-      if (qm) { base = qm[1]; query = qm[2]; }
-      if (/\.gif$/i.test(base)) { base = base.replace(/-\d+x\d+(?=\.gif$)/i, ''); }
-      const fixed = base + (query || '');
-      if (img.hasAttribute('srcset')) img.removeAttribute('srcset');
-      if (img.hasAttribute('sizes')) img.removeAttribute('sizes');
-      const onLoad = () => { img.classList.remove('lazy'); img.removeEventListener('load', onLoad); };
-      const onError = () => { img.classList.remove('lazy'); img.removeAttribute('loading'); img.removeEventListener('error', onError); if (img.getAttribute('src') !== ds) img.setAttribute('src', ds); };
-      img.addEventListener('load', onLoad);
-      img.addEventListener('error', onError);
-      img.src = fixed;
-    };
-    const forceLoadAll = () => {
-      document.querySelectorAll('img.lazy').forEach(loadImage);
-    };
-    if ('IntersectionObserver' in window) {
-      const imageObserver = new IntersectionObserver((entries, observer) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const img = entry.target;
-            loadImage(img);
-            observer.unobserve(img);
-          }
-        });
-      }, { rootMargin: '200px 0px', threshold: 0.01 });
-      lazyImages.forEach(img => imageObserver.observe(img));
-      const mo = new MutationObserver((mutations) => {
-        mutations.forEach(m => {
-          m.addedNodes && m.addedNodes.forEach(node => {
-            if (node.nodeType === 1 && node.querySelectorAll) {
-              node.querySelectorAll('img.lazy').forEach(img => imageObserver.observe(img));
+    
+    const loadImage = async (img) => {
+        let ds = img.dataset && img.dataset.src ? img.dataset.src : '';
+        if (!ds) {
+            const attrs = ['original','lazy','lazySrc','srcLazy'];
+            for (let i=0;i<attrs.length;i++){ const k = 'data-'+attrs[i].replace(/[A-Z]/g, m => '-' + m.toLowerCase()); const v = img.getAttribute(k); if (v) { ds = v; break; } }
+            if (!ds && (img.getAttribute('src')||'').includes('/assets/images/loading.gif')) {
+                const a = img.closest('a');
+                const ah = a ? (a.getAttribute('data-src') || a.getAttribute('href') || '') : '';
+                if (/\.(?:jpe?g|png|webp|gif)(\?.*)?$/i.test(ah)) ds = ah;
             }
-          });
+        }
+        if (!ds) { img.classList.remove('lazy'); return; }
+        
+        let base = ds, query = '';
+        const qm = base.match(/^(.*?)(\?.*)$/);
+        if (qm) { base = qm[1]; query = qm[2]; }
+        if (/\.gif$/i.test(base)) { base = base.replace(/-\d+x\d+(?=\.gif$)/i, ''); }
+        const fixed = base + (query || '');
+        
+        if (img.hasAttribute('srcset')) img.removeAttribute('srcset');
+        if (img.hasAttribute('sizes')) img.removeAttribute('sizes');
+        
+        // 添加占位符
+        const container = img.parentElement;
+        if (container && !container.querySelector('.shiroki-image-placeholder')) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'shiroki-image-placeholder';
+            container.appendChild(placeholder);
+        }
+        
+        // 使用静默预加载器
+        try {
+            await shirokiImageLoader.preloadImage(fixed);
+            img.src = fixed;
+            shirokiImageLoader.revealImage(img);
+        } catch (error) {
+            console.warn('LazyLoad: Failed to preload image:', fixed, error);
+            // 降级到原始加载方式
+            const onLoad = () => { 
+                img.classList.add('loaded'); 
+                img.classList.remove('lazy'); 
+                img.removeEventListener('load', onLoad); 
+            };
+            const onError = () => { 
+                img.classList.add('loaded'); 
+                img.classList.remove('lazy'); 
+                img.removeAttribute('loading'); 
+                img.removeEventListener('error', onError); 
+                if (img.getAttribute('src') !== fixed) img.setAttribute('src', fixed); 
+            };
+            img.addEventListener('load', onLoad);
+            img.addEventListener('error', onError);
+            img.src = fixed;
+        }
+    };
+    
+    const forceLoadAll = () => {
+        document.querySelectorAll('img.lazy').forEach(loadImage);
+    };
+    
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    loadImage(img);
+                    observer.unobserve(img);
+                }
+            });
+        }, { 
+            rootMargin: '200px 0px', 
+            threshold: 0.01 
         });
-      });
-      mo.observe(document.body, { childList: true, subtree: true });
-      setTimeout(forceLoadAll, 2000);
-      window.addEventListener('load', forceLoadAll, { once: true });
-      window.addEventListener('scroll', () => {
-        document.querySelectorAll('img.lazy').forEach(img => {
-          const rect = img.getBoundingClientRect();
-          if (rect.top < window.innerHeight + 300) loadImage(img);
+        
+        lazyImages.forEach(img => imageObserver.observe(img));
+        
+        const mo = new MutationObserver((mutations) => {
+            mutations.forEach(m => {
+                m.addedNodes && m.addedNodes.forEach(node => {
+                    if (node.nodeType === 1 && node.querySelectorAll) {
+                        node.querySelectorAll('img.lazy').forEach(img => imageObserver.observe(img));
+                    }
+                });
+            });
         });
-      });
+        
+        mo.observe(document.body, { childList: true, subtree: true });
+        setTimeout(forceLoadAll, 2000);
+        window.addEventListener('load', forceLoadAll, { once: true });
+        
+        window.addEventListener('scroll', () => {
+            document.querySelectorAll('img.lazy').forEach(img => {
+                const rect = img.getBoundingClientRect();
+                if (rect.top < window.innerHeight + 300) loadImage(img);
+            });
+        });
     } else {
-      lazyImages.forEach(loadImage);
+        lazyImages.forEach(loadImage);
     }
-  }
+}
 
-// 加载延迟初始化
+// 🎨 静默图片预加载器
+class ShirokiImageLoader {
+    constructor() {
+        this.loadingImages = new Set();
+        this.loadedImages = new Set();
+        this.cache = new Map();
+        this.maxConcurrent = 6; // 最大并发加载数
+        this.currentLoading = 0;
+        this.queue = [];
+    }
+
+    // 处理加载队列
+    processQueue() {
+        while (this.currentLoading < this.maxConcurrent && this.queue.length > 0) {
+            const task = this.queue.shift();
+            this.currentLoading++;
+            this.executeLoad(task);
+        }
+    }
+
+    // 执行图片加载
+    executeLoad(task) {
+        const { src, resolve, reject } = task;
+        
+        // 记录开始时间
+        imageLoadMonitor.recordStart(src);
+        
+        // 检查缓存
+        if (this.cache.has(src)) {
+            const cached = this.cache.get(src);
+            this.currentLoading--;
+            imageLoadMonitor.recordComplete(src, cached.success);
+            if (cached.success) {
+                resolve();
+            } else {
+                reject(cached.error);
+            }
+            this.processQueue();
+            return;
+        }
+
+        const img = new Image();
+        
+        img.onload = () => {
+            this.loadingImages.delete(src);
+            this.loadedImages.add(src);
+            this.cache.set(src, { success: true, timestamp: Date.now() });
+            this.currentLoading--;
+            imageLoadMonitor.recordComplete(src, true);
+            resolve();
+            this.processQueue();
+        };
+
+        img.onerror = () => {
+            this.loadingImages.delete(src);
+            const error = new Error(`Failed to load image: ${src}`);
+            this.cache.set(src, { success: false, error, timestamp: Date.now() });
+            this.currentLoading--;
+            imageLoadMonitor.recordComplete(src, false);
+            reject(error);
+            this.processQueue();
+        };
+
+        img.src = src;
+    }
+
+    // 预加载单张图片
+    preloadImage(src) {
+        return new Promise((resolve, reject) => {
+            if (this.loadedImages.has(src)) {
+                resolve();
+                return;
+            }
+
+            if (this.loadingImages.has(src)) {
+                // 如果正在加载，等待完成
+                const checkInterval = setInterval(() => {
+                    if (this.loadedImages.has(src)) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                }, 50);
+                return;
+            }
+
+            this.loadingImages.add(src);
+            
+            // 添加到队列
+            this.queue.push({ src, resolve, reject });
+            this.processQueue();
+        });
+    }
+
+    // 批量预加载图片
+    async preloadImages(srcs) {
+        const promises = srcs.map(src => this.preloadImage(src));
+        return Promise.allSettled(promises);
+    }
+
+    // 预加载可见区域的图片
+    preloadVisibleImages() {
+        const images = document.querySelectorAll('img[data-src]:not(.loaded)');
+        const visibleImages = [];
+        
+        images.forEach(img => {
+            const rect = img.getBoundingClientRect();
+            const isVisible = rect.top < window.innerHeight + 200 && rect.bottom > -200;
+            if (isVisible) {
+                const src = img.dataset.src || img.src;
+                if (src) visibleImages.push(src);
+            }
+        });
+
+        if (visibleImages.length > 0) {
+            return this.preloadImages(visibleImages);
+        }
+        
+        return Promise.resolve([]);
+    }
+
+    // 清理过期缓存
+    cleanupCache() {
+        const now = Date.now();
+        const maxAge = 5 * 60 * 1000; // 5分钟
+        
+        for (const [src, data] of this.cache.entries()) {
+            if (now - data.timestamp > maxAge) {
+                this.cache.delete(src);
+            }
+        }
+    }
+
+    // 静默加载图片元素
+    async loadImageElement(imgElement) {
+        const src = imgElement.src || imgElement.dataset.src;
+        if (!src) return;
+
+        try {
+            await this.preloadImage(src);
+            this.revealImage(imgElement);
+        } catch (error) {
+            console.warn('ShirokiImageLoader: Failed to load image:', src, error);
+            this.revealImage(imgElement); // 即使失败也显示
+        }
+    }
+
+    // 渐显图片
+    revealImage(imgElement) {
+        imgElement.classList.add('loaded');
+        
+        // 移除占位符
+        const placeholder = imgElement.parentElement.querySelector('.shiroki-image-placeholder');
+        if (placeholder) {
+            setTimeout(() => {
+                placeholder.classList.add('loaded');
+                setTimeout(() => placeholder.remove(), 300);
+            }, 100);
+        }
+    }
+}
+
+// 创建全局图片加载器实例
+const shirokiImageLoader = new ShirokiImageLoader();
+
+// 🎨 图片加载性能监控
+class ImageLoadMonitor {
+    constructor() {
+        this.metrics = {
+            totalImages: 0,
+            loadedImages: 0,
+            failedImages: 0,
+            startTime: Date.now(),
+            loadTimes: []
+        };
+        this.enabled = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    }
+
+    recordStart(src) {
+        if (!this.enabled) return;
+        this.metrics.totalImages++;
+        this.metrics[src] = { startTime: Date.now() };
+    }
+
+    recordComplete(src, success = true) {
+        if (!this.enabled) return;
+        
+        const imageMetrics = this.metrics[src];
+        if (imageMetrics && imageMetrics.startTime) {
+            const loadTime = Date.now() - imageMetrics.startTime;
+            this.metrics.loadTimes.push(loadTime);
+            
+            if (success) {
+                this.metrics.loadedImages++;
+            } else {
+                this.metrics.failedImages++;
+            }
+            
+            console.log(`🖼️ 图片加载完成: ${src}, 耗时: ${loadTime}ms, 状态: ${success ? '成功' : '失败'}`);
+        }
+    }
+
+    getStats() {
+        if (!this.enabled) return null;
+        
+        const avgLoadTime = this.metrics.loadTimes.length > 0 
+            ? Math.round(this.metrics.loadTimes.reduce((a, b) => a + b, 0) / this.metrics.loadTimes.length)
+            : 0;
+        
+        return {
+            total: this.metrics.totalImages,
+            loaded: this.metrics.loadedImages,
+            failed: this.metrics.failedImages,
+            successRate: Math.round((this.metrics.loadedImages / this.metrics.totalImages) * 100),
+            avgLoadTime: avgLoadTime,
+            totalTime: Date.now() - this.metrics.startTime
+        };
+    }
+
+    printStats() {
+        if (!this.enabled) return;
+        
+        const stats = this.getStats();
+        if (stats && stats.total > 0) {
+            console.log('📊 图片加载统计:');
+            console.log(`   总计: ${stats.total} 张`);
+            console.log(`   成功: ${stats.loaded} 张`);
+            console.log(`   失败: ${stats.failed} 张`);
+            console.log(`   成功率: ${stats.successRate}%`);
+            console.log(`   平均加载时间: ${stats.avgLoadTime}ms`);
+            console.log(`   总耗时: ${stats.totalTime}ms`);
+        }
+    }
+}
+
+// 创建性能监控实例
+const imageLoadMonitor = new ImageLoadMonitor();
+
+// 定期清理缓存
+setInterval(() => {
+    shirokiImageLoader.cleanupCache();
+}, 60 * 1000); // 每分钟清理一次
+
+// 页面加载完成后输出统计
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        imageLoadMonitor.printStats();
+    }, 3000);
+});
+
+// 🎨 简化的Banner图片加载
 function initBannerImage() {
     const bannerImg = document.querySelector('.boxmoe_header_banner_img');
     const siteMain = document.querySelector('.boxmoe_header_banner .site-main');
     if (!bannerImg || !siteMain) return;
+    
     const img = bannerImg.querySelector('img');
     if (!img) return;
 
-    // 确保内容最终会显示的函数
-    const showContent = () => {
-      bannerImg.classList.add('loaded');
-      setTimeout(() => {
-        siteMain.classList.add('loaded');
-      }, 500);
+    // 确保Banner容器初始可见
+    bannerImg.style.visibility = 'visible';
+    bannerImg.style.opacity = '1';
+    bannerImg.style.transform = 'scale(1)';
+
+    // 确保图片初始可见
+    img.style.opacity = '1';
+    img.style.transform = 'scale(1)';
+    img.style.filter = 'blur(0)';
+
+    // 添加占位符
+    const placeholder = document.createElement('div');
+    placeholder.className = 'shiroki-image-placeholder';
+    bannerImg.appendChild(placeholder);
+
+    // 简单的加载完成处理
+    const handleLoad = () => {
+        // 显示banner容器
+        bannerImg.classList.add('loaded');
+        img.classList.add('loaded');
+        
+        // 延迟隐藏占位符
+        setTimeout(() => {
+            placeholder.classList.add('loaded');
+            setTimeout(() => placeholder.remove(), 300);
+        }, 100);
+        
+        // 延迟显示内容
+        setTimeout(() => {
+            siteMain.classList.add('loaded');
+        }, 400);
     };
 
     // 如果图片已经加载完成
-    if(img.complete) {
-      showContent();
+    if (img.complete) {
+        handleLoad();
     } else {
-      // 图片加载成功时
-      img.addEventListener('load', showContent);
-      // 图片加载失败时的后备方案
-      img.addEventListener('error', showContent);
-      // 添加超时机制，确保内容最终会显示
-      setTimeout(showContent, 3000);
+        // 监听图片加载完成
+        img.addEventListener('load', handleLoad);
+        img.addEventListener('error', handleLoad);
     }
+}
+
+// 🎨 简化的文章封面图片加载
+function initPostCoverImages() {
+    const postImages = document.querySelectorAll('.post-list-img img');
+    
+    postImages.forEach(img => {
+        // 为每个图片添加占位符
+        const container = img.parentElement;
+        if (container && !container.querySelector('.shiroki-image-placeholder')) {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'shiroki-image-placeholder';
+            container.appendChild(placeholder);
+        }
+
+        // 简单的加载完成处理
+        const handleLoad = () => {
+            img.classList.add('loaded');
+            
+            // 延迟隐藏占位符
+            const placeholder = img.parentElement.querySelector('.shiroki-image-placeholder');
+            if (placeholder) {
+                setTimeout(() => {
+                    placeholder.classList.add('loaded');
+                    setTimeout(() => placeholder.remove(), 300);
+                }, 100);
+            }
+        };
+
+        // 如果图片已经加载完成
+        if (img.complete) {
+            handleLoad();
+        } else {
+            // 监听图片加载完成
+            img.addEventListener('load', handleLoad);
+            img.addEventListener('error', handleLoad);
+        }
+    });
 }
 // Headhesive初始化
 function initStickyHeader() {
@@ -674,6 +1473,12 @@ const LoginStatusManager = (() => {
      */
     const renderLoginUI = (isLoggedIn, userInfo) => {
         try {
+            // 检查导航会员注册链接开关是否开启
+            const signInLinkSwitch = window.ajax_object && window.ajax_object.sign_in_link_switch === 'true';
+            if (!signInLinkSwitch) {
+                return;
+            }
+            
             // 处理移动端用户面板
             const mobileUserBtn = document.querySelector('.mobile-user-btn');
             const mobileUserPanels = document.querySelectorAll('.mobile-user-panel');
@@ -743,6 +1548,37 @@ const LoginStatusManager = (() => {
             if (mobileUserBtn && mobileUserBtn.parentElement) {
                 try {
                     mobileUserBtn.parentElement.appendChild(newPanel);
+                    
+                    // 为移动用户按钮添加点击事件监听器，控制下拉菜单显示/隐藏
+                    const toggleMobilePanel = () => {
+                        const isVisible = newPanel.style.display === 'block';
+                        
+                        if (isVisible) {
+                            // 隐藏面板
+                            newPanel.style.display = 'none';
+                        } else {
+                            // 显示面板
+                            newPanel.style.display = 'block';
+                        }
+                    };
+                    
+                    // 初始状态隐藏面板
+                    newPanel.style.display = 'none';
+                    
+                    // 点击按钮切换面板显示状态
+                    mobileUserBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        toggleMobilePanel();
+                    });
+                    
+                    // 点击外部关闭面板
+                    document.addEventListener('click', (e) => {
+                        if (!newPanel.contains(e.target) && !mobileUserBtn.contains(e.target)) {
+                            newPanel.style.display = 'none';
+                        }
+                    });
+                    
                 } catch (error) {
                     console.warn('添加移动端用户面板失败:', error);
                 }
@@ -758,6 +1594,9 @@ const LoginStatusManager = (() => {
                     console.warn('移除桌面端用户面板失败:', error);
                 }
             });
+            
+            // 检查导航会员注册链接开关是否开启
+
             
             // 创建新的桌面用户面板
             const navRightSection = document.querySelector('.nav-right-section');
@@ -814,6 +1653,7 @@ const LoginStatusManager = (() => {
                             <div class="user-reg-wrap">
                             <a href="${getRegisterLink()}" class="user-reg">
                             <span class="reg-text">注册</span></a></div>
+                            <img src="${themeUrl}/assets/images/up-new-iocn.png" class="new-tag" alt="up-new-iocn">
                         `;
                     }
                 } catch (error) {
@@ -2493,6 +3333,218 @@ function initBackToTop() {
     });
 }
 
+// 🔄 无限加载功能实现
+function initInfiniteScroll() {
+    // 检查是否启用了无限加载
+    const isInfinite = document.querySelector('#infinite-load-container');
+    if (!isInfinite) return;
+
+    // 初始化变量
+    let currentPage = 1;
+    let isLoading = false;
+    let hasMorePosts = true;
+    const postsContainer = document.querySelector('.blog-post .row.g-4');
+    const loader = document.getElementById('infinite-loader');
+    const endMessage = document.getElementById('infinite-end-message');
+    const pagenav = document.querySelector('.pagenav');
+
+    // 隐藏传统分页
+    if (pagenav) {
+        pagenav.style.display = 'none';
+    }
+
+    // 加载更多文章的函数
+    async function loadMorePosts() {
+        if (isLoading || !hasMorePosts) return;
+
+        isLoading = true;
+        loader.style.display = 'flex';
+
+        currentPage++;
+
+        try {
+            // 构建请求URL
+            const url = new URL(window.location.href);
+            url.searchParams.set('paged', currentPage);
+
+            // 获取页面内容
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+
+            // 提取新文章
+            const newPosts = doc.querySelectorAll('.blog-post .row.g-4 > div');
+
+            if (newPosts.length === 0) {
+                hasMorePosts = false;
+                loader.style.display = 'none';
+                endMessage.style.display = 'block';
+                isLoading = false;
+                return;
+            }
+
+            // 创建新文章容器
+            const fragment = document.createDocumentFragment();
+            
+            // 获取已显示文章的ID
+            const displayedPostIds = new Set();
+            document.querySelectorAll('.post-list').forEach(postEl => {
+                const postId = postEl.querySelector('.post-card-link')?.href?.match(/\/([0-9]+)\//)?.[1];
+                if (postId) {
+                    displayedPostIds.add(postId);
+                }
+            });
+            
+            // 为每篇新文章添加动画类，跳过已显示的文章
+            let addedPostsCount = 0;
+            newPosts.forEach(post => {
+                // 从链接中提取文章ID
+                const postLink = post.querySelector('.post-card-link');
+                if (!postLink) return;
+                
+                const postUrl = postLink.href;
+                const postIdMatch = postUrl.match(/\/([0-9]+)\//);
+                const postId = postIdMatch ? postIdMatch[1] : null;
+                
+                // 检查文章是否已经显示过
+                if (postId && displayedPostIds.has(postId)) {
+                    return; // 跳过已显示的文章
+                }
+                
+                // 设置初始状态
+                post.style.opacity = '0';
+                post.style.transform = 'translateY(50px)';
+                
+                // 添加到文档片段
+                fragment.appendChild(post);
+                addedPostsCount++;
+                
+                // 将新文章ID添加到已显示集合
+                if (postId) {
+                    displayedPostIds.add(postId);
+                }
+            });
+
+            // 如果没有添加新文章，结束加载
+            if (addedPostsCount === 0) {
+                loader.style.display = 'none';
+                isLoading = false;
+                return;
+            }
+
+            // 将新文章添加到页面
+            postsContainer.appendChild(fragment);
+
+            // 添加CSS动画样式（如果不存在）
+            if (!document.getElementById('infinite-scroll-styles')) {
+                const style = document.createElement('style');
+                style.id = 'infinite-scroll-styles';
+                style.textContent = `
+                    /* 加载动画样式 */
+                    .infinite-loader {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 20px 0;
+                    }
+                    
+                    .loader-inner {
+                        width: 60px;
+                        height: 60px;
+                        position: relative;
+                    }
+                    
+                    
+                    .loader-line:nth-child(2) {
+                        animation: pulse 1.5s ease-in-out infinite 0.5s;
+                    }
+                    
+                    .loader-line:nth-child(3) {
+                        animation: pulse 1.5s ease-in-out infinite 1s;
+                    }
+                    
+                    @keyframes pulse {
+                        0%, 100% {
+                            opacity: 0.5;
+                            transform: scaleY(1);
+                        }
+                        50% {
+                            opacity: 1;
+                            transform: scaleY(1.2);
+                        }
+                    }
+                    
+                    /* 文章上移渐显动画 */
+                    .blog-post .row.g-4 > div {
+                        transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            // 触发动画
+            setTimeout(() => {
+                const addedPosts = postsContainer.querySelectorAll('.row.g-4 > div');
+                const lastPosts = Array.from(addedPosts).slice(-newPosts.length);
+                
+                lastPosts.forEach(post => {
+                    post.style.opacity = '1';
+                    post.style.transform = 'translateY(0)';
+                });
+            }, 50);
+
+            // 初始化新文章中的懒加载图片
+            if (typeof initLazyLoad === 'function') {
+                initLazyLoad();
+            }
+
+            // 初始化新文章中的标签颜色
+            if (typeof initTagColors === 'function') {
+                initTagColors();
+            }
+
+        } catch (error) {
+            console.error('无限加载已完成/失败:', error);
+            hasMorePosts = false;
+            endMessage.style.display = 'block';
+        } finally {
+            loader.style.display = 'none';
+            isLoading = false;
+        }
+    }
+
+    // 滚动事件监听
+    function handleScroll() {
+        if (isLoading || !hasMorePosts) return;
+
+        const scrollPosition = window.scrollY + window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // 当滚动到页面底部200px时加载更多
+        if (scrollPosition >= documentHeight - 200) {
+            loadMorePosts();
+        }
+    }
+
+    // 添加滚动事件监听器
+    window.addEventListener('scroll', handleScroll);
+
+    // 初始检查，确保页面内容不足时自动加载
+    setTimeout(() => {
+        handleScroll();
+    }, 500);
+}
+
 // DOM加载完成后初始化
 document.addEventListener("DOMContentLoaded", () => {
     const run = fn => { try { fn(); } catch(_) {} };
@@ -2502,6 +3554,7 @@ document.addEventListener("DOMContentLoaded", () => {
     run(initLazyLoad);
     run(initMobileUserPanel);
     run(initBannerImage);
+    run(initPostCoverImages);
     run(initStickyHeader);
     run(initTableOfContents);
     run(initTagColors);
@@ -2516,6 +3569,7 @@ document.addEventListener("DOMContentLoaded", () => {
     run(initTaskList);
     run(initVideoPlayer);
     run(initBackToTop);
+    run(initInfiniteScroll);
     (function initGifFix(){
         try{
             const imgs = document.querySelectorAll('.single-content img');
@@ -2623,90 +3677,338 @@ function animateThemeToggle(btn, cur, nxt){
 }
 
 // 🌈 Banner打字动画效果
-document.addEventListener('DOMContentLoaded', function() {
-    const target = document.querySelector('.boxmoe-typing-animation'); // ⬅️ 获取打字动画容器
-    if (!target) return;
+// 🔒 使用立即执行函数表达式(IIFE)确保动画只执行一次，防止重复执行
+(function() {
 
-    const text = target.getAttribute('data-text'); // ⬅️ 获取要显示的文字
-    if (!text) return;
-
-    // 🎨 彩虹配色方案
-    const colors = [
-        '#FF0000', '#FF7F00', '#FFFF00', '#00FF00', '#0000FF', '#4B0082', '#9400D3',
-        '#FF1493', '#00CED1', '#FFD700', '#ADFF2F', '#FF69B4'
-    ];
-
-    // 将字符串转换为字符数组，正确处理emoji表情
-    const textArray = Array.from(text);
-    let isDeleting = false;
-    let charIndex = 0;
-    let lastColor = '';
-
-    // 🎲 获取随机颜色，避免与上一个颜色相同
-    function getRandomColor() {
-        let newColor;
-        do {
-            newColor = colors[Math.floor(Math.random() * colors.length)];
-        } while (newColor === lastColor);
-        lastColor = newColor;
-        return newColor;
+    
+    // 🔒 全局唯一标记，确保无论脚本加载多少次，动画只执行一次
+    if (window.boxmoeBannerAnimationExecuted) {
+        return;
     }
-
-    // ⌨️ 打字动画逻辑
-    function type() {
-        if (isDeleting) {
-            // 删除逻辑
-            if (charIndex > 0) {
-                const spans = target.querySelectorAll('span');
-                if (spans.length > 0) {
-                    spans[spans.length - 1].remove();
-                }
-                charIndex--;
-                setTimeout(type, 100); 
-            } else {
-                isDeleting = false;
-                setTimeout(type, 500);
-            }
-        } else {
-            // 输入逻辑
-            if (charIndex < textArray.length) {
-                // 创建临时容器，先在内存中完成渲染
-                const tempContainer = document.createElement('div');
-                tempContainer.style.visibility = 'hidden';
-                tempContainer.style.position = 'absolute';
-                document.body.appendChild(tempContainer);
-                
-                // 创建span元素
-                const span = document.createElement('span');
-                span.style.color = getRandomColor();
-                span.textContent = textArray[charIndex];
-                
-                // 先将元素添加到临时容器，让浏览器预渲染
-                tempContainer.appendChild(span);
-                
-                // 使用requestAnimationFrame确保浏览器完成渲染
-                requestAnimationFrame(() => {
-                    // 将预渲染好的元素移动到目标容器
-                    target.appendChild(span);
-                    // 移除临时容器
-                    document.body.removeChild(tempContainer);
-                });
-                
-                charIndex++;
-                
-                // 为emoji设置适当的延迟，确保渲染完成
-                const delay = 200;
-                setTimeout(type, delay);
-            } else {
-                // 完成输入，等待3秒
-                isDeleting = true;
-                setTimeout(type, 3000); 
+    window.boxmoeBannerAnimationExecuted = true;
+    
+    // 🔒 移除可能存在的旧动画实例
+    if (window.boxmoeBannerAnimation) {
+        window.boxmoeBannerAnimation.stop();
+    }
+    
+    // 🔒 禁用外部脚本对动画的干扰
+    // 防止其他脚本意外重置或修改动画状态
+    Object.defineProperty(window, 'boxmoeBannerAnimationExecuted', {
+        writable: false,
+        configurable: false,
+        value: true
+    });
+    
+    // 🔒 在任何情况下都只允许一个动画容器
+    function ensureSingleBannerElement() {
+        // 🔍 查找所有banner元素
+        const allBannerElements = document.querySelectorAll('.boxmoe-typing-animation');
+        
+        // 🔒 如果存在多个元素，只保留第一个，移除其他重复元素
+        if (allBannerElements.length > 1) {
+            for (let i = 1; i < allBannerElements.length; i++) {
+                allBannerElements[i].remove();
             }
         }
+        
+        // 🔒 确保只有一个元素
+        return document.querySelector('.boxmoe-typing-animation');
     }
+    
+    // 🔒 动画初始化函数
+    function initBannerTypingAnimation() {
+        // 🔒 获取唯一的banner元素
+        const target = ensureSingleBannerElement(); // ⬅️ 获取打字动画容器
+        if (!target) {
+            return;
+        }
+        
+        // 🔒 确保元素没有被初始化过
+        if (target.__bannerAnimationInitialized) {
+            return;
+        }
+        
+        // 🔒 确保元素没有动画标记
+        if (target.hasAttribute('data-banner-animation-done')) {
+            return;
+        }
+        
 
-    type(); // ⬅️ 启动动画
-});
+        
+        // 🔒 设置不可修改的元素标记，防止外部脚本干扰
+        Object.defineProperty(target, '__bannerAnimationInitialized', {
+            writable: false,
+            configurable: false,
+            value: true
+        });
+        
+        // 🔒 设置动画完成标记
+        target.setAttribute('data-banner-animation-done', 'true');
+        
+        const text = target.getAttribute('data-text'); // ⬅️ 获取要显示的文字
+        if (!text) {
+            return;
+        }
+
+        // 🎨 彩虹打字banner欢迎语的配色方案
+        const colors = [
+            '#FF0000', '#FF7F00', '#7ef0ffff', '#67b5ffff', '#0000FF', '#4B0082', '#9400D3',
+            '#FF1493', '#00CED1', '#ff8a8aff', '#003375ff', '#FF69B4'
+        ];
+
+        // 将字符串转换为字符数组，正确处理emoji表情
+        let textArray;
+        try {
+            textArray = Array.from(text);
+        } catch (e) {
+            // 使用传统方式生成字符数组作为备选
+            textArray = text.split('');
+        }
+        
+        // 🔧 创建一个统一的参考文本，用于比较
+        const referenceText = textArray.join('');
+        
+        let isDeleting = false;
+        let charIndex = 0;
+        let lastColor = '';
+
+        // 🎲 获取随机颜色，避免与上一个颜色相同
+        function getRandomColor() {
+            let newColor;
+            do {
+                newColor = colors[Math.floor(Math.random() * colors.length)];
+            } while (newColor === lastColor);
+            lastColor = newColor;
+            return newColor;
+        }
+
+        // ⌨️ 打字动画逻辑
+        let animationRunning = false; // 🔒 确保只有一个动画实例在运行
+        let currentText = ''; // 🔍 跟踪当前已显示的文字
+        
+        // 🔒 检查并清理重复内容
+        function cleanDuplicateText() {
+            return false; // 临时禁用，避免干扰动画正常执行
+        }
+        
+        // 🔒 确保动画状态变量不会被外部修改
+        let animationState = {
+            isDeleting: false,
+            charIndex: 0,
+            currentText: ''
+        };
+        
+        // 🛡️ 使用Object.defineProperty保护关键状态变量
+        Object.defineProperty(window, '__boxmoeBannerAnimationState', {
+            get: () => animationState,
+            configurable: false
+        });
+        
+        function type() {
+            // 🔒 防止动画函数被多次调用
+            if (animationRunning) {
+                return;
+            }
+            
+            animationRunning = true;
+            
+            try {
+                // 🔄 同步内部状态和DOM实际状态
+                const spans = target.querySelectorAll('span');
+                const actualSpansCount = spans.length;
+                
+
+                
+                // 🎯 输入模式
+                if (!animationState.isDeleting) {
+                    if (animationState.charIndex < textArray.length) {
+                        // ⌨️ 打字阶段
+                        const nextChar = textArray[animationState.charIndex];
+                        
+                        // 直接添加字符，简化逻辑
+                        const span = document.createElement('span');
+                        span.style.color = getRandomColor();
+                        span.textContent = nextChar;
+                        target.appendChild(span);
+                        
+                        // 更新状态
+                        animationState.currentText += nextChar;
+                        animationState.charIndex++;
+                        
+                        // ⏱️ 继续打字
+                        setTimeout(() => {
+                            animationRunning = false;
+                            type();
+                        }, 200);
+                    } else {
+                        // ✅ 打字完成，准备删除
+                        animationState.isDeleting = true;
+                        
+                        // 🔒 保存关键状态到DOM，防止变量被外部修改
+                        target.setAttribute('data-animation-state', JSON.stringify({
+                            isDeleting: true,
+                            charIndex: animationState.charIndex
+                        }));
+                        
+                        // ⏱️ 等待3秒后开始删除
+                        setTimeout(() => {
+                            // 🔄 从DOM恢复状态，确保isDeleting为true
+                            const savedState = target.getAttribute('data-animation-state');
+                            if (savedState) {
+                                try {
+                                    const parsedState = JSON.parse(savedState);
+                                    animationState.isDeleting = parsedState.isDeleting;
+                                    animationState.charIndex = parsedState.charIndex;
+                                } catch (e) {
+                                    // 忽略解析错误，继续执行
+                                }
+                            }
+                            
+    
+                            animationRunning = false;
+                            type();
+                        }, 3000);
+                    }
+                }
+                // 🗑️ 删除模式
+                else {
+                    // 🔒 确保charIndex与实际span数量同步
+                    animationState.charIndex = actualSpansCount;
+                    
+
+                    
+                    if (animationState.charIndex > 0) {
+                        // 🗑️ 删除阶段
+                        if (actualSpansCount > 0) {
+                            spans[actualSpansCount - 1].remove();
+                            animationState.currentText = animationState.currentText.slice(0, -1);
+                        }
+                        
+                        // 🔒 确保charIndex正确递减
+                        animationState.charIndex = Math.max(0, animationState.charIndex - 1);
+                        
+                        // ⏱️ 继续删除
+                        setTimeout(() => {
+                            animationRunning = false;
+                            type();
+                        }, 100);
+                    } else {
+                        // 🧹 删除完成，准备重新开始
+                        
+                        // 重置所有状态
+                        animationState.isDeleting = false;
+                        animationState.charIndex = 0;
+                        animationState.currentText = '';
+                        
+                        // 🔒 清除DOM中的状态
+                        target.removeAttribute('data-animation-state');
+                        
+                        // ⏱️ 等待500ms后重新开始
+                        setTimeout(() => {
+                            animationRunning = false;
+                            type();
+                        }, 500);
+                    }
+                }
+            } catch (e) {
+                animationRunning = false;
+                // 🔄 出错后重置状态，防止卡死
+                setTimeout(() => {
+                    // 🔒 重置所有状态
+                    animationState.isDeleting = false;
+                    animationState.charIndex = 0;
+                    animationState.currentText = '';
+                    target.innerHTML = '';
+                    target.removeAttribute('data-animation-state');
+                    type();
+                }, 1000);
+            }
+        }
+
+        // 🔒 启动动画前的准备：
+        // 只有在第一次启动时才清空容器，避免影响正在运行的动画
+        if (!window.boxmoeCurrentAnimationInstance) {
+            // 🔍 检查容器是否已有内容
+            const existingSpans = target.querySelectorAll('span');
+            if (existingSpans.length === 0) {
+                target.innerHTML = '';
+                charIndex = 0;
+                isDeleting = false;
+                currentText = '';
+            }
+            
+            window.boxmoeCurrentAnimationInstance = true;
+            type(); // ⬅️ 启动动画
+        }
+    }
+    
+    // 🔒 全局动画控制对象
+    window.boxmoeBannerAnimation = {
+        isRunning: false,
+        target: null,
+        animationTimeout: null,
+        
+        // 🔒 停止并清空动画
+        stop: function() {
+            if (this.target) {
+                // 清空容器
+                this.target.innerHTML = '';
+                
+                // 重置状态
+                this.target.__bannerAnimationInitialized = false;
+                this.target.removeAttribute('data-banner-animation-done');
+            }
+            
+            // 清除任何挂起的超时
+            if (this.animationTimeout) {
+                clearTimeout(this.animationTimeout);
+                this.animationTimeout = null;
+            }
+            
+            // 重置全局状态
+            window.boxmoeCurrentAnimationInstance = false;
+            this.isRunning = false;
+        },
+        
+        // 🔒 启动动画
+        start: function() {
+            if (!this.isRunning) {
+                // 重置全局状态
+                window.boxmoeCurrentAnimationInstance = false;
+                // 初始化动画
+                initBannerTypingAnimation();
+                this.isRunning = true;
+            }
+        }
+    };
+    
+    // 🔒 初始化动画并保存目标元素
+    function initBannerTypingAnimationWithSave() {
+        initBannerTypingAnimation();
+        // 保存目标元素
+        window.boxmoeBannerAnimation.target = document.querySelector('.boxmoe-typing-animation');
+    }
+    
+    // 🔒 在DOM加载完成后执行动画初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initBannerTypingAnimationWithSave);
+    } else {
+        // 🔒 如果DOM已经加载完成，立即执行
+        initBannerTypingAnimationWithSave();
+    }
+    
+    // 🔒 监听页面可见性变化
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            // 🔒 当页面隐藏时，停止并清空动画
+            window.boxmoeBannerAnimation.stop();
+        } else {
+            // 🔒 当页面显示时，重新启动动画
+            window.boxmoeBannerAnimation.start();
+        }
+    });
+})();
 
 // 🔐 初始化登录状态管理
 document.addEventListener('DOMContentLoaded', function() {

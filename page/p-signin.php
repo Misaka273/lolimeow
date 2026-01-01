@@ -63,102 +63,342 @@ if (is_user_logged_in()){
     <?php boxmoe_description(); ?>
     <?php ob_start();wp_head();$wp_head_output = ob_get_clean();echo preg_replace('/\n/', "\n    ", trim($wp_head_output))."\n    ";?>
     <style>
-        /* 🥳 登录页样式重构 - 玻璃拟态 */
+        /* 🥳 登录页样式 - 双面板设计 */
+        :root {
+            --primary: #5995fd;
+            --primary-dark: #4d84e2;
+            --bg: rgba(176, 208, 255, 0.56);
+            --text: #222;
+            --white: rgba(202, 214, 255, 0.6);
+        }
+        
+        /* 🌟 背景图设置 */
         body {
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            opacity: 0;
+            animation: fadeInScale 1.5s ease-out forwards;
+            background-color: #dde9ffff; /* 确保图片加载前有背景色 */
+        }
+        
+        /* 🌟 背景图淡入放大动画 */
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                background-size: 105% auto;
+            }
+            100% {
+                opacity: 1;
+                background-size: cover;
+            }
+        }
+        
+        /* 🌟 隐藏的预加载图片 */
+        #bg-preloader {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
+        
+
+        
+        /* 🌟 解决无法全屏显示 */
+        html, body, main {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            position: relative !important;
+            left: 0 !important;
+            top: 0 !important;
+        }
+        
+        /* 🌟 强制覆盖所有可能的居中样式 */
+        body > * {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            max-width: none !important;
+            width: 100vw !important;
+        }
+        
+        /* 🌟 确保容器绝对定位 */
+        .container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+            overflow: hidden !important;
+            background-color: var(--white);
+            z-index: 1;
+            backdrop-filter: blur(20px); /* 增强高斯模糊效果 */
+        }
+        
+        * {
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
-            background-color: #f0f2f5;
+            box-sizing: border-box;
         }
-        .login-page-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
+        
+        html {
+            margin: 0;
+            padding: 0;
             width: 100%;
             height: 100%;
-            background-image: url(<?php echo get_boxmoe('boxmoe_user_login_bg')? get_boxmoe('boxmoe_user_login_bg') :'https://api.boxmoe.com/random.php'; ?>);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1;
+            overflow: hidden;
         }
-        .login-page-bg::before {
-            content: '';
+        
+        body {
+            font-family: "Poppins", sans-serif;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden; /* 防止页面滚动 */
+        }
+        
+        main {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        input {
+            font-family: "Poppins", sans-serif;
+        }
+        
+        /* 🌟 强制覆盖所有可能的居中样式 */
+        body > * {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            max-width: none !important;
+            width: 100vw !important;
+        }
+        
+        /* 🌟 确保body强制全屏 */
+        body {
+            display: block !important;
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            overflow: hidden !important;
+        }
+        
+        /* 🌟 确保main标签强制全屏 */
+        main {
+            display: block !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        /* 🌟 粒子效果样式 */
+        #particles-js {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            z-index: 1 !important;
+            overflow: hidden !important;
+        }
+        
+        .container {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            max-width: none !important;
+            overflow: hidden !important;
+            background-color: var(--white);
+            z-index: 2 !important;
+            transform: none !important;
+            display: block !important;
+            box-sizing: border-box !important;
+            border: none !important;
+            outline: none !important;
+        }
+        
+
+        
+        /* 🌟 防止WordPress添加额外容器 */
+        body > *:not(main) {
+            display: none !important;
+        }
+        
+        /* 🌟 确保main是唯一显示的容器 */
+        body > main {
+            display: block !important;
+            position: static !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+        
+        .container::before {
+            content: "";
             position: absolute;
+            height: 2000px;
+            width: 2000px;
+            top: -10%;
+            right: 52%;
+            transform: translateY(-50%);
+            background-image: linear-gradient(-45deg, #1c5fd1 0%, #1ec3fa 100%);
+            transition: 1.8s ease-in-out;
+            border-radius: 50%;
+            z-index: 6;
+        }
+        
+        .forms-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.2); /* ⬅️ 背景遮罩，提升文字可读性 */
-            backdrop-filter: blur(8px); /* ⬅️ 全局背景模糊 */
-            -webkit-backdrop-filter: blur(8px);
         }
-        .login-container {
-            min-height: 100vh;
+        
+        .signin-signup {
+            position: absolute;
+            top: 50%;
+            transform: translate(0, -50%);
+            right: 0;
+            width: 50%;
+            transition: 1s 0.7s ease-in-out;
+            display: grid;
+            grid-template-columns: 1fr;
+            z-index: 5;
+        }
+        
+        form {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            position: relative; /* ⬅️ 确保在粒子层之上 */
-            z-index: 1;
-        }
-        /* ✨ 玻璃拟态卡片 */
-        .glass-card {
-            background: radial-gradient(circle at top left, rgba(255, 192, 203, 0.75), rgba(173, 216, 230, 0.75)); /* ⬅️ 浅粉色到浅蓝色圆形扩散渐变 */
-            backdrop-filter: blur(20px); /* ⬅️ 局部高斯模糊 */
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px; /* ⬅️ 圆角风格 */
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            width: 100%;
-            max-width: 460px;
-            padding: 3rem 2.5rem;
-            position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
-        }
-        /* 🌙 暗色模式适配 */
-        [data-bs-theme="dark"] .glass-card {
-            background: rgba(30, 30, 35, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            color: #e0e0e0;
-        }
-        [data-bs-theme="dark"] .text-body-tertiary {
-            color: #adb5bd !important;
+            flex-direction: column;
+            padding: 0 5rem;
+            transition: all 0.2s 0.7s;
+            overflow: hidden;
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
         }
         
-        /* 🏷️ 浮动标签与动态文本 */
+        form.sign-up-form {
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        form.sign-in-form {
+            z-index: 2;
+        }
+        
+        .title {
+            font-size: 2.2rem;
+            color: #444;
+            margin-bottom: 10px;
+        }
+        
+        /* 🌟 网站Logo样式 */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            max-width: 150px;
+            height: auto;
+            display: block;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            transition: transform 0.3s ease;
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 🏷️ 浮动标签与动态文本 - 勋章效果 */
         .floating-label-group {
             position: relative;
             margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 380px;
         }
         .floating-label-group .form-control {
             height: 3.5rem;
-            padding: 1.25rem 1rem 0.75rem;
+            padding: 1.25rem 40px 0.75rem 1rem;
             background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.3); /* ⬅️ 增加边框线，配合浮动标签 */
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
             transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            /* 隐藏浏览器默认的密码显示按钮 */
+            -moz-appearance: none;
+            -webkit-appearance: none;
         }
-        [data-bs-theme="dark"] .floating-label-group .form-control {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #fff;
+        
+        /* 强制隐藏浏览器默认的密码显示按钮 */
+        input[type="password"]::-ms-reveal {
+            display: none;
+        }
+        
+        input[type="password"]::-webkit-clear-button,
+        input[type="password"]::-webkit-inner-spin-button,
+        input[type="password"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        
+        /* 确保显示密码按钮始终可见 */
+        .toggle-password {
+            z-index: 10 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            opacity: 0.7 !important;
+        }
+        
+        .toggle-password:hover {
+            opacity: 1 !important;
+        }
+        
+        .toggle-password:focus {
+            outline: none !important;
+            opacity: 1 !important;
         }
         .floating-label-group .form-control:focus {
             background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.2);
-            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 3px rgba(89, 149, 253, 0.2);
+            border-color: var(--primary);
             transform: translateY(-1px);
-        }
-        [data-bs-theme="dark"] .floating-label-group .form-control:focus {
-            background: rgba(0, 0, 0, 0.4);
-            border-color: var(--bs-primary);
         }
         .floating-label-group label {
             position: absolute;
@@ -183,193 +423,621 @@ if (is_user_logged_in()){
         /* 激活状态 */
         .floating-label-group .form-control:focus ~ label,
         .floating-label-group .form-control:not(:placeholder-shown) ~ label {
-            top: 0; /* ⬅️ 移动到顶部边框线上 */
+            top: 0;
             left: 0.8rem;
             font-size: 0.75rem;
-            transform: translateY(-50%); /* ⬅️ 垂直居中于边框 */
-            color: var(--bs-primary);
-            background: rgba(255, 255, 255, 0.8); /* ⬅️ 添加背景遮挡边框线，保持玻璃感 */
+            transform: translateY(-50%);
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(4px);
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        [data-bs-theme="dark"] .floating-label-group .form-control:focus ~ label,
-        [data-bs-theme="dark"] .floating-label-group .form-control:not(:placeholder-shown) ~ label {
-            background: rgba(45, 45, 50, 0.8);
-            color: var(--bs-primary);
         }
         .floating-label-group .form-control:focus ~ label::after,
         .floating-label-group .form-control:not(:placeholder-shown) ~ label::after {
             content: attr(data-active);
         }
-
-        .password-field {
-            position: relative;
+        /* 表单验证反馈 */
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 0.25rem;
         }
-        .passwordToggler {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            z-index: 10;
-            color: #6c757d;
-            padding: 5px;
-        }
-        .btn-primary {
+        /* 按钮样式优化 - 统一居中样式 */
+        .btn {
             border-radius: 12px;
             padding: 0.8rem;
             font-weight: 600;
             letter-spacing: 0.5px;
             border: none;
-            box-shadow: 0 4px 6px rgba(var(--bs-primary-rgb), 0.3);
+            box-shadow: 0 4px 6px rgba(89, 149, 253, 0.3);
             transition: all 0.3s ease;
-            position: relative; /* ⬅️ 为扫光动画定位 */
-            overflow: hidden;   /* ⬅️ 隐藏溢出的扫光 */
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
         }
-        .btn-primary:hover {
+        .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(var(--bs-primary-rgb), 0.4);
+            box-shadow: 0 6px 12px rgba(89, 149, 253, 0.4);
         }
-        /* ✨ 按钮扫光动画 */
-        .btn-primary::after {
+        
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -100%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                135deg,
+                transparent,
+                rgba(255, 255, 255, 0.4),
+                rgba(255, 255, 255, 0.6),
+                rgba(255, 255, 255, 0.4),
+                transparent
+            );
+            transform: rotate(30deg);
+            transition: all 0.8s ease;
+        }
+        
+        .btn:hover::after {
+            left: 100%;
+        }
+        
+        .input_field {
+            max-width: 380px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            margin: 10px 0;
+            height: 55px;
+            border-radius: 55px;
+            display: grid;
+            grid-template-columns: 15% 85%;
+            padding: 0 0.4rem;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .input_field input {
+            background: none;
+            outline: none;
+            border: none;
+            line-height: 1;
+            min-width: 270px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding-left: 10px;
+            color: var(--text);
+            font-size: 16px;
+        }
+        
+        .input_field input::placeholder {
+            color: rgba(0, 0, 0, 0.4);
+            font-weight: 500;
+        }
+        
+
+        
+        .shortMessage,
+        .Password_login {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: baseline;
+            position: relative;
+            border-radius: 50%;
+            outline: none;
+            -webkit-appearance: none;
+            border: 1px solid #fff;
+            -webkit-tab-highlight-color: rgba(0, 0, 0, 0);
+            color: #fff;
+            background: #fff;
+        }
+        
+        .shortMessage::before,
+        .Password_login::before {
             content: "";
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
+            background: #fff;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.6),
-                transparent
-            );
-            transition: all 0.6s;
+            border: 1px solid #999999;
+            border-radius: 50%;
+            color: #fff;
         }
-        .btn-primary:hover::after {
-            left: 100%;
-        }
-        /* 💕 底部工具栏 */
-        .theme-toggle-fixed {
+        
+        .shortMessage:checked::before,
+        .Password_login:checked::before {
+            content: "\2713";
+            background-color: #51a7e0;
+            border: 1px solid #51a7e0;
             position: absolute;
-            bottom: 1.5rem;
-            left: 1.5rem;
+            top: 0;
+            left: 0;
+            width: 100%;
+            color: #fff;
+            font-size: 0.52rem;
+            border-radius: 50%;
         }
+        
+        .agree_text {
+            padding-left: 4px;
+            white-space: normal;
+            word-break: break-all;
+            font-size: 12px;
+            line-height: 21px;
+        }
+        
+        .agree_text a {
+            color: #51a7e0;
+            text-decoration: none;
+        }
+        
+        .btn {
+            width: 200px;
+            background-color: #5995fd;
+            border: none;
+            outline: none;
+            height: 49px;
+            border-radius: 49px;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background-color: #4d84e2;
+        }
+        
+        .panels-container {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            left: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .panel {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-around;
+            text-align: center;
+            z-index: 6;
+        }
+        
+        .left-panel {
+            pointer-events: all;
+            padding: 3rem 17% 2rem 12%;
+        }
+        
+        .right-panel {
+            pointer-events: none;
+            padding: 3rem 12% 2rem 17%;
+        }
+        
+        .panel .content {
+            color: #fff;
+            transition: transform 0.9s ease-in-out;
+            transition-delay: 0.6s;
+        }
+        
+        .panel h3 {
+            font-weight: 600;
+            line-height: 1;
+            font-size: 1.5rem;
+        }
+        
+        .panel p {
+            font-size: 0.95rem;
+            padding: 0.7rem 0;
+        }
+        
+        .btn.transparent {
+            margin: 0;
+            background: none;
+            border: 2px solid #fff;
+            width: auto;
+            height: auto;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px 50px;
+            box-sizing: border-box;
+            line-height: 1.2;
+            letter-spacing: 0;
+            text-indent: 0;
+            border-radius: 22px;
+            display: inline-block;
+        }
+        
+        .image {
+            width: 100%;
+            transition: transform 1.1s ease-in-out;
+            transition-delay: 0.4s;
+        }
+        
+        .right-panel .image,
+        .right-panel .content {
+            transform: translateX(800px);
+        }
+        
+        /* 🌙 暗色模式适配 */
+        [data-bs-theme="dark"] {
+            --primary: #6e9eff;
+            --primary-dark: #5a87e3;
+            --bg: #1a1a1a;
+            --text: #e0e0e0;
+            --white: #2d2d2d;
+        }
+        
+        [data-bs-theme="dark"] .title {
+            color: #e0e0e0;
+        }
+        
+        [data-bs-theme="dark"] .input_field {
+            background-color: #3d3d3d;
+        }
+        
+        [data-bs-theme="dark"] .input_field input {
+            color: #e0e0e0;
+        }
+        
+        [data-bs-theme="dark"] .input_field input::placeholder {
+            color: #888;
+        }
+        
+        /* ANIMATION */
+        
+        /* 注册模式样式 */
+        .container.sign-up-mode::before {
+            transform: translate(100%, -50%);
+            right: 52%;
+        }
+        
+        .container.sign-up-mode .signin-signup {
+            left: 0;
+            right: auto;
+        }
+        
+        .container.sign-up-mode form.sign-up-form {
+            opacity: 1;
+            z-index: 2;
+        }
+        
+        .container.sign-up-mode form.sign-in-form {
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        .container.sign-up-mode .left-panel .content,
+        .container.sign-up-mode .left-panel .image {
+            transform: translateX(-800px);
+        }
+        
+        .container.sign-up-mode .right-panel .content,
+        .container.sign-up-mode .right-panel .image {
+            transform: translateX(0);
+        }
+        
+        .container.sign-up-mode .left-panel {
+            pointer-events: none;
+        }
+        
+        .container.sign-up-mode .right-panel {
+            pointer-events: all;
+        }
+        
+        @media (max-width: 870px) {
+            .container {
+                min-height: 800px;
+                height: 100vh;
+            }
+            
+            .signin-signup {
+                width: 100%;
+                top: 95%;
+                transform: translate(-50%, -100%);
+                transition: 1s 0.8s ease-in-out;
+            }
+            
+            .signin-signup,
+            .container.sign-up-mode .signin-signup {
+                left: 50%;
+                transform: translate(-50%, -100%);
+                right: auto;
+            }
+            
+            .panels-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 2fr 1fr;
+            }
+            
+            .panel {
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                padding: 2.5rem 8%;
+                grid-column: 1 / 2;
+            }
+            
+            .right-panel {
+                grid-row: 3 / 4;
+            }
+            
+            .left-panel {
+                grid-row: 1 / 2;
+            }
+            
+            .image {
+                width: 200px;
+                transition: transform 0.9s ease-in-out;
+                transition-delay: 0.6s;
+            }
+            
+            .panel .content {
+                padding-right: 15%;
+                transition: transform 0.9s ease-in-out;
+                transition-delay: 0.8s;
+            }
+            
+            .panel h3 {
+                font-size: 1.2rem;
+            }
+            
+            .panel p {
+                font-size: 0.7rem;
+                padding: 0.5rem 0;
+            }
+            
+            .btn.transparent {
+                width: auto;
+                height: auto;
+                font-size: 0.7rem;
+                text-align: center;
+                padding: 8px 17px;
+                box-sizing: border-box;
+                line-height: 1.2;
+                display: inline-block;
+            }
+            
+            .container:before {
+                width: 1500px;
+                height: 1500px;
+                transform: translateX(-50%);
+                left: 30%;
+                bottom: 68%;
+                right: initial;
+                top: initial;
+                transition: 2s ease-in-out;
+            }
+            
+            .container.sign-up-mode:before {
+                transform: translate(-50%, 100%);
+                bottom: 32%;
+                right: initial;
+            }
+            
+            .container.sign-up-mode .left-panel .image,
+            .container.sign-up-mode .left-panel .content {
+                transform: translateY(-300px);
+            }
+            
+            .container.sign-up-mode .right-panel .image,
+            .container.sign-up-mode .right-panel .content {
+                transform: translateY(0px);
+            }
+            
+            .right-panel .image,
+            .right-panel .content {
+                transform: translateY(300px);
+            }
+            
+            .container.sign-up-mode .signin-signup {
+                top: 5%;
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        @media (max-width: 570px) {
+            form {
+                padding: 0 1.5rem;
+            }
+            
+            .image {
+                display: none;
+            }
+            
+            .panel .content {
+                padding: 0.5rem 1rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .container:before {
+                bottom: 72%;
+                left: 50%;
+            }
+            
+            .container.sign-up-mode:before {
+                bottom: 28%;
+                left: 50%;
+            }
+        }
+
     </style>
 </head>
 
 <body>
    <main>
-      <!-- 🖼️ 全屏背景容器 -->
-      <div class="login-page-bg"></div>
+      <!-- 🥳 双面板登录页面 -->
+      <div class="container">
+         <!-- 表单区 -->
+         <div class="forms-container">
+            <div class="signin-signup">
+               <!-- 登录表单 -->
+               <form class="sign-in-form needs-validation" action="" method="post" id="loginform" novalidate>
+                  <div class="logo-container">
+                     <?php boxmoe_logo(); ?>
+                  </div>
+                  <h2 class="title">登录</h2>
+                  <div class="floating-label-group">
+                     <input type="text" name="username" class="form-control" id="username" required placeholder=" " />
+                     <label for="username" data-default="请输入用户名" data-active="用户名"></label>
+                     <div class="invalid-feedback">请输入有效的用户名。</div>
+                  </div>
+                  <div class="floating-label-group" style="position: relative;">
+                     <input type="password" name="password" class="form-control" id="password" required placeholder=" " />
+                     <label for="password" data-default="请输入密码" data-active="密码"></label>
+                     <div class="invalid-feedback">请输入密码。</div>
+                     <button type="button" class="toggle-password" data-target="password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: var(--text); opacity: 0.7; transition: opacity 0.3s ease;">
+                        <i class="fa fa-eye-slash"></i>
+                     </button>
+                  </div>
+                  <p class="social_text">
+                     <input class="Password_login" type="checkbox" name="rememberme" id="rememberme">
+                     <span class="agree_text">
+                        记住账号
+                     </span>
+                  </p>
+                  <?php wp_nonce_field('user_login', 'login_nonce'); ?>
+                  <button class="btn" type="submit" name="login_submit">Go</button>
+                  <div id="login-message" class="mt-3"></div>
+                  <div class="mt-3">
+                     <a href="<?php echo boxmoe_reset_password_link_page(); ?>" class="text-primary text-decoration-none">忘记密码?</a>
+                  </div>
+               </form>
 
-      <div class="login-container">
-         <div class="glass-card">
-            <!-- Logo区域 -->
-            <div class="text-center mb-4">
-               <a href="<?php echo get_option('home'); ?>" class="d-inline-block transition-hover">
-                   <?php boxmoe_logo(); ?>
-               </a>
-               <?php 
-               // 🔗 判断是否为管理员入口访问
-               $is_admin_redirect = false;
-               if ( isset($_GET['redirect_to']) ) {
-                   $redirect_url = urldecode($_GET['redirect_to']);
-                   // 检查重定向地址是否包含 wp-admin
-                   if ( strpos($redirect_url, 'wp-admin') !== false ) {
-                       $is_admin_redirect = true;
-                   }
-               }
-               ?>
-               <h3 class="mt-3 mb-1 fw-bold">欢迎回来~🎉</h3>
-               <p class="text-muted small mb-0">
-                  如果你还没有账号可以点击
-                  <a href="<?php echo boxmoe_sign_up_link_page(); ?>" class="text-primary fw-bold text-decoration-none">注册</a>
-               </p>
+               <!-- 注册表单 -->
+               <form class="sign-up-form needs-validation" id="signupform" novalidate>
+                  <div class="logo-container">
+                     <?php boxmoe_logo(); ?>
+                  </div>
+                  <h2 class="title">注册</h2>
+                  <div class="floating-label-group">
+                     <input type="text" name="username" class="form-control" id="signupFullnameInput" required placeholder=" " />
+                     <label for="signupFullnameInput" data-default="请输入用户名" data-active="用户名"></label>
+                     <div class="invalid-feedback">请输入有效的用户名。</div>
+                  </div>
+                  <div class="floating-label-group">
+                     <input type="email" name="email" class="form-control" id="signupEmailInput" required placeholder=" " />
+                     <label for="signupEmailInput" data-default="请输入邮箱" data-active="邮箱"></label>
+                     <div class="invalid-feedback">请输入有效的邮箱地址。</div>
+                  </div>
+                  <div class="floating-label-group" style="position: relative;">
+                     <input type="text" name="verificationcode" class="form-control" id="signupVerificationCode" required placeholder=" " style="padding-right: 120px; width: 100%; max-width: 380px;" />
+                     <label for="signupVerificationCode" data-default="请输入验证码" data-active="验证码"></label>
+                     <div class="invalid-feedback">请输入验证码。</div>
+                     <div class="Acquire_box" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                        <span class="Acquire" id="sendVerificationCode" style="display: inline-block; background: var(--primary); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 14px;">获取验证码</span>
+                     </div>
+                  </div>
+                  <div class="floating-label-group" style="position: relative;">
+                     <input type="password" name="password" class="form-control" id="formSignUpPassword" required placeholder=" " />
+                     <label for="formSignUpPassword" data-default="请设置密码" data-active="密码"></label>
+                     <div class="invalid-feedback">请设置密码。</div>
+                     <button type="button" class="toggle-password" data-target="formSignUpPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: var(--text); opacity: 0.7; transition: opacity 0.3s ease;">
+                        <i class="fa fa-eye-slash"></i>
+                     </button>
+                  </div>
+                  <div class="floating-label-group" style="position: relative;">
+                     <input type="password" name="confirmpassword" class="form-control" id="formSignUpConfirmPassword" required placeholder=" " />
+                     <label for="formSignUpConfirmPassword" data-default="请确认密码" data-active="确认密码"></label>
+                     <div class="invalid-feedback">请确认密码。</div>
+                     <button type="button" class="toggle-password" data-target="formSignUpConfirmPassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: transparent; border: none; cursor: pointer; color: var(--text); opacity: 0.7; transition: opacity 0.3s ease;">
+                        <i class="fa fa-eye-slash"></i>
+                     </button>
+                  </div>
+                  <p class="social_text">
+                     <input class="shortMessage" type="checkbox" name="agree" required />
+                     <span class="agree_text">
+                        已阅读并同意<a href="#">《用户协议》</a><a href="#">《隐私政策》</a>
+                     </span>
+                  </p>
+                  <input type="hidden" name="signup_nonce" value="<?php echo wp_create_nonce('user_signup'); ?>">
+                  <button class="btn" type="submit" name="signup_submit">Go</button>
+                  <div id="signup-message" class="mt-3"></div>
+               </form>
+            </div>
+         </div>
+
+         <!-- 双面板 -->
+         <div class="panels-container">
+            <div class="panel left-panel">
+               <div class="content">
+                  <h3>新用户?</h3>
+                  <p>
+                     注册账号，开始您的旅程，探索更多精彩内容。
+                  </p>
+                  <button class="btn transparent" id="sign-up-btn">注册</button>
+               </div>
+               <img class="image" src="<?php echo get_template_directory_uri(); ?>/assets/images/logon/注册.png" alt="注册" />
             </div>
 
-            <!-- 登录表单 -->
-            <form class="needs-validation mb-3" action="" method="post" id="loginform" novalidate>
-               <div class="mb-3 floating-label-group">
-                  <input type="text" name="username" class="form-control" id="username" required placeholder=" " />
-                  <label for="username" data-default="电子邮件/用户名" data-active="账号"></label>
-                  <div class="invalid-feedback">请输入用户名或邮箱。</div>
+            <div class="panel right-panel">
+               <div class="content">
+                  <h3>已有账号?</h3>
+                  <p>
+                     登录您的账号，继续之前的体验。
+                  </p>
+                  <button class="btn transparent" id="sign-in-btn">登录</button>
                </div>
-               
-               <div class="mb-4 position-relative floating-label-group">
-                  <div class="password-field">
-                      <input type="password" name="password" class="form-control fakePassword" id="password" required placeholder=" " />
-                      <label for="password" data-default="请输入密码" data-active="密码"></label>
-                      <i class="bi bi-eye-slash passwordToggler"></i>
-                  </div>
-                  <div class="invalid-feedback">请输入密码。</div>
-               </div>
-
-               <div class="d-flex align-items-center justify-content-between mb-4">
-                  <div class="form-check">
-                     <input class="form-check-input" type="checkbox" name="rememberme" id="rememberme">
-                     <label class="form-check-label small text-muted" for="rememberme">记住账号</label>
-                  </div>
-                  <a href="<?php echo boxmoe_reset_password_link_page(); ?>" class="small text-primary text-decoration-none fw-bold">忘记密码?</a>
-               </div>
-
-               <?php wp_nonce_field('user_login', 'login_nonce'); ?>
-               <div class="d-grid">
-                  <button class="btn btn-primary" type="submit" name="login_submit">
-                     <span class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
-                     <span class="btn-text">立即登录</span>
-                  </button>
-               </div>
-               <div id="login-message"></div>
-            </form>
-
-            <!-- 底部版权 -->
-            <div class="text-center mt-4 pt-3 border-top border-light">
-               <div class="small text-body-tertiary">
-                  Copyright © <?php echo date('Y'); ?> 
-                  <span class="text-primary"><a href="<?php echo get_option('home'); ?>" class="text-reset text-decoration-none fw-bold"><?php echo get_bloginfo('name'); ?></a></span>
-                  <br> Theme by
-                  <span class="text-primary"><a href="https://www.boxmoe.com" class="text-reset text-decoration-none fw-bold">Boxmoe</a></span> powered by WordPress
-               </div>
+               <img class="image" src="<?php echo get_template_directory_uri(); ?>/assets/images/logon/登录.png" alt="登录" />
             </div>
          </div>
       </div>
 
-      <!-- 🛠️ 主题切换按钮 -->
-      <div class="position-absolute start-0 bottom-0 m-4">
-         <div class="dropdown">
-            <button
-                    class="float-btn bd-theme btn btn-light btn-icon rounded-circle d-flex align-items-center shadow-sm"
-                    type="button"
-                    aria-expanded="false"
-                    data-bs-toggle="dropdown"
-                    aria-label="Toggle theme (auto)">
-                    <i class="fa fa-adjust"></i>
-                    <span class="visually-hidden bs-theme-text">主题颜色切换</span>
-            </button>
-            <ul class="bs-theme dropdown-menu dropdown-menu-end shadow" aria-labelledby="bs-theme-text">
-                <li>
-                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g stroke="currentColor" stroke-linecap="round" stroke-width="2" data-swindex="0"><path fill="currentColor" fill-opacity="0" stroke-dasharray="34" stroke-dashoffset="34" d="M12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.4s" values="34;0"/><animate fill="freeze" attributeName="fill-opacity" begin="0.9s" dur="0.5s" values="0;1"/></path><g fill="none" stroke-dasharray="2" stroke-dashoffset="2"><path d="M0 0"><animate fill="freeze" attributeName="d" begin="0.5s" dur="0.2s" values="M12 19v1M19 12h1M12 5v-1M5 12h-1;M12 21v1M21 12h1M12 3v-1M3 12h-1"/><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.5s" dur="0.2s" values="2;0"/></path><path d="M0 0"><animate fill="freeze" attributeName="d" begin="0.7s" dur="0.2s" values="M17 17l0.5 0.5M17 7l0.5 -0.5M7 7l-0.5 -0.5M7 17l-0.5 0.5;M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"/><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.7s" dur="0.2s" values="2;0"/></path><animateTransform attributeName="transform" dur="30s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></g></g></svg>
-                        <span class="ms-2">亮色</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" data-swindex="0"><g stroke-dasharray="2"><path d="M12 21v1M21 12h1M12 3v-1M3 12h-1"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="4;2"/></path><path d="M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.2s" values="4;2"/></path></g><path fill="currentColor" d="M7 6 C7 12.08 11.92 17 18 17 C18.53 17 19.05 16.96 19.56 16.89 C17.95 19.36 15.17 21 12 21 C7.03 21 3 16.97 3 12 C3 8.83 4.64 6.05 7.11 4.44 C7.04 4.95 7 5.47 7 6 Z" opacity="0"><set attributeName="opacity" begin="0.5s" to="1"/></path></g><g fill="currentColor" fill-opacity="0"><path d="m15.22 6.03l2.53-1.94L14.56 4L13.5 1l-1.06 3l-3.19.09l2.53 1.94l-.91 3.06l2.63-1.81l2.63 1.81z"><animate id="lineMdSunnyFilledLoopToMoonFilledLoopTransition0" fill="freeze" attributeName="fill-opacity" begin="0.6s;lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+6s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.2s" dur="0.4s" values="1;0"/></path><path d="M13.61 5.25L15.25 4l-2.06-.05L12.5 2l-.69 1.95L9.75 4l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+3s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+5.2s" dur="0.4s" values="1;0"/></path><path d="M19.61 12.25L21.25 11l-2.06-.05L18.5 9l-.69 1.95l-2.06.05l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+0.4s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.8s" dur="0.4s" values="1;0"/></path><path d="m20.828 9.731l1.876-1.439l-2.366-.067L19.552 6l-.786 2.225l-2.366.067l1.876 1.439L17.601 12l1.951-1.342L21.503 12z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+3.4s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+5.6s" dur="0.4s" values="1;0"/></path></g><mask id="lineMdSunnyFilledLoopToMoonFilledLoopTransition1"><circle cx="12" cy="12" r="12" fill="#fff"/><circle cx="22" cy="2" r="3" fill="#fff"><animate fill="freeze" attributeName="cx" begin="0.1s" dur="0.4s" values="22;18"/><animate fill="freeze" attributeName="cy" begin="0.1s" dur="0.4s" values="2;6"/><animate fill="freeze" attributeName="r" begin="0.1s" dur="0.4s" values="3;12"/></circle><circle cx="22" cy="2" r="1"><animate fill="freeze" attributeName="cx" begin="0.1s" dur="0.4s" values="22;18"/><animate fill="freeze" attributeName="cy" begin="0.1s" dur="0.4s" values="2;6"/><animate fill="freeze" attributeName="r" begin="0.1s" dur="0.4s" values="1;10"/></circle></mask><circle cx="12" cy="12" r="6" fill="currentColor" mask="url(#lineMdSunnyFilledLoopToMoonFilledLoopTransition1)"><set attributeName="opacity" begin="0.5s" to="0"/><animate fill="freeze" attributeName="r" begin="0.1s" dur="0.4s" values="6;10"/></circle></svg>
-                        <span class="ms-2">暗色</span>
-                    </button>
-                </li>
-                <li>
-                    <button type="button" class="dropdown-item d-flex align-items-center active" data-bs-theme-value="auto" aria-pressed="true">
-                        <i class="fa fa-adjust"></i>
-                        <span class="ms-2">跟随系统</span>
-                    </button>
-                </li>
-            </ul>
-         </div>
+      <!-- 📝 主题版权信息 -->
+      <style>
+          .theme-copyright {
+              position: fixed;
+              bottom: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              text-align: center;
+              font-size: 12px;
+              color: rgba(0, 0, 0, 0.6);
+              z-index: 9999;
+              line-height: 1.6;
+          }
+          
+          .theme-copyright a {
+              color: #1a5fb4;
+              text-decoration: none;
+              transition: color 0.3s ease;
+          }
+          
+          .theme-copyright a:hover {
+              color: #154360;
+          }
+      </style>
+      
+      <div class="theme-copyright">
+          <p>主题名称🎉<?php $theme_data = wp_get_theme(); echo $theme_data->get('Name'); ?></p>
+          <p>主题版本🛰️<?php $theme_data = wp_get_theme(); echo $theme_data->get('Version'); ?></p>
+          <p>本页面由🗼 <a href="https://gl.baimu.live/864" target="_blank">白木</a> 重构</p>
       </div>
    </main>
+   
+   <!-- 🌟 背景图预加载 -->
+   <img id="bg-preloader" src="<?php boxmoe_banner_image(); ?>" alt="Preload Background" />
+   
    <?php 
     ob_start();
     wp_footer();
@@ -382,81 +1050,235 @@ if (is_user_logged_in()){
         ajaxurl: '<?php echo admin_url("admin-ajax.php"); ?>',
         themeurl: '<?php echo boxmoe_theme_url(); ?>'
       };
-      // 🔗 登录表单提交事件监听
+
+      // 🌟 背景图预加载功能
       document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('loginform').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const loginButton = this.querySelector('button[type="submit"]');
-        const spinner = loginButton.querySelector('.spinner-border');
-        const btnText = loginButton.querySelector('.btn-text');
+          // 获取预加载图片元素
+          const preloaderImg = document.getElementById('bg-preloader');
+          const body = document.body;
+          
+          // 设置预加载图片的onload事件
+          preloaderImg.onload = function() {
+              // 图片加载完成后，将图片应用到body背景
+              body.style.backgroundImage = `url('${this.src}')`;
+              // 触发动画效果
+              body.style.opacity = '1';
+          };
+          
+          // 🔗 双面板切换功能
+          const sign_in_btn = document.getElementById('sign-in-btn');
+          const sign_up_btn = document.getElementById('sign-up-btn');
+          const container = document.querySelector('.container');
 
-        loginButton.disabled = true;
-        spinner.classList.remove('d-none');
-        btnText.textContent = '登录中...';
+          sign_up_btn.addEventListener('click', () => {
+              container.classList.add('sign-up-mode');
+          });
 
-        // 🔗 获取 URL 中的 redirect_to 参数
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirect_to = urlParams.get('redirect_to');
+          sign_in_btn.addEventListener('click', () => {
+              container.classList.remove('sign-up-mode');
+          });
+          
+          // 🔗 根据URL参数自动切换登录/注册模块
+          const urlParams = new URLSearchParams(window.location.search);
+          const mode = urlParams.get('mode');
+          
+          if (mode === 'signup') {
+              container.classList.add('sign-up-mode');
+          } else {
+              container.classList.remove('sign-up-mode');
+          }
+          
+          // 🔗 显示/隐藏密码功能 - 优化实现
+          const togglePasswordBtns = document.querySelectorAll('.toggle-password');
+          
+          // 确保按钮元素存在
+          if (togglePasswordBtns.length > 0) {
+              togglePasswordBtns.forEach(btn => {
+                  // 使用原生事件监听器，确保事件绑定成功
+                  btn.addEventListener('click', function(e) {
+                      e.preventDefault();
+                      
+                      const targetId = this.getAttribute('data-target');
+                      const passwordInput = document.getElementById(targetId);
+                      const icon = this.querySelector('i');
+                      
+                      // 确保目标元素存在
+                      if (passwordInput && icon) {
+                          // 切换密码显示状态
+                          if (passwordInput.type === 'password') {
+                              passwordInput.type = 'text';
+                              icon.classList.remove('fa-eye-slash');
+                              icon.classList.add('fa-eye');
+                          } else {
+                              passwordInput.type = 'password';
+                              icon.classList.remove('fa-eye');
+                              icon.classList.add('fa-eye-slash');
+                          }
+                      }
+                  });
+              });
+          }
 
-        // 🔄 动态生成新的nonce，避免过期问题
-        const newNonce = document.querySelector('input[name="login_nonce"]').value;
-        const formData = {
-            username: document.getElementById('username').value,
-            password: document.getElementById('password').value,
-            rememberme: document.getElementById('rememberme').checked,
-            login_nonce: newNonce,
-            redirect_to: redirect_to // ⬅️ 将重定向参数传给后端
-        };                          
-        // 使用FormData来构建请求体，确保WordPress能正确解析
-        const formDataToSend = new FormData();
-        formDataToSend.append('action', 'user_login_action');
-        formDataToSend.append('formData', JSON.stringify(formData));
-        
-        fetch(ajax_object.ajaxurl, {
-            method: 'POST',
-            credentials: 'same-origin',
-            body: formDataToSend
-        })
-        .then(response => response.json())
-        .then(response => {
-            if(response.success) {
-                document.getElementById('login-message').innerHTML = 
-                    '<div class="alert alert-success mt-3">' + response.data.message + '，正在跳转...</div>';
-                setTimeout(() => {
-                    // 🔗 优先跳转到后端返回的地址，其次尝试 URL 参数，最后回落到 referrer 或首页
-                    if (response.data.redirect_url) {
-                        window.location.href = response.data.redirect_url;
-                    } else if (redirect_to) {
-                        window.location.href = redirect_to;
-                    } else {
-                         window.location.href = '/';
-                    }
-                }, 1000);
-            } else {
-                loginButton.disabled = false;
-                spinner.classList.add('d-none');
-                btnText.textContent = '登录';
-                
-                document.getElementById('login-message').innerHTML = 
-                    '<div class="alert alert-danger mt-3">' + response.data.message + '</div>';
-            }
-        })
-        .catch(error => {
-            loginButton.disabled = false;
-            spinner.classList.add('d-none');
-            btnText.textContent = '登录';
-            
-            // 显示更详细的错误信息，帮助用户了解登录失败的原因
-            const errorMessage = error.message || '未知错误';
-            document.getElementById('login-message').innerHTML = 
-                '<div class="alert alert-danger mt-3">登录请求失败: ' + errorMessage + '，请稍后重试</div>';
-            
-            // 在控制台打印完整的错误信息，方便开发者调试
-            console.error('登录请求失败:', error);
-        });
-    });
-});
+          // 🔗 登录表单提交事件监听
+          document.getElementById('loginform').addEventListener('submit', function(e) {
+              e.preventDefault();
+              
+              const loginButton = this.querySelector('button[type="submit"]');
+              
+              loginButton.disabled = true;
+              loginButton.textContent = '登录中...';
+
+              // 🔗 获取 URL 中的 redirect_to 参数
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirect_to = urlParams.get('redirect_to');
+
+              // 🔄 动态生成新的nonce，避免过期问题
+              const newNonce = document.querySelector('input[name="login_nonce"]').value;
+              const formData = {
+                  username: document.getElementById('username').value,
+                  password: document.getElementById('password').value,
+                  rememberme: document.getElementById('rememberme').checked,
+                  login_nonce: newNonce,
+                  redirect_to: redirect_to // ⬅️ 将重定向参数传给后端
+              };
+              
+              // 使用FormData来构建请求体，确保WordPress能正确解析
+              const formDataToSend = new FormData();
+              formDataToSend.append('action', 'user_login_action');
+              formDataToSend.append('formData', JSON.stringify(formData));
+              
+              fetch(ajax_object.ajaxurl, {
+                  method: 'POST',
+                  credentials: 'same-origin',
+                  body: formDataToSend
+              })
+              .then(response => response.json())
+              .then(response => {
+                  if(response.success) {
+                      document.getElementById('login-message').innerHTML = 
+                          '<div class="alert alert-success mt-3">' + response.data.message + '，正在跳转...</div>';
+                      setTimeout(() => {
+                          // 🔗 优先跳转到后端返回的地址，其次尝试 URL 参数，最后回落到 referrer 或首页
+                          if (response.data.redirect_url) {
+                              window.location.href = response.data.redirect_url;
+                          } else if (redirect_to) {
+                              window.location.href = redirect_to;
+                          } else {
+                               window.location.href = '/';
+                          }
+                      }, 1000);
+                  } else {
+                      loginButton.disabled = false;
+                      loginButton.textContent = 'Go';
+                      
+                      document.getElementById('login-message').innerHTML = 
+                          '<div class="alert alert-danger mt-3">' + response.data.message + '</div>';
+                  }
+              })
+              .catch(error => {
+                  loginButton.disabled = false;
+                  loginButton.textContent = 'Go';
+                  
+                  // 显示更详细的错误信息，帮助用户了解登录失败的原因
+                  const errorMessage = error.message || '未知错误';
+                  document.getElementById('login-message').innerHTML = 
+                      '<div class="alert alert-danger mt-3">登录请求失败: ' + errorMessage + '，请稍后重试</div>';
+                  
+                  // 在控制台打印完整的错误信息，方便开发者调试
+                  console.error('登录请求失败:', error);
+              });
+          });
+
+          // 🔗 注册相关JS功能
+          // 发送验证码逻辑
+          document.getElementById('sendVerificationCode').addEventListener('click', function() {
+              var email = document.getElementById('signupEmailInput').value;
+              var btn = this;
+              if(!email) {
+                  alert('请先填写邮箱地址');
+                  return;
+              }
+              
+              btn.disabled = true;
+              btn.textContent = '发送中...';
+              
+              fetch(ajax_object.ajaxurl, {
+                  method: 'POST',
+                  headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                  body: 'action=send_verification_code&email=' + encodeURIComponent(email)
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if(data.success) {
+                      alert(data.data.message);
+                      var countdown = 60;
+                      var timer = setInterval(function() {
+                          btn.textContent = countdown + 's后重试';
+                          countdown--;
+                          if(countdown < 0) {
+                              clearInterval(timer);
+                              btn.disabled = false;
+                              btn.textContent = '获取验证码';
+                          }
+                      }, 1000);
+                  } else {
+                      alert(data.data.message);
+                      btn.disabled = false;
+                      btn.textContent = '获取验证码';
+                  }
+              })
+              .catch(err => {
+                  alert('发送失败，请重试');
+                  btn.disabled = false;
+                  btn.textContent = '获取验证码';
+              });
+          });
+
+          // 注册表单提交
+          document.getElementById('signupform').addEventListener('submit', function(e) {
+              e.preventDefault();
+              var btn = this.querySelector('button[type="submit"]');
+              
+              btn.disabled = true;
+              btn.textContent = '注册中...';
+              
+              // 构建表单数据对象
+              var formData = {
+                  username: document.getElementById('signupFullnameInput').value,
+                  email: document.getElementById('signupEmailInput').value,
+                  verificationcode: document.getElementById('signupVerificationCode').value,
+                  password: document.getElementById('formSignUpPassword').value,
+                  confirmpassword: document.getElementById('formSignUpConfirmPassword').value,
+                  signup_nonce: this.querySelector('input[name="signup_nonce"]').value
+              };
+              
+              fetch(ajax_object.ajaxurl, {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded'
+                  },
+                  body: 'action=user_signup_action&formData=' + encodeURIComponent(JSON.stringify(formData))
+              })
+              .then(response => response.json())
+              .then(data => {
+                  if(data.success) {
+                      document.getElementById('signup-message').innerHTML = '<div class="alert alert-success mt-3">'+data.data.message+'</div>';
+                      setTimeout(function(){
+                          window.location.href = '<?php echo boxmoe_sign_in_link_page(); ?>';
+                      }, 2000);
+                  } else {
+                      document.getElementById('signup-message').innerHTML = '<div class="alert alert-danger mt-3">'+data.data.message+'</div>';
+                      btn.disabled = false;
+                      btn.textContent = 'Go';
+                  }
+              })
+              .catch(err => {
+                  document.getElementById('signup-message').innerHTML = '<div class="alert alert-danger mt-3">网络错误，请重试</div>';
+                  btn.disabled = false;
+                  btn.textContent = 'Go';
+              });
+          });
+      });
     </script>
     <!-- 🌌 引入粒子效果脚本 -->
     <script src="<?php echo get_template_directory_uri(); ?>/assets/js/login-particles.js"></script>

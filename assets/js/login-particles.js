@@ -26,7 +26,7 @@
         particleSpeed: 1,        // 移动速度
         connectDistance: 150,    // 连线距离
         mouseInteractionDistance: 200, // 鼠标交互距离
-        zIndex: 0               // 层级 ⬅️ 位于背景之上，卡片之下
+        zIndex: 1               // 层级 ⬅️ 位于背景之上，卡片之下
     };
 
     let canvas, ctx;
@@ -47,7 +47,14 @@
         canvas.style.height = '100%';
         canvas.style.zIndex = CONFIG.zIndex;
         canvas.style.pointerEvents = 'none'; // ⬅️ 不阻挡下方元素点击
-        document.body.appendChild(canvas);
+        
+        // 添加到main标签中，避免被CSS规则隐藏
+        const mainElement = document.querySelector('main');
+        if (mainElement) {
+            mainElement.appendChild(canvas);
+        } else {
+            document.body.appendChild(canvas);
+        }
 
         ctx = canvas.getContext('2d');
 
@@ -253,7 +260,7 @@
     function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 1. 绘制网络粒子
+        // 绘制网络粒子
         for (let i = 0; i < particles.length; i++) {
             particles[i].update();
             particles[i].draw();
@@ -282,13 +289,13 @@
             }
         }
 
-        // 2. 绘制闪烁波点
+        // 绘制闪烁波点
         for (let i = 0; i < stars.length; i++) {
             stars[i].update();
             stars[i].draw();
         }
 
-        // 3. 绘制升空粒子 ⬅️ 新增
+        // 绘制升空粒子 ⬅️ 新增
         for (let i = 0; i < risingStars.length; i++) {
             risingStars[i].update();
             risingStars[i].draw();

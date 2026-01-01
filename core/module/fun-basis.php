@@ -130,7 +130,8 @@ function boxmoe_body_grey(){
 // 欢迎语--------------------------boxmoe.com--------------------------
 function boxmoe_banner_welcome($return = false){
     $text = get_boxmoe('boxmoe_banner_font');
-    $content = $text ?: 'Hello! 欢迎来到盒子萌！';
+    // 🔍 当设置为空时，返回空字符串，而不是默认值
+    $content = $text !== '' ? $text : '';
     if ($return) {
         return $content;
     }
@@ -177,7 +178,8 @@ function boxmoe_load_assets_header(){
         'posts_per_page' => get_option('posts_per_page'),
         'nonce' =>wp_create_nonce('boxmoe_ajax_nonce'),
         'running_days' => get_boxmoe('boxmoe_footer_running_days_time')?:'2025-01-01',
-        'hitokoto' => get_boxmoe('boxmoe_banner_hitokoto_text')?:'a'
+        'hitokoto' => get_boxmoe('boxmoe_banner_hitokoto_text')?:'a',
+        'sign_in_link_switch' => get_boxmoe('boxmoe_sign_in_link_switch') ? 'true' : 'false'
     ));
     
     // 确保登录状态变化时，ajax_object能实时更新
@@ -321,31 +323,30 @@ if (function_exists('register_sidebar')){
         }elseif(get_boxmoe('boxmoe_blog_border') == 'lines'){
         $boxmoe_border='blog-lines';
         }
-        // 只有双栏布局才注册其他侧边栏
-        if(get_boxmoe('boxmoe_blog_layout') == 'two'){
-            $widgets = array(
-                'site_sidebar' => __('全站侧栏展示', 'boxmoe-com'),
-                'home_sidebar' => __('首页侧栏展示', 'boxmoe-com'),
-                'post_sidebar' => __('文章页侧栏展示', 'boxmoe-com'),
-                'page_sidebar' => __('页面侧栏展示', 'boxmoe-com'),
-            );
-    
-            foreach ($widgets as $key => $value) {
-                register_sidebar(array(
-                    'name'          => $value,
-                    'id'            => 'widget_'.$key,
-                    'before_widget' => '<div class="widget '.$boxmoe_border.' %2$s">',
-                    'after_widget'  => '</div>',
-                    'before_title'  => '<h4 class="widget-title">',
-                    'after_title'   => '</h4>'
-                ));
-            }
+        // 始终注册所有侧边栏，无论当前布局设置如何
+        // 这样可以避免更新主题时主题选项数据暂时不可用导致侧边栏丢失
+        $widgets = array(
+            'site_sidebar' => __('全站侧栏展示', 'boxmoe-com'),
+            'home_sidebar' => __('首页侧栏展示', 'boxmoe-com'),
+            'post_sidebar' => __('文章页侧栏展示', 'boxmoe-com'),
+            'page_sidebar' => __('页面侧栏展示', 'boxmoe-com'),
+        );
+
+        foreach ($widgets as $key => $value) {
+            register_sidebar(array(
+                'name'          => $value,
+                'id'            => 'widget_'.$key,
+                'before_widget' => '<div class="widget '.$boxmoe_border.' %2$s">',
+                'after_widget'  => '</div>',
+                'before_title'  => '<h4 class="widget-title">',
+                'after_title'   => '</h4>'
+            ));
         }
-    
+
     // 加载主题自带的小部件
     require_once get_template_directory() . '/core/widgets/widget-set.php';
     
-    // 注册底部栏小部件区域（无论布局如何都注册）
+    // 注册底部栏小部件区域
     register_sidebar(array(
         'name'          => __('底部栏展示', 'boxmoe-com'),
         'id'            => 'widget_footer_widgets',

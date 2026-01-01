@@ -182,44 +182,69 @@ input:focus, textarea:focus, select:focus{border-color:#2563eb !important;box-sh
     border-top-right-radius: 12px !important;
 }
 
-/* 🔽 下拉选择框 (Select) 扁平圆角化 - 增强权重版 */
+/* 🔽 下拉选择框 (Select) 扁平圆角化 - 紫色主题增强版 */
 body select:not(.mm):not(.jj):not(.aa),
 .wrap select:not(.mm):not(.jj):not(.aa),
 .form-table select:not(.mm):not(.jj):not(.aa),
-.wp-core-ui select:not(.mm):not(.jj):not(.aa) {
+.wp-core-ui select:not(.mm):not(.jj):not(.aa),
+/* WPJAM 插件下拉框样式 */
+.wpjam-page select,
+.wpjam-field select,
+.has-dependents select,
+[data-show_if] select,
+[name="gravatar"],
+[name="google_fonts"] {
     appearance: none !important;
     -webkit-appearance: none !important;
     -moz-appearance: none !important;
     
     /* 背景图：自定义箭头 + 纯白背景色 */
-    background: #ffffff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%231e40af%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
+    background: #ffffff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%238b5cf6%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
     background-size: 16px 16px !important;
     
     padding: 0 32px 0 12px !important; /* ⬅️ 明确内边距 */
     border-radius: 8px !important;
-    border: 1px solid #93c5fd !important;
-    color: #1e40af !important;
+    border: 1px solid #a78bfa !important;
+    color: #6d28d9 !important;
     line-height: 2 !important;
     min-height: 36px !important;
     height: auto !important; /* ⬅️ 防止被定高 */
     vertical-align: middle !important;
     max-width: 100% !important; /* ⬅️ 防止溢出 */
+    transition: all 0.2s ease !important;
 }
 
 /* 悬停 */
 body select:not(.mm):not(.jj):not(.aa):hover,
-.wrap select:not(.mm):not(.jj):not(.aa):hover {
-    border-color: #a78bfa !important;
-    background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%) url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%231e40af%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
+.wrap select:not(.mm):not(.jj):not(.aa):hover,
+/* WPJAM 插件下拉框悬停样式 */
+.wpjam-page select:hover,
+.wpjam-field select:hover,
+.has-dependents select:hover,
+[data-show_if] select:hover,
+[name="gravatar"]:hover,
+[name="google_fonts"]:hover {
+    border-color: #8b5cf6 !important;
+    background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%) url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%236d28d9%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
     background-size: 16px 16px !important;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.15) !important;
 }
 
 /* 聚焦 */
 body select:not(.mm):not(.jj):not(.aa):focus,
-.wrap select:not(.mm):not(.jj):not(.aa):focus {
-    border-color: #2563eb !important;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+.wrap select:not(.mm):not(.jj):not(.aa):focus,
+/* WPJAM 插件下拉框聚焦样式 */
+.wpjam-page select:focus,
+.wpjam-field select:focus,
+.has-dependents select:focus,
+[data-show_if] select:focus,
+[name="gravatar"]:focus,
+[name="google_fonts"]:focus {
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
     outline: none !important;
+    background: #ffffff url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%206l5%205%205-5%202%201-7%207-7-7%202-1z%22%20fill%3D%22%236d28d9%22%2F%3E%3C%2Fsvg%3E") no-repeat right 8px center !important;
+    background-size: 16px 16px !important;
 }
 
 /* 🔽 WordPress 日期选择器样式 - 扁平圆角风 */

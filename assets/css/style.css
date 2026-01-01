@@ -46,6 +46,9 @@ Author URI:https://www.boxmoe.com
     --nav-shine-color: rgba(255, 255, 255, 0.6); /* ◀️ 暗色模式下导航扫光颜色 */
     /* 📌 确保暗色模式下导航链接没有气泡效果 */
     --bs-nav-link-bg: transparent;
+    /* 🌆 暗色模式下的图片占位符 */
+    --bs-light: #1a1a1a;
+    --bs-gray-200: #2a2a2a;
 }
 
 /* 📄 文章分页样式 - 纯数字设计 */
@@ -56,6 +59,9 @@ Author URI:https://www.boxmoe.com
   border-top: 1px solid var(--bs-border-color);
   border-bottom: 1px solid var(--bs-border-color);
   background-color: var(--bs-white);
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 .page-links-title {
@@ -668,9 +674,75 @@ img, video, iframe {
     margin: 0 auto;
 }
 
-img.lazy {opacity:0;transition:opacity 0.3s ease-in-out;}
-img.lazy.loaded {opacity:1;}
-.lazy:not([src]) {background:#f5f5f5 url('../images/loading.gif') center no-repeat;background-size:30px;min-height:60px;}
+img.lazy {opacity:0;transform: scale(0.8);transition: all 0.6s cubic-bezier(0.5, 0, 0.3, 1);}
+img.lazy.loaded {opacity:1;transform: scale(1);}
+.lazy:not([src]) {background:transparent url('../images/loading.gif') center no-repeat;background-size:30px;min-height:60px;}
+
+/* 🎨 文章封面图片加载效果 */
+.post-list-img img {opacity:0;transform: scale(0.8);transition: all 0.6s cubic-bezier(0.5, 0, 0.3, 1);}
+.post-list-img img.loaded {opacity:1;transform: scale(1);}
+
+/* 🎨 Banner图片静默预加载效果 */
+.boxmoe_header_banner_img {
+    position: relative;
+    overflow: hidden;
+}
+
+.boxmoe_header_banner_img img {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: all 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: blur(8px);
+}
+
+.boxmoe_header_banner_img img.loaded {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+}
+
+/* 🎨 文章封面图片静默加载效果 */
+.post-list-img {
+    position: relative;
+    overflow: hidden;
+}
+
+.post-list-img img {
+    opacity: 0;
+    transform: scale(0.85);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: blur(5px);
+}
+
+.post-list-img img.loaded {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+}
+
+/* 🎨 静默加载占位符 */
+.shiroki-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bs-light);
+    z-index: 1;
+}
+
+.shiroki-image-placeholder.loaded {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+/* 🌆 暗色模式适配 */
+[data-bs-theme="dark"] .shiroki-image-placeholder {
+    background: var(--bs-dark);
+}
+
+/* 🎨 确保占位图不应用缩放效果 */
+.post-list-img img[src*="loadz.svg"] {opacity:1;transform: scale(1);}
 .boxmoe_header .navbar {background-color:transparent;position:absolute;top:0;left:0;right:0;z-index:1;box-shadow:none;padding-top:5px;}
 .boxmoe_header .navbar {transition:all 0.3s ease;}
 .boxmoe_header .navbar.nav-down {transform:translateY(0);}
@@ -966,7 +1038,16 @@ to {opacity:1;transform:translateY(0);}
 
 .boxmoe_header .navbar .navbar-nav .nav-item .nav-link i {margin-right:5px;color:var(--bs-dark);}
 .boxmoe_header .navbar .dropdown .nav-link.dropdown-toggle:after {color:var(--bs-dark);}
-.boxmoe_header .navbar-brand img,.boxmoe_header .offcanvas-header img {width:116px;height:36px;object-fit:contain;}
+.boxmoe_header .navbar-brand img {width:116px;height:36px;object-fit:contain;}
+
+/* 📱 移动端侧边栏Logo优化 */
+@media (max-width: 991px) {
+    .boxmoe_header .offcanvas-header img {
+        width: 80px;
+        height: 24px;
+        object-fit: contain;
+    }
+}
 .boxmoe_header .navbar-nav > li > .dropdown-menu .dropdown-item {display:block;font-size:14px;font-weight:400;color:var(--bs-dark);padding:10px 25px;background:none;line-height:1.25;position:relative;letter-spacing:0.3px;-webkit-transition:all 300ms ease;-o-transition:all 300ms ease;transition:all 300ms ease}
 .boxmoe_header .navbar-nav > li > .dropdown-menu .dropdown-item:hover {color:var(--bs-dark)}
 .boxmoe_header .navbar-nav > li > .dropdown-menu .dropdown-item:before {content:'';width:0px;height:1px;background:var(--bs-dark);position:absolute;left:25px;top:50%;-webkit-transform:translateY(-50%);-ms-transform:translateY(-50%);transform:translateY(-50%);z-index:2;-webkit-transition:all 300ms ease;-o-transition:all 300ms ease;transition:all 300ms ease}
@@ -1061,7 +1142,7 @@ to {opacity:1;transform:translateY(0);}
 .boxmoe_header .lighting li {padding:4px 15px;border-radius:6px;cursor:pointer;font-size:12px;transition:all 0.3s ease;border-radius:50px}
 .boxmoe_header .lighting li.active {background-color:var(--bs-primary);color:#fff;}
 [data-bs-theme="dark"] .boxmoe_header .lighting li:not(.active) {color:var(--bs-gray-500);}
-.boxmoe_header_banner {height:80vh;background:#33333330;background-position:30% 30%;position:relative;overflow:hidden}
+.boxmoe_header_banner {height:80vh;background:transparent;background-position:30% 30%;position:relative;overflow:hidden}
 .boxmoe_header_banner_img {width:100%;height:100%;position:relative;transform:scale(1.4);opacity:0;visibility:hidden;transition:all 1.8s cubic-bezier(0.5,0,0,1);}
 .boxmoe_header_banner_img:before {content:'';position:absolute;top:0;left:0;width:100%;height:15%;min-height:60px;background:linear-gradient(to bottom,var(--bs-white),#00000000);user-select:none;pointer-events:none;z-index:2;}
 .boxmoe_header_banner_img::after {position:absolute;width:100%;height:100%;left:0;top:0;content:"";
@@ -2797,7 +2878,7 @@ hr:not([size]) {height:1px}
 .single-author-name{margin-left:1rem}
 .single-author-info,.single-author-info a{font-size:12px;color:var(--bs-dark)}
 .single-author-info i{padding-right:5px}
-.single-author-info .data,.single-author-info .name,.single-author-info .view{font-size:12px;margin-right:12px;padding-right:12px;border-right:1px solid var(--bs-gray-300)}
+.single-author-info .data,.single-author-info .name,.single-author-info .modified,.single-author-info .view{font-size:12px;margin-right:12px;padding-right:12px;border-right:1px solid var(--bs-gray-300)}
 .single-author-info .view{border-right:none}
 .single-author-info .admin{padding-left:20px;color:var(--bs-danger)}
 .single-info-right{align-items:center;display:flex;flex-direction:row;font-weight:400}

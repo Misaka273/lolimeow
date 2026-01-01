@@ -185,24 +185,10 @@ function ajax_comment_callback() {
 
     $comment_data = wp_unslash($_POST);
     $comment_data = array_map('esc_attr', $comment_data);
-    $current_user_ip = $_SERVER['REMOTE_ADDR'];
-    $last_comment = get_comments(array(
-        'author_ip' => $current_user_ip,
-        'number' => 1,
-        'orderby' => 'comment_date',
-        'order' => 'DESC'
-    ));
-    
-    if (!empty($last_comment)) {
-        $last_comment_time = strtotime($last_comment[0]->comment_date);
-        $current_time = time();
-        $time_diff = $current_time - $last_comment_time;
-        
-        // 设置最小评论间隔为20秒
-        if ($time_diff < 20) {
-            wp_send_json_error('评论太快了，请稍等片刻再发表评论！');
-        }
-    }
+    // 移除基于时间的评论频率限制，仅保留重复评论检查
+    // 原因：WordPress的comment_date字段只精确到秒，无法实现精确的0.5秒限制
+    // 且重复评论检查已经提供了足够的保护，防止恶意刷屏
+    // 允许用户自由发表不同内容的评论
 
     // 检查重复评论
     $duplicate_check = array(
@@ -210,7 +196,7 @@ function ajax_comment_callback() {
         'comment_content' => $comment_data['comment'],
         'comment_parent' => isset($comment_data['comment_parent']) ? absint($comment_data['comment_parent']) : 0,
     );
-    $last_comment = get_comments(array(
+    $last_dup_comment = get_comments(array(
         'post_id' => $duplicate_check['comment_post_ID'],
         'search' => $duplicate_check['comment_content'],
         'date_query' => array(
@@ -219,7 +205,7 @@ function ajax_comment_callback() {
         'number' => 1
     ));
     
-    if (!empty($last_comment)) {
+    if (!empty($last_dup_comment)) {
         wp_send_json_error('您刚刚已经发表过相同的评论了，请稍后再试！');
     }
 

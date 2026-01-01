@@ -7,16 +7,34 @@ jQuery(document).ready(function($) {
         $('select:not([multiple]):not(.boxmoe-select-hidden)').each(function() {
             var $this = $(this);
             
+            // 检查是否已经被当前插件美化过（已在 wrapper 中）
+            if ($this.closest('.boxmoe-select-wrapper').length > 0) {
+                return;
+            }
+            
             // 排除已经被其他插件美化过的 select (如 select2)
             if ($this.hasClass('select2-hidden-accessible') || $this.hasClass('chosen-select')) {
                 return;
             }
             
-            // 排除日期选择器中的 select 元素
+            // 排除特定区域的 select 元素
             if (
+                // 排除日期选择器中的 select 元素
                 $this.hasClass('pt_month') || $this.hasClass('pt_year') || // 快速编辑中的日期选择器
                 $this.closest('#timestampdiv').length > 0 || // 文章编辑页面中的日期选择器
-                $this.attr('name') === 'mm' || $this.attr('name') === 'jj' || $this.attr('name') === 'aa' // 日期相关的 name 属性
+                $this.attr('name') === 'mm' || $this.attr('name') === 'jj' || $this.attr('name') === 'aa' || // 日期相关的 name 属性
+                // 排除快速编辑中的状态选择器
+                $this.attr('name') === 'post_status' || 
+                $this.closest('.inline-edit-row').length > 0 || // 所有快速编辑行中的选择器
+                // 排除WPJAM插件的select元素，因为它们使用自己的JavaScript框架
+                $this.closest('.wpjam-page').length > 0 || // 排除WPJAM插件页面中的所有select
+                $this.closest('.wpjam-field').length > 0 || // 排除WPJAM字段
+                $this.closest('.has-dependents').length > 0 || // 排除有依赖关系的字段
+                $this.closest('[data-show_if]').length > 0 || // 排除有条件显示的字段
+                $this.attr('name') === 'gravatar' || $this.attr('name') === 'google_fonts' || // 排除特定的WPJAM选项
+                // 排除文章编辑页中添加分类区域的 select 元素
+                $this.closest('.category-add').length > 0 || // 排除添加分类区域的select
+                $this.closest('#category-adder').length > 0 // 排除链接分类添加区域的select
             ) {
                 return;
             }
@@ -28,10 +46,10 @@ jQuery(document).ready(function($) {
             var originWidth = $this.outerWidth();
             var originStyleWidth = $this[0].style.width;
 
-            // 1. 隐藏原生 Select
+            // 隐藏原生 Select
             $this.addClass('boxmoe-select-hidden');
             
-            // 2. 创建包裹容器
+            // 创建包裹容器
             var $wrapper = $('<div class="boxmoe-select-wrapper"></div>');
             
             // 设置宽度：优先使用计算宽度，确保与原生一致
@@ -47,12 +65,12 @@ jQuery(document).ready(function($) {
             $this.after($wrapper);
             $wrapper.append($this);
             
-            // 3. 创建显示框 (Trigger)
+            // 创建显示框 (Trigger)
             var $trigger = $('<div class="boxmoe-select-trigger"></div>');
             $trigger.text(selectedText);
             $wrapper.append($trigger);
             
-            // 4. 创建下拉列表 (Dropdown)
+            // 创建下拉列表 (Dropdown)
             var $dropdown = $('<div class="boxmoe-select-dropdown"></div>');
             var $list = $('<ul></ul>');
             
@@ -72,7 +90,7 @@ jQuery(document).ready(function($) {
             $dropdown.append($list);
             $wrapper.append($dropdown);
             
-            // 5. 事件绑定
+            // 事件绑定
             
             // 点击 Trigger 切换下拉显示
             $trigger.on('click', function(e) {

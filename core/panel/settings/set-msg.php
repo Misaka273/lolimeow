@@ -19,7 +19,8 @@ $options[] = array(
         'id' => 'boxmoe_msg_notice_info',
         'desc' => __('
          <p>1.SMTP发件系统开启需要在SMTP设置中配置SMTP发件信息<span style="color: #0073aa;cursor: pointer;" onclick="window.open(\'admin.php?page=boxmoe-smtp-settings\')">SMTP设置</span></p>
-         <p>2.新评论新会员注册通知博主消息，邮件和机器人建议2选1，降低服务器压力，没必要双开双通知</p>			
+         <p>2.新评论新会员注册通知博主消息，邮件和机器人建议2选1，降低服务器压力，没必要双开双通知</p>
+         <p>3.QQ机器人模块由<span style="color: #0073aa;cursor: pointer;" onclick="window.open(\'https://www.chuyel.top\')">初叶🍂竹叶</span>进行修复（偷偷吐槽一句：原作者的这玩意跟报废了似的）</p>
         ', 'ui_boxmoe_com'),
         'type' => 'info');
 
@@ -78,7 +79,9 @@ $options[] = array(
             'name' => __('QQ机器人说明', 'ui_boxmoe_com'), 
             'id' => 'boxmoe_robot_notice_info',
             'desc' => __('
-             <p>机器人接口基于NapCatQQ开发，需要先安装NapCatQQ，然后获取机器人接口URL</p>		
+             <p>1.机器人接口基于NapCatQQ开发，需要先安装NapCatQQ，然后获取机器人接口URL</p>
+             <p>2.若需要机器人功能请前往<span style="color: #0073aa;cursor: pointer;" onclick="window.open(\'https://napneko.github.io/guide/napcat\')">NapCat官网</span>进行安装</p>
+             <p>3.该模块所需的NapCat的网络配置：http服务器
             ', 'ui_boxmoe_com'),
             'type' => 'info');
         $options[] = array(
@@ -100,7 +103,7 @@ $options[] = array(
             'id' => 'boxmoe_robot_api_url',
             'type' => 'text',
             'std' => '',
-            'desc' => __('请输入机器人接口URL', 'ui_boxmoe_com'),
+            'desc' => __('请输入机器人接口URL，例：127.0.0.1:5124，http://xxx.com，https://xxx.com', 'ui_boxmoe_com'),
         );
         $options[] = array(
             'name' => __('机器人接口密钥', 'ui_boxmoe_com'),

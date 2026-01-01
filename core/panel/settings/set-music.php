@@ -115,7 +115,7 @@ $options[] = array(
     'id' => 'boxmoe_music_player_api',
     'std' => '',
     'type' => 'text',
-    'desc' => '输入自定义音乐API地址，留空则使用预设API');
+    'desc' => '输入自定义音乐API地址，留空则使用预设API，填写方式如：https://xxx.com/api?server=:server&type=:type&id=:id&r=:r');
 
 $options[] = array(
     'name' => '预设API选择',
@@ -124,7 +124,7 @@ $options[] = array(
     'type' => 'select',
     'options' => array(
         'default' => '默认 API',
-        'tencent_vip' => '仅 QQ 音乐 API（支持会员）'
+        'tencent_vip' => '初叶🍂 API（仅QQ音乐支持会员）'
     ),
     'desc' => '选择预设的音乐API，当自定义API为空时使用');
 

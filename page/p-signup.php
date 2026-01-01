@@ -6,27 +6,10 @@
  */
 //boxmoe.com===安全设置=阻止直接访问主题文件
 if(!defined('ABSPATH')){echo'Look your sister';exit;}
-//如果用户已经登陆那么跳转到首页或用户中心
-if (is_user_logged_in()){
-    // 避免重定向循环：检查当前是否已经在首页或用户中心页面
-    $home_url = get_option('home');
-    $home_path = parse_url($home_url, PHP_URL_PATH);
-    if (empty($home_path)) {
-        $home_path = '/';
-    }
-    
-    $current_uri = $_SERVER['REQUEST_URI'];
-    $user_center_url = boxmoe_user_center_link_page();
-    $user_center_path = parse_url($user_center_url, PHP_URL_PATH);
-    
-    if ($current_uri == $home_path || $current_uri == $home_path . '/' || $current_uri == $user_center_path || $current_uri == $user_center_path . '/') {
-        // 如果已经在首页或用户中心页面，直接退出，避免循环
-        exit;
-    }
-    
-    wp_safe_redirect( $user_center_url );
-    exit;
- }
+// 🔗 重定向到登录页面的注册模块
+$login_url = boxmoe_sign_in_link_page();
+wp_safe_redirect( add_query_arg('mode', 'signup', $login_url) );
+exit;
 ?>
 <html <?php language_attributes(); ?>>
     <head>
@@ -38,295 +21,567 @@ if (is_user_logged_in()){
     <?php boxmoe_description(); ?>
     <?php ob_start();wp_head();$wp_head_output = ob_get_clean();echo preg_replace('/\n/', "\n    ", trim($wp_head_output))."\n    ";?>
     <style>
-        /* 🥳 注册页样式重构 - 玻璃拟态 */
-        body {
+        /* 🥳 注册页样式 - 双面板设计 */
+        :root {
+            --primary: #5995fd;
+            --primary-dark: #4d84e2;
+            --bg: #f0f0f0;
+            --text: #444;
+            --white: #fff;
+        }
+        
+        * {
             margin: 0;
             padding: 0;
-            overflow-x: hidden;
-            background-color: #f0f2f5;
+            box-sizing: border-box;
         }
-        .login-page-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
+        
+        body,
+        input {
+            font-family: "Poppins", sans-serif;
+        }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            background-color: var(--white);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            height: 2000px;
+            width: 2000px;
+            top: -10%;
+            right: 48%;
+            transform: translateY(-50%);
+            background-image: linear-gradient(-45deg, #1c5fd1 0%, #1ec3fa 100%);
+            transition: 1.8s ease-in-out;
+            border-radius: 50%;
+            z-index: 6;
+        }
+        
+        .forms-container {
+            position: absolute;
             width: 100%;
             height: 100%;
-            background-image: url(<?php echo get_boxmoe('boxmoe_user_login_bg')? get_boxmoe('boxmoe_user_login_bg') :'https://api.boxmoe.com/random.php'; ?>);
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1;
-        }
-        .login-page-bg::before {
-            content: '';
-            position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.2); /* ⬅️ 背景遮罩，提升文字可读性 */
-            backdrop-filter: blur(8px); /* ⬅️ 全局背景模糊 */
-            -webkit-backdrop-filter: blur(8px);
         }
-        .login-container {
-            min-height: 100vh;
+        
+        .signin-signup {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            left: 75%;
+            width: 50%;
+            transition: 1s 0.7s ease-in-out;
+            display: grid;
+            grid-template-columns: 1fr;
+            z-index: 5;
+        }
+        
+        form {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            position: relative; /* ⬅️ 确保在粒子层之上 */
-            z-index: 1;
-        }
-        /* ✨ 玻璃拟态卡片 */
-        .glass-card {
-            background: radial-gradient(circle at top left, rgba(255, 192, 203, 0.75), rgba(173, 216, 230, 0.75)); /* ⬅️ 浅粉色到浅蓝色圆形扩散渐变 */
-            backdrop-filter: blur(20px); /* ⬅️ 局部高斯模糊 */
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 24px; /* ⬅️ 圆角风格 */
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            width: 100%;
-            max-width: 480px; /* ⬅️ 注册表单稍宽一点 */
-            padding: 2.5rem 2rem;
-            position: relative;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        .glass-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.2);
-        }
-        /* 🌙 暗色模式适配 */
-        [data-bs-theme="dark"] .glass-card {
-            background: rgba(30, 30, 35, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            color: #e0e0e0;
-        }
-        [data-bs-theme="dark"] .text-body-tertiary {
-            color: #adb5bd !important;
+            flex-direction: column;
+            padding: 0 5rem;
+            transition: all 0.2s 0.7s;
+            overflow: hidden;
+            grid-column: 1 / 2;
+            grid-row: 1 / 2;
         }
         
-        /* 🏷️ 浮动标签与动态文本 */
-        .floating-label-group {
-            position: relative;
-            margin-bottom: 1.5rem;
+        form.sign-up-form {
+            opacity: 0;
+            z-index: 1;
         }
-        .floating-label-group .form-control {
-            height: 3.5rem;
-            padding: 1.25rem 1rem 0.75rem;
-            background: rgba(255, 255, 255, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.3); /* ⬅️ 增加边框线，配合浮动标签 */
-            border-radius: 12px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.3s ease;
+        
+        form.sign-in-form {
+            z-index: 2;
         }
-        [data-bs-theme="dark"] .floating-label-group .form-control {
-            background: rgba(0, 0, 0, 0.2);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: #fff;
+        
+        .title {
+            font-size: 2.2rem;
+            color: #444;
+            margin-bottom: 10px;
         }
-        .floating-label-group .form-control:focus {
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 0 3px rgba(var(--bs-primary-rgb), 0.2);
-            border-color: var(--bs-primary);
-            transform: translateY(-1px);
-        }
-        [data-bs-theme="dark"] .floating-label-group .form-control:focus {
-            background: rgba(0, 0, 0, 0.4);
-            border-color: var(--bs-primary);
-        }
-        .floating-label-group label {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            pointer-events: none;
-            transition: 0.2s ease all;
-            color: #6c757d;
-            padding: 0 5px;
-            z-index: 5;
-            margin: 0;
-            width: auto;
-            height: auto;
-            font-size: 1rem;
-            border-radius: 4px;
-        }
-        .floating-label-group label::after {
-            content: attr(data-default);
-            transition: all 0.2s ease;
-        }
-        /* 激活状态 */
-        .floating-label-group .form-control:focus ~ label,
-        .floating-label-group .form-control:not(:placeholder-shown) ~ label {
-            top: 0; /* ⬅️ 移动到顶部边框线上 */
-            left: 0.8rem;
-            font-size: 0.75rem;
-            transform: translateY(-50%); /* ⬅️ 垂直居中于边框 */
-            color: var(--bs-primary);
-            background: rgba(255, 255, 255, 0.8); /* ⬅️ 添加背景遮挡边框线，保持玻璃感 */
-            backdrop-filter: blur(4px);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        [data-bs-theme="dark"] .floating-label-group .form-control:focus ~ label,
-        [data-bs-theme="dark"] .floating-label-group .form-control:not(:placeholder-shown) ~ label {
-            background: rgba(45, 45, 50, 0.8);
-            color: var(--bs-primary);
-        }
-        .floating-label-group .form-control:focus ~ label::after,
-        .floating-label-group .form-control:not(:placeholder-shown) ~ label::after {
-            content: attr(data-active);
-        }
-
-        .password-field {
+        
+        .input_field {
+            max-width: 380px;
+            width: 100%;
+            background-color: #f0f0f0;
+            margin: 10px 0;
+            height: 55px;
+            border-radius: 55px;
+            display: grid;
+            grid-template-columns: 15% 85%;
+            padding: 0 0.4rem;
             position: relative;
         }
-        .passwordToggler {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            z-index: 10;
-            color: #6c757d;
-            padding: 5px;
-        }
-        .btn-primary {
-            border-radius: 12px;
-            padding: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
+        
+        .input_field input {
+            background: none;
+            outline: none;
             border: none;
-            box-shadow: 0 4px 6px rgba(var(--bs-primary-rgb), 0.3);
-            transition: all 0.3s ease;
-            position: relative; /* ⬅️ 为扫光动画定位 */
-            overflow: hidden;   /* ⬅️ 隐藏溢出的扫光 */
+            line-height: 1;
+            min-width: 270px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            padding-left: 10px;
+            color: #333;
+            font-size: 16px;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(var(--bs-primary-rgb), 0.4);
+        
+        .input_field input::placeholder {
+            color: #aaa;
+            font-weight: 500;
         }
-        /* ✨ 按钮扫光动画 */
-        .btn-primary::after {
+        
+        .shortMessage,
+        .Password_login {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            text-align: center;
+            vertical-align: baseline;
+            position: relative;
+            border-radius: 50%;
+            outline: none;
+            -webkit-appearance: none;
+            border: 1px solid #fff;
+            -webkit-tab-highlight-color: rgba(0, 0, 0, 0);
+            color: #fff;
+            background: #fff;
+        }
+        
+        .shortMessage::before,
+        .Password_login::before {
             content: "";
             position: absolute;
             top: 0;
-            left: -100%;
+            left: 0;
+            background: #fff;
             width: 100%;
             height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(255, 255, 255, 0.6),
-                transparent
-            );
-            transition: all 0.6s;
+            border: 1px solid #999999;
+            border-radius: 50%;
+            color: #fff;
         }
-        .btn-primary:hover::after {
-            left: 100%;
+        
+        .shortMessage:checked::before,
+        .Password_login:checked::before {
+            content: "\2713";
+            background-color: #51a7e0;
+            border: 1px solid #51a7e0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            color: #fff;
+            font-size: 0.52rem;
+            border-radius: 50%;
+        }
+        
+        .agree_text {
+            padding-left: 4px;
+            white-space: normal;
+            word-break: break-all;
+            font-size: 12px;
+            line-height: 21px;
+        }
+        
+        .agree_text a {
+            color: #51a7e0;
+            text-decoration: none;
+        }
+        
+        .btn {
+            width: 150px;
+            background-color: #5995fd;
+            border: none;
+            outline: none;
+            height: 49px;
+            border-radius: 49px;
+            color: #fff;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+        
+        .btn:hover {
+            background-color: #4d84e2;
+        }
+        
+        .panels-container {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            left: 0;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .panel {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-around;
+            text-align: center;
+            z-index: 6;
+        }
+        
+        .left-panel {
+            pointer-events: all;
+            padding: 3rem 17% 2rem 12%;
+        }
+        
+        .right-panel {
+            pointer-events: none;
+            padding: 3rem 12% 2rem 17%;
+        }
+        
+        .panel .content {
+            color: #fff;
+            transition: transform 0.9s ease-in-out;
+            transition-delay: 0.6s;
+        }
+        
+        .panel h3 {
+            font-weight: 600;
+            line-height: 1;
+            font-size: 1.5rem;
+        }
+        
+        .panel p {
+            font-size: 0.95rem;
+            padding: 0.7rem 0;
+        }
+        
+        .btn.transparent {
+            margin: 0;
+            background: none;
+            border: 2px solid #fff;
+            width: 130px;
+            height: 41px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        
+        .image {
+            width: 100%;
+            transition: transform 1.1s ease-in-out;
+            transition-delay: 0.4s;
+        }
+        
+        .right-panel .image,
+        .right-panel .content {
+            transform: translateX(800px);
+        }
+        
+        /* 🌙 暗色模式适配 */
+        [data-bs-theme="dark"] {
+            --primary: #6e9eff;
+            --primary-dark: #5a87e3;
+            --bg: #1a1a1a;
+            --text: #e0e0e0;
+            --white: #2d2d2d;
+        }
+        
+        [data-bs-theme="dark"] .title {
+            color: #e0e0e0;
+        }
+        
+        [data-bs-theme="dark"] .input_field {
+            background-color: #3d3d3d;
+        }
+        
+        [data-bs-theme="dark"] .input_field input {
+            color: #e0e0e0;
+        }
+        
+        [data-bs-theme="dark"] .input_field input::placeholder {
+            color: #888;
+        }
+        
+        /* ANIMATION */
+        
+        /* 默认进入注册模式 */
+        .container.sign-up-mode {
+            &::before {
+                transform: translate(100%, -50%);
+                right: 52%;
+            }
+            
+            .signin-signup {
+                left: 25%;
+            }
+            
+            form.sign-up-form {
+                opacity: 1;
+                z-index: 2;
+            }
+            
+            form.sign-in-form {
+                opacity: 0;
+                z-index: 1;
+            }
+            
+            .left-panel .content,
+            .left-panel .image {
+                transform: translateX(-800px);
+            }
+            
+            .right-panel .content,
+            .right-panel .image {
+                transform: translateX(0);
+            }
+            
+            .left-panel {
+                pointer-events: none;
+            }
+            
+            .right-panel {
+                pointer-events: all;
+            }
+        }
+        
+        @media (max-width: 870px) {
+            .container {
+                min-height: 800px;
+                height: 100vh;
+            }
+            
+            .signin-signup {
+                width: 100%;
+                top: 95%;
+                transform: translate(-50%, -100%);
+                transition: 1s 0.8s ease-in-out;
+            }
+            
+            .signin-signup,
+            .container.sign-up-mode .signin-signup {
+                left: 50%;
+            }
+            
+            .panels-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 2fr 1fr;
+            }
+            
+            .panel {
+                flex-direction: row;
+                justify-content: space-around;
+                align-items: center;
+                padding: 2.5rem 8%;
+                grid-column: 1 / 2;
+            }
+            
+            .right-panel {
+                grid-row: 3 / 4;
+            }
+            
+            .left-panel {
+                grid-row: 1 / 2;
+            }
+            
+            .image {
+                width: 200px;
+                transition: transform 0.9s ease-in-out;
+                transition-delay: 0.6s;
+            }
+            
+            .panel .content {
+                padding-right: 15%;
+                transition: transform 0.9s ease-in-out;
+                transition-delay: 0.8s;
+            }
+            
+            .panel h3 {
+                font-size: 1.2rem;
+            }
+            
+            .panel p {
+                font-size: 0.7rem;
+                padding: 0.5rem 0;
+            }
+            
+            .btn.transparent {
+                width: 110px;
+                height: 35px;
+                font-size: 0.7rem;
+            }
+            
+            .container:before {
+                width: 1500px;
+                height: 1500px;
+                transform: translateX(-50%);
+                left: 30%;
+                bottom: 68%;
+                right: initial;
+                top: initial;
+                transition: 2s ease-in-out;
+            }
+            
+            .container.sign-up-mode:before {
+                transform: translate(-50%, 100%);
+                bottom: 32%;
+                right: initial;
+            }
+            
+            .container.sign-up-mode .left-panel .image,
+            .container.sign-up-mode .left-panel .content {
+                transform: translateY(-300px);
+            }
+            
+            .container.sign-up-mode .right-panel .image,
+            .container.sign-up-mode .right-panel .content {
+                transform: translateY(0px);
+            }
+            
+            .right-panel .image,
+            .right-panel .content {
+                transform: translateY(300px);
+            }
+            
+            .container.sign-up-mode .signin-signup {
+                top: 5%;
+                transform: translate(-50%, 0);
+            }
+        }
+        
+        @media (max-width: 570px) {
+            form {
+                padding: 0 1.5rem;
+            }
+            
+            .image {
+                display: none;
+            }
+            
+            .panel .content {
+                padding: 0.5rem 1rem;
+            }
+            
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .container:before {
+                bottom: 72%;
+                left: 50%;
+            }
+            
+            .container.sign-up-mode:before {
+                bottom: 28%;
+                left: 50%;
+            }
         }
         /* 💕 底部工具栏 */
         .theme-toggle-fixed {
             position: absolute;
             bottom: 1.5rem;
             left: 1.5rem;
+            z-index: 10;
         }
     </style>
 </head>
 
 <body>
    <main>
-      <!-- 🖼️ 全屏背景容器 -->
-      <div class="login-page-bg"></div>
+      <!-- 🥳 双面板登录页面 -->
+      <div class="container sign-up-mode">
+         <!-- 表单区 -->
+         <div class="forms-container">
+            <div class="signin-signup">
+               <!-- 登录表单（原密码登录） -->
+               <form class="sign-in-form needs-validation" action="" method="post" id="loginform" novalidate>
+                  <h2 class="title">登录</h2>
+                  <div class="input_field">
+                     <input type="text" name="username" id="username" required placeholder="用户名" />
+                  </div>
+                  <div class="input_field">
+                     <input type="password" name="password" id="password" required placeholder="密码" />
+                  </div>
+                  <p class="social_text">
+                     <input class="Password_login" type="checkbox" name="rememberme" id="rememberme">
+                     <span class="agree_text">
+                        记住账号
+                     </span>
+                  </p>
+                  <?php wp_nonce_field('user_login', 'login_nonce'); ?>
+                  <button class="btn" type="submit" name="login_submit">Go</button>
+                  <div id="login-message" class="mt-3"></div>
+                  <div class="mt-3">
+                     <a href="<?php echo boxmoe_reset_password_link_page(); ?>" class="text-primary text-decoration-none">忘记密码?</a>
+                  </div>
+               </form>
 
-      <div class="login-container">
-         <div class="glass-card">
-            <!-- Logo区域 -->
-            <div class="text-center mb-4">
-               <a href="<?php echo get_option('home'); ?>" class="d-inline-block transition-hover">
-                   <?php boxmoe_logo(); ?>
-               </a>
-               <h3 class="mt-3 mb-1 fw-bold">欢迎加入</h3>
-               <p class="text-muted small mb-0">
-                  如果你已经注册了账号，可以点击
-                  <a href="<?php echo boxmoe_sign_in_link_page(); ?>" class="text-primary fw-bold text-decoration-none">登录</a>
-               </p>
+               <!-- 注册表单（原短信登录，已改为注册） -->
+               <form class="sign-up-form needs-validation" id="signupform" novalidate>
+                  <h2 class="title">注册</h2>
+                  <div class="input_field">
+                     <input type="text" name="username" id="signupFullnameInput" required placeholder="用户名" />
+                  </div>
+                  <div class="input_field">
+                     <input type="email" name="email" id="signupEmailInput" required placeholder="邮箱" />
+                  </div>
+                  <div class="input_field">
+                     <input type="text" name="verificationcode" id="signupVerificationCode" required placeholder="验证码" />
+                     <div class="Acquire_box">
+                        <span class="Acquire" id="sendVerificationCode">获取验证码</span>
+                     </div>
+                  </div>
+                  <div class="input_field">
+                     <input type="password" name="password" id="formSignUpPassword" required placeholder="设置密码" />
+                  </div>
+                  <p class="social_text">
+                     <input class="shortMessage" type="checkbox" name="agree" required />
+                     <span class="agree_text">
+                        已阅读并同意<a href="#">《用户协议》</a><a href="#">《隐私政策》</a>
+                     </span>
+                  </p>
+                  <input type="hidden" name="signup_nonce" value="<?php echo wp_create_nonce('user_signup'); ?>">
+                  <button class="btn" type="submit" name="signup_submit">Go</button>
+                  <div id="signup-message" class="mt-3"></div>
+               </form>
+            </div>
+         </div>
+
+         <!-- 面板 -->
+         <div class="panels-container">
+            <div class="panel left-panel">
+               <div class="content">
+                  <h3>新用户?</h3>
+                  <p>
+                     注册账号，开始您的旅程，探索更多精彩内容。
+                  </p>
+                  <button class="btn transparent" id="sign-up-btn">注册</button>
+               </div>
+               <img class="image" src="<?php echo get_template_directory_uri(); ?>/assets/images/logon/注册.png" alt="注册" />
             </div>
 
-            <!-- 注册表单 -->
-            <form class="needs-validation mb-3" id="signupform" novalidate="">
-                <!-- 用户名 -->
-               <div class="mb-3 floating-label-group">
-                  <input type="text" class="form-control" name="username" id="signupFullnameInput" required="" placeholder=" ">
-                  <label for="signupFullnameInput" data-default="设置一个用户名" data-active="用户名"></label>
-                  <div class="invalid-feedback">请输入用户名。</div>
+            <div class="panel right-panel">
+               <div class="content">
+                  <h3>已有账号?</h3>
+                  <p>
+                     登录您的账号，继续之前的体验。
+                  </p>
+                  <button class="btn transparent" id="sign-in-btn">登录</button>
                </div>
-               
-               <!-- 邮箱 -->
-               <div class="mb-3 floating-label-group">
-                  <input type="email" class="form-control" name="email" id="signupEmailInput" required="" placeholder=" ">
-                  <label for="signupEmailInput" data-default="设置邮箱，用于接收验证码" data-active="邮箱"></label>
-                  <div class="invalid-feedback">请输入邮箱。</div>
-               </div>
-
-               <!-- 验证码 -->
-               <div class="mb-3">
-                  <div class="d-flex gap-2">
-                     <div class="flex-grow-1 floating-label-group mb-0 position-relative">
-                         <input type="text" class="form-control" name="verificationcode" id="signupVerificationCode" required="" placeholder=" ">
-                         <label for="signupVerificationCode" data-default="输入验证码" data-active="验证码"></label>
-                         <div class="invalid-feedback">请输入验证码。</div>
-                     </div>
-                     <button type="button" class="btn btn-primary text-nowrap" id="sendVerificationCode" style="min-width: 110px; height: 3.5rem;">获取验证码</button>
-                  </div>
-               </div>
-
-               <!-- 密码 -->
-               <div class="mb-3 position-relative floating-label-group">
-                  <div class="password-field">
-                     <input type="password" class="form-control fakePassword" name="password" id="formSignUpPassword" required="" placeholder=" ">
-                     <label for="formSignUpPassword" data-default="设置密码" data-active="密码"></label>
-                     <i class="bi bi-eye-slash passwordToggler"></i>
-                  </div>
-                  <div class="invalid-feedback">请输入密码。</div>
-               </div>
-
-               <!-- 确认密码 -->
-               <div class="mb-3 position-relative floating-label-group">
-                  <div class="password-field">
-                     <input type="password" class="form-control fakePassword" name="confirmpassword" id="formSignUpConfirmPassword" required="" placeholder=" ">
-                     <label for="formSignUpConfirmPassword" data-default="再次输入密码" data-active="确认密码"></label>
-                     <i class="bi bi-eye-slash passwordToggler"></i>
-                  </div>
-                  <div class="invalid-feedback">请确认密码。</div>
-               </div>
-
-               <!-- 安全验证 -->
-               <input type="hidden" name="signup_nonce" value="<?php echo wp_create_nonce('user_signup'); ?>">
-
-               <!-- 注册按钮 -->
-               <div class="d-grid mt-4">
-                  <button class="btn btn-primary" type="submit" name="signup_submit">
-                     <span class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
-                     <span class="btn-text">立即注册</span>
-                  </button>
-               </div>
-               <div id="signup-message"></div>
-            </form>
-
-            <!-- 底部版权 -->
-            <div class="text-center mt-4 pt-3 border-top border-light">
-               <div class="small text-body-tertiary">
-                  Copyright © <?php echo date('Y'); ?> 
-                  <span class="text-primary"><a href="<?php echo get_option('home'); ?>" class="text-reset text-decoration-none fw-bold"><?php echo get_bloginfo('name'); ?></a></span>
-                  <br> Theme by
-                  <span class="text-primary"><a href="https://www.boxmoe.com" class="text-reset text-decoration-none fw-bold">Boxmoe</a></span> powered by WordPress
-               </div>
+               <img class="image" src="<?php echo get_template_directory_uri(); ?>/assets/images/logon/登录.png" alt="登录" />
             </div>
          </div>
       </div>
 
       <!-- 🛠️ 主题切换按钮 -->
-      <div class="position-absolute start-0 bottom-0 m-4">
+      <div class="theme-toggle-fixed">
          <div class="dropdown">
             <button
                     class="float-btn bd-theme btn btn-light btn-icon rounded-circle d-flex align-items-center shadow-sm"
@@ -346,7 +601,7 @@ if (is_user_logged_in()){
                 </li>
                 <li>
                     <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" data-swindex="0"><g stroke-dasharray="2"><path d="M12 21v1M21 12h1M12 3v-1M3 12h-1"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="4;2"/></path><path d="M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.2s" values="4;2"/></path></g><path fill="currentColor" d="M7 6 C7 12.08 11.92 17 18 17 C18.53 17 19.05 16.96 19.56 16.89 C17.95 19.36 15.17 21 12 21 C7.03 21 3 16.97 3 12 C3 8.83 4.64 6.05 7.11 4.44 C7.04 4.95 7 5.47 7 6 Z" opacity="0"><set attributeName="opacity" begin="0.5s" to="1"/></path></g><g fill="currentColor" fill-opacity="0"><path d="m15.22 6.03l2.53-1.94L14.56 4L13.5 1l-1.06 3l-3.19.09l2.53 1.94l-.91 3.06l2.63-1.81l2.63 1.81z"><animate id="lineMdSunnyFilledLoopToMoonFilledLoopTransition0" fill="freeze" attributeName="fill-opacity" begin="0.6s;lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+6s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.2s" dur="0.4s" values="1;0"/></path><path d="M13.61 5.25L15.25 4l-2.06-.05L12.5 2l-.69 1.95L9.75 4l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+3s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+5.2s" dur="0.4s" values="1;0"/></path><path d="M19.61 12.25L21.25 11l-2.06-.05L18.5 9l-.69 1.95l-2.06.05l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+0.4s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.8s" dur="0.4s" values="1;0"/></path><path d="m20.828 9.731l1.876-1.439l-2.366-.067L19.552 6l-.786 2.225l-2.366.067l1.876 1.439L17.601 12l1.951-1.342L21.503 12z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+3.4s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+5.6s" dur="0.4s" values="1;0"/></path></g><mask id="lineMdSunnyFilledLoopToMoonFilledLoopTransition1"><circle cx="12" cy="12" r="12" fill="#fff"/><circle cx="22" cy="2" r="3" fill="#fff"><animate fill="freeze" attributeName="cx" begin="0.1s" dur="0.4s" values="22;18"/><animate fill="freeze" attributeName="cy" begin="0.1s" dur="0.4s" values="2;6"/><animate fill="freeze" attributeName="r" begin="0.1s" dur="0.4s" values="3;12"/></circle><circle cx="22" cy="2" r="1"><animate fill="freeze" attributeName="cx" begin="0.1s" dur="0.4s" values="22;18"/><animate fill="freeze" attributeName="cy" begin="0.1s" dur="0.4s" values="2;6"/><animate fill="freeze" attributeName="r" begin="0.1s" dur="0.4s" values="1;10"/></circle></mask><circle cx="12" cy="12" r="6" fill="currentColor" mask="url(#lineMdSunnyFilledLoopToMoonFilledLoopTransition1)"><set attributeName="opacity" begin="0.5s" to="0"/><animate fill="freeze" attributeName="r" begin="0.1s" dur="0.4s" values="6;10"/></circle></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" data-swindex="0"><g stroke-dasharray="2"><path d="M12 21v1M21 12h1M12 3v-1M3 12h-1"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.2s" values="4;2"/></path><path d="M18.5 18.5l0.5 0.5M18.5 5.5l0.5 -0.5M5.5 5.5l-0.5 -0.5M5.5 18.5l-0.5 0.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="0.2s" dur="0.2s" values="4;2"/></path></g><path fill="currentColor" d="M7 6 C7 12.08 11.92 17 18 17 C18.53 17 19.05 16.96 19.56 16.89 C17.95 19.36 15.17 21 12 21 C7.03 21 3 16.97 3 12 C3 8.83 4.64 6.05 7.11 4.44 C7.04 4.95 7 5.47 7 6 Z" opacity="0"><set attributeName="opacity" begin="0.5s" to="1"/></path></g><g fill="currentColor" fill-opacity="0"><path d="m15.22 6.03l2.53-1.94L14.56 4L13.5 1l-1.06 3l-3.19.09l2.53 1.94l-.91 3.06l2.63-1.81l2.63 1.81z"><animate id="lineMdSunnyFilledLoopToMoonFilledLoopTransition0" fill="freeze" attributeName="fill-opacity" begin="0.6s;lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+6s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.2s" dur="0.4s" values="1;0"/></path><path d="M13.61 5.25L15.25 4l-2.06-.05L12.5 2l-.69 1.95L9.75 4l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+3s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+5.2s" dur="0.4s" values="1;0"/></path><path d="M19.61 12.25L21.25 11l-2.06-.05L18.5 9l-.69 1.95l-2.06.05l1.64 1.25l-.59 1.98l1.7-1.17l1.7 1.17z"><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+0.4s" dur="0.4s" values="0;1"/><animate fill="freeze" attributeName="fill-opacity" begin="lineMdSunnyFilledLoopToMoonFilledLoopTransition0.begin+2.6s" dur="0.4s" values="1;0"/></path></g></svg>
                         <span class="ms-2">暗色</span>
                     </button>
                 </li>
@@ -367,8 +622,97 @@ if (is_user_logged_in()){
     echo preg_replace('/\n/', "\n    ", trim($wp_footer_output))."\n    ";
     ?>
     <script>
-      // 🔗 注册相关JS功能
+      // 直接定义ajax_object，避免依赖主题脚本加载
+      var ajax_object = {
+        ajaxurl: '<?php echo admin_url("admin-ajax.php"); ?>',
+        themeurl: '<?php echo boxmoe_theme_url(); ?>'
+      };
+
+      // 🔗 双面板切换功能
       document.addEventListener('DOMContentLoaded', function() {
+          const sign_in_btn = document.getElementById('sign-in-btn');
+          const sign_up_btn = document.getElementById('sign-up-btn');
+          const container = document.querySelector('.container');
+
+          sign_up_btn.addEventListener('click', () => {
+              container.classList.add('sign-up-mode');
+          });
+
+          sign_in_btn.addEventListener('click', () => {
+              container.classList.remove('sign-up-mode');
+          });
+
+          // 🔗 登录表单提交事件监听
+          document.getElementById('loginform').addEventListener('submit', function(e) {
+              e.preventDefault();
+              
+              const loginButton = this.querySelector('button[type="submit"]');
+              
+              loginButton.disabled = true;
+              loginButton.textContent = '登录中...';
+
+              // 🔗 获取 URL 中的 redirect_to 参数
+              const urlParams = new URLSearchParams(window.location.search);
+              const redirect_to = urlParams.get('redirect_to');
+
+              // 🔄 动态生成新的nonce，避免过期问题
+              const newNonce = document.querySelector('input[name="login_nonce"]').value;
+              const formData = {
+                  username: document.getElementById('username').value,
+                  password: document.getElementById('password').value,
+                  rememberme: document.getElementById('rememberme').checked,
+                  login_nonce: newNonce,
+                  redirect_to: redirect_to // ⬅️ 将重定向参数传给后端
+              };
+              
+              // 使用FormData来构建请求体，确保WordPress能正确解析
+              const formDataToSend = new FormData();
+              formDataToSend.append('action', 'user_login_action');
+              formDataToSend.append('formData', JSON.stringify(formData));
+              
+              fetch(ajax_object.ajaxurl, {
+                  method: 'POST',
+                  credentials: 'same-origin',
+                  body: formDataToSend
+              })
+              .then(response => response.json())
+              .then(response => {
+                  if(response.success) {
+                      document.getElementById('login-message').innerHTML = 
+                          '<div class="alert alert-success mt-3">' + response.data.message + '，正在跳转...</div>';
+                      setTimeout(() => {
+                          // 🔗 优先跳转到后端返回的地址，其次尝试 URL 参数，最后回落到 referrer 或首页
+                          if (response.data.redirect_url) {
+                              window.location.href = response.data.redirect_url;
+                          } else if (redirect_to) {
+                              window.location.href = redirect_to;
+                          } else {
+                               window.location.href = '/';
+                          }
+                      }, 1000);
+                  } else {
+                      loginButton.disabled = false;
+                      loginButton.textContent = 'Go';
+                      
+                      document.getElementById('login-message').innerHTML = 
+                          '<div class="alert alert-danger mt-3">' + response.data.message + '</div>';
+                  }
+              })
+              .catch(error => {
+                  loginButton.disabled = false;
+                  loginButton.textContent = 'Go';
+                  
+                  // 显示更详细的错误信息，帮助用户了解登录失败的原因
+                  const errorMessage = error.message || '未知错误';
+                  document.getElementById('login-message').innerHTML = 
+                      '<div class="alert alert-danger mt-3">登录请求失败: ' + errorMessage + '，请稍后重试</div>';
+                  
+                  // 在控制台打印完整的错误信息，方便开发者调试
+                  console.error('登录请求失败:', error);
+              });
+          });
+
+          // 🔗 注册相关JS功能
           // 发送验证码逻辑
           document.getElementById('sendVerificationCode').addEventListener('click', function() {
               var email = document.getElementById('signupEmailInput').value;
@@ -417,12 +761,9 @@ if (is_user_logged_in()){
           document.getElementById('signupform').addEventListener('submit', function(e) {
               e.preventDefault();
               var btn = this.querySelector('button[type="submit"]');
-              var spinner = btn.querySelector('.spinner-border');
-              var btnText = btn.querySelector('.btn-text');
               
               btn.disabled = true;
-              spinner.classList.remove('d-none');
-              btnText.textContent = '注册中...';
+              btn.textContent = '注册中...';
               
               // 构建表单数据对象
               var formData = {
@@ -430,7 +771,6 @@ if (is_user_logged_in()){
                   email: document.getElementById('signupEmailInput').value,
                   verificationcode: document.getElementById('signupVerificationCode').value,
                   password: document.getElementById('formSignUpPassword').value,
-                  confirmpassword: document.getElementById('formSignUpConfirmPassword').value,
                   signup_nonce: this.querySelector('input[name="signup_nonce"]').value
               };
               
@@ -451,15 +791,13 @@ if (is_user_logged_in()){
                   } else {
                       document.getElementById('signup-message').innerHTML = '<div class="alert alert-danger mt-3">'+data.data.message+'</div>';
                       btn.disabled = false;
-                      spinner.classList.add('d-none');
-                      btnText.textContent = '立即注册';
+                      btn.textContent = 'Go';
                   }
               })
               .catch(err => {
                   document.getElementById('signup-message').innerHTML = '<div class="alert alert-danger mt-3">网络错误，请重试</div>';
                   btn.disabled = false;
-                  spinner.classList.add('d-none');
-                  btnText.textContent = '立即注册';
+                  btn.textContent = 'Go';
               });
           });
       });

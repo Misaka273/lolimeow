@@ -30,6 +30,14 @@ $options[] = array(
         'desc' => __('若开启则开启所有文章形式支持', 'ui_boxmoe_com'),
         );
     $options[] = array(
+        'name' => __('首页文章显示数量', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_home_posts_per_page',
+        'type' => "text",
+        'std' => 3,
+        'class' => 'mini',
+        'desc' => __('设置首页显示的文章数量，默认3篇', 'ui_boxmoe_com'),
+        );
+    $options[] = array(
         'name' => __('首页文章仅显示分类', 'ui_boxmoe_com'),
         'id' => 'boxmoe_home_article_categories',
         'type' => "text",
@@ -105,15 +113,16 @@ $options[] = array(
             'group' => 'end',
         );
     $options[] = array(
-	    'name' => __('文章列表分页模式', 'ui_boxmoe_com'),
-	    'id' => 'boxmoe_article_paging_type',
-	    'std' => "multi",
-	    'type' => "radio",
-	    'options' => array(
-		    'next' => __('上一页 和 下一页', 'ui_boxmoe_com'),
-		    'multi' => __('页码  1 2 3 ', 'ui_boxmoe_com'),
-            //'loadmore' => __('点击加载更多(未使用)', 'ui_boxmoe_com'),
-	    ));
+	'name' => __('文章列表分页模式', 'ui_boxmoe_com'),
+	'id' => 'boxmoe_article_paging_type',
+	'std' => "multi",
+	'type' => "radio",
+	'options' => array(
+		'next' => __('上一页 和 下一页', 'ui_boxmoe_com'),
+		'multi' => __('页码  1 2 3 ', 'ui_boxmoe_com'),
+        // 🥰 由 白木gl.baimu.live 新增的分页模式功能
+        'infinite' => __('无限加载', 'ui_boxmoe_com'),
+	));
     $options[] = array(
         'name' => __('密码保护文章摘要文案', 'ui_boxmoe_com'),
         'id' => 'boxmoe_article_password_excerpt_text',
@@ -151,6 +160,14 @@ $options[] = array(
         'type' => "text",
         'std' => '',
         'desc' => __('打赏二维码-支付宝二维码地址', 'ui_boxmoe_com'),
+        );
+    // 复制带版权功能 - - YI KAN博客提供功能代码
+    $options[] = array(
+        'name' => __('复制带版权开关', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_copy_copyright_switch',
+        'type' => "checkbox",
+        'std' => false,
+        'desc' => __('若开启则在用户复制内容时自动添加版权信息', 'ui_boxmoe_com'),
         );
     
     

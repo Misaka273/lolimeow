@@ -43,7 +43,7 @@ $options[] = array(
          <p>⚒️ 修复部分功能的BUG问题</p>
          <p>🥰 新增若干功能</p>
          <p>🙉 基于Lolimeow原版主题开发，保留原版所有功能，会根据白木自身需求进行更新，欢迎反馈建议</p>
-         <p>👀 有些BUG和正在开发中的功能，会被白木记录到 <a href="https://gl.baimu.live/1198" target="_blank" rel="external nofollow" class="url">待办事项</a> 中</p>
+         <p>👀 有些BUG和正在开发中的功能，会被白木记录到 <a href="https://gl.baimu.live/864" target="_blank" rel="external nofollow" class="url">「萌盒子Lolimeow」主题二创开发笔记，及待办事项</a> 中</p>
          <p>😏 如果真的有要提出的建议，可以加入主题群，向 <a href="http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=YLb_jw14jGMh1q8cMwga9UZcWp6JDPsS&authKey=x8YpdYVOU%2BIyiJ8uSJ2gT9UJ%2B%2BByQjnaHTTaTjMAu9YIERV20NnM%2F7tfBB%2B39peo&noverify=0&group_code=24847519" target="_blank" rel="external nofollow" class="url">@白木</a> 提出~</p>
         ', 'ui_boxmoe_com'),
         'type' => 'info');

@@ -42,6 +42,8 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
     <meta name="login-url" content="<?php echo boxmoe_sign_in_link_page(); ?>">
     <!-- 🎯 页面元数据：注册页面URL -->
     <meta name="register-url" content="<?php echo boxmoe_sign_up_link_page(); ?>">
+    <!-- 🎯 页面元数据：登录状态 -->
+    <meta name="logged-in" content="<?php echo is_user_logged_in() ? 'true' : 'false'; ?>">
 </head>
   <body <?php if(is_singular()) echo 'data-post-id="' . get_the_ID() . '"'; ?> >
   <?php if(get_boxmoe('boxmoe_page_loading_switch')): ?>  
@@ -108,9 +110,11 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
                 </button>
               </div>
             </form>
+            <?php if(get_boxmoe('boxmoe_sign_in_link_switch')): ?>
             <button class="mobile-user-btn ms-2" type="button">
               <i class="fa fa-user"></i>
             </button>
+            <?php endif; ?>
             <?php if(is_user_logged_in() && get_boxmoe('boxmoe_sign_in_link_switch')): ?>
             <div class="mobile-user-panel">
               <div class="user-panel-content">
@@ -285,8 +289,15 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}?>
           if($welcome_text): 
           $rainbow_switch = get_boxmoe('boxmoe_banner_rainbow_switch');
           $rainbow_class = !empty($rainbow_switch) ? 'text-gradient' : '';
+          $typing_switch = get_boxmoe('boxmoe_banner_typing_switch');
           ?>
+          <?php if(!empty($typing_switch)): ?>
+          <!-- 直接显示欢迎语，不使用打字动画 -->
+          <h2 class="<?php echo esc_attr($rainbow_class); ?>"><?php echo esc_html($welcome_text); ?></h2>
+          <?php else: ?>
+          <!-- 使用打字动画显示欢迎语 -->
           <h2 class="boxmoe-typing-animation <?php echo esc_attr($rainbow_class); ?>" data-text="<?php echo esc_attr($welcome_text); ?>"></h2>
+          <?php endif; ?>
           <?php endif; ?>
           <?php echo boxmoe_banner_hitokoto(); ?>
         </div>

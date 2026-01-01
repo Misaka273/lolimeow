@@ -72,67 +72,9 @@ function boxmoe_user_center_link_page(){
 
 // 注册页面链接设置--------------------------boxmoe.com--------------------------
 function boxmoe_sign_up_link_page(){
-    $boxmoe_sign_up_link_page = get_boxmoe('boxmoe_sign_up_link_page');
-    if($boxmoe_sign_up_link_page && is_numeric($boxmoe_sign_up_link_page)){
-        $permalink = get_the_permalink($boxmoe_sign_up_link_page);
-        if($permalink) return $permalink;
-    }
-    
-    // 🔍 自动查找使用 p-signup.php 模板的注册页面（尝试多种模板路径格式）
-    $template_paths = array(
-        'page/p-signup.php',
-        'p-signup.php'
-    );
-    
-    foreach($template_paths as $template_path){
-        $signup_pages = get_pages(array(
-            'meta_key' => '_wp_page_template',
-            'meta_value' => $template_path
-        ));
-        if(!empty($signup_pages)){
-            // 🔗 返回找到的第一个注册页面的链接
-            return get_the_permalink($signup_pages[0]);
-        }
-    }
-    
-    // 🔍 按模板名称查找注册页面
-    $args = array(
-        'post_type' => 'page',
-        'posts_per_page' => 1,
-        'meta_query' => array(
-            array(
-                'key' => '_wp_page_template',
-                'value' => 'p-signup.php',
-                'compare' => 'LIKE'
-            )
-        )
-    );
-    
-    $signup_query = new WP_Query($args);
-    if($signup_query->have_posts()){
-        $signup_query->the_post();
-        $permalink = get_the_permalink();
-        wp_reset_postdata();
-        if($permalink) return $permalink;
-    }
-    
-    // 🔍 按slug查找注册页面
-    $signup_page = get_page_by_path('signup');
-    if($signup_page){
-        return get_the_permalink($signup_page);
-    }
-    
-    // 🔗 最后尝试获取所有页面，手动检查模板
-    $all_pages = get_pages();
-    foreach($all_pages as $page){
-        $template = get_page_template_slug($page->ID);
-        if($template && strpos($template, 'signup') !== false){
-            return get_the_permalink($page->ID);
-        }
-    }
-    
-    // 🔗 回退到默认注册页面链接
-    return home_url('/signup');
+    // 🔗 双面板设计：注册链接指向登录页面，并添加mode=signup参数
+    $login_url = boxmoe_sign_in_link_page();
+    return add_query_arg('mode', 'signup', $login_url);
 }
 
 
@@ -498,11 +440,7 @@ function handle_user_signup() {
             boxmoe_new_user_register($user_id);
         }
     }
-    if(get_boxmoe('boxmoe_robot_notice_switch')){
-        if(get_boxmoe('boxmoe_new_user_register_notice_robot_switch')){
-            boxmoe_robot_msg_reguser($user_id,$user->user_email);
-        }
-    } 
+    
     delete_transient('verification_code_' . $formData['email']);  
     boxmoe_new_user_register_email($user_id);
     wp_set_current_user($user_id);
@@ -781,9 +719,30 @@ function boxmoe_custom_login_style() {
             z-index: 0;
         }
         
-        /* 隐藏默认的登录标题和logo */
+        /* 彻底隐藏默认的登录标题和logo */
         .login h1 {
-            display: none;
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* 确保自定义logo显示 */
+        .login-logo {
+            display: block !important;
+            margin: 0 auto 1.5rem auto !important;
+            text-align: center !important;
+        }
+        
+        .login-logo img {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+            display: block !important;
+            margin: 0 auto !important;
         }
         
         /* 隐藏语言选择器 */
@@ -796,262 +755,1006 @@ function boxmoe_custom_login_style() {
             position: relative;
             z-index: 1;
             width: 100%;
-            max-width: 360px;
+            max-width: 460px;
             margin: 0 auto !important;
             padding: 0;
+            display: block;
+            text-align: center;
         }
         
-        /* 登录表单容器 - 渐变背景 */
-        .login form {
-            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #e0c3fc 100%);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px;
-            border: none;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-            padding: 3rem 2rem;
-            width: 100%;
-            max-width: 360px;
+        /* 重置登录页面所有默认样式 */
+        html body.login {
+            display: block !important;
+            min-height: 100vh !important;
             margin: 0 !important;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+            padding: 0 !important;
+            background-color: #f0f2f5 !important;
+            background-image: url(<?php echo get_boxmoe('boxmoe_user_login_bg')? get_boxmoe('boxmoe_user_login_bg') :'https://api.boxmoe.com/random.php'; ?>) !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            overflow-x: hidden !important;
+            position: relative !important;
         }
         
-        /* 登录表单内部结构 */
+        /* 使用固定定位实现绝对居中 */
+        body.login div#login {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            z-index: 10 !important;
+            width: 100% !important;
+            max-width: 460px !important;
+            margin: 0 !important;
+            padding: 0 1.5rem !important;
+            display: block !important;
+            text-align: center !important;
+            transform: translate(-50%, -50%) !important;
+            -webkit-transform: translate(-50%, -50%) !important;
+            -moz-transform: translate(-50%, -50%) !important;
+            -ms-transform: translate(-50%, -50%) !important;
+        }
+        
+        /* 确保所有文字和表单元素显示在遮罩层上面 */
+        body.login #login * {
+            position: relative !important;
+            z-index: 11 !important;
+        }
+        
+        /* 确保消息容器显示在遮罩层上面 */
+        body.login #login_error,
+        body.login .message,
+        body.login .success {
+            position: relative !important;
+            z-index: 12 !important;
+        }
+        
+        /* 确保表单元素显示在遮罩层上面 */
+        body.login form {
+            position: relative !important;
+            z-index: 12 !important;
+        }
+        
+        /* 确保标题和文字显示在遮罩层上面 */
+        body.login h2,
+        body.login .login-tagline,
+        body.login #nav,
+        body.login #backtoblog {
+            position: relative !important;
+            z-index: 12 !important;
+        }
+        
+        /* 确保所有登录页面元素都居中 */
+        body.login #login > * {
+            margin-left: auto !important;
+            margin-right: auto !important;
+            display: block !important;
+            text-align: center !important;
+            max-width: 100% !important;
+        }
+        
+        /* 确保表单元素居中 */
+        body.login #loginform,
+        body.login #registerform,
+        body.login #lostpasswordform {
+            margin: 0 auto !important;
+            text-align: left;
+            width: 100% !important;
+            max-width: 460px !important;
+        }
+        
+        /* 确保消息容器居中 */
+        body.login #login_error,
+        body.login .message,
+        body.login .success {
+            margin: 0 auto 1.5rem auto !important;
+            width: 100% !important;
+            max-width: 460px !important;
+            display: block !important;
+        }
+        
+        /* 修复WordPress默认登录页面的margin问题 */
+        body.login #nav,
+        body.login #backtoblog {
+            margin: 1rem auto 0 auto !important;
+            text-align: center !important;
+            display: block !important;
+        }
+        
+        /* 表单容器 - 蓝色渐变到粉色，半透明效果 */
+        .login form,
+        #lostpasswordform,
+        #resetpassform,
+        #login_error,
+        .login .message,
+        .login .success,
+        #language-switcher {
+            background: linear-gradient(135deg, rgba(120, 180, 255, 0.5), rgba(255, 150, 220, 0.5)) !important;
+            backdrop-filter: blur(20px) !important;
+            -webkit-backdrop-filter: blur(20px) !important;
+            border-radius: 20px !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            width: 100% !important;
+            max-width: 360px !important;
+            margin: 0 auto !important;
+            display: block !important;
+            color: #000000 !important;
+            transition: transform 0.3s ease !important;
+        }
+        
+        /* 表单悬停上移效果 */
+        .login form:hover,
+        #lostpasswordform:hover,
+        #resetpassform:hover {
+            transform: translateY(-3px) !important;
+        }
+        
+        /* 表单特殊内边距 */
+        .login form,
+        #lostpasswordform,
+        #resetpassform {
+            padding: 2rem !important;
+        }
+        
+        /* 消息容器特殊内边距 */
+        #login_error,
+        .login .message,
+        .login .success {
+            padding: 1.5rem !important;
+            margin-bottom: 1.5rem !important;
+        }
+        
+        /* 语言切换器特殊样式 */
+        #language-switcher {
+            padding: 1rem !important;
+            margin: 1rem auto !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 15px !important;
+            justify-content: center !important;
+        }
+        
+        /* 语言切换器主内容区域 - 确保所有子元素水平排列 */
+        #language-switcher {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 15px !important;
+            justify-content: center !important;
+            padding: 1rem !important;
+            margin: 1rem auto !important;
+        }
+        
+        /* 语言切换器主内容区域 - 确保label、select和按钮水平排列 */
+        #language-switcher > *:not(div) {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+        }
+        
+        /* 语言切换器直接子元素水平排列 */
+        #language-switcher {
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        
+        /* 语言切换器主内容行 */
+        #language-switcher-row {
+            display: flex !important;
+            align-items: center !important;
+            gap: 15px !important;
+            justify-content: center !important;
+            width: 100% !important;
+        }
+        
+        /* 确保label和select在同一行，图标在select左边 */
+        #language-switcher label {
+            color: #000000 !important;
+            font-size: 14px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 5px !important;
+            visibility: visible !important;
+            position: relative !important;
+            width: auto !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: visible !important;
+        }
+        
+        /* 确保dashicons图标可见并正确显示 */
+        #language-switcher label .dashicons {
+            display: inline-block !important;
+            visibility: visible !important;
+            width: 20px !important;
+            height: 20px !important;
+            font-size: 20px !important;
+            line-height: 1 !important;
+            color: #000000 !important;
+            margin-right: 5px !important;
+        }
+        
+        /* 确保select元素与label水平对齐 */
+        #language-switcher select {
+            vertical-align: middle !important;
+            display: inline-block !important;
+        }
+        
+        /* 语言切换器提交按钮样式 */
+        #language-switcher input[type="submit"] {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.5), rgba(220, 150, 255, 0.5)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 25px !important;
+            color: #000000 !important;
+            padding: 8px 15px !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            height: auto !important;
+            text-transform: none !important;
+            width: auto !important;
+            margin: 0 !important;
+        }
+        
+        /* 语言切换器提交按钮悬停效果 */
+        #language-switcher input[type="submit"]:hover {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.7), rgba(220, 150, 255, 0.7)) !important;
+            box-shadow: 0 0 10px rgba(180, 120, 255, 0.3) !important;
+        }
+        
+        /* 语言切换器下拉框特殊样式 */
+        #language-switcher select {
+            min-width: 180px !important;
+            max-width: 200px !important;
+        }
+        
+        /* 导航链接容器样式 */
+        #language-switcher > div:last-child {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 10px !important;
+            width: 100% !important;
+            margin-top: 10px !important;
+            padding-top: 10px !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        /* 导航链接样式 */
+        #language-switcher #nav,
+        #language-switcher #backtoblog {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            text-align: center !important;
+        }
+        
+        /* 导航链接文本样式 */
+        #language-switcher #nav a,
+        #language-switcher #backtoblog a {
+            font-size: 14px !important;
+        }
+        
+        /* 暗色模式适配 */
+        @media (prefers-color-scheme: dark) {
+            .login form,
+            #lostpasswordform,
+            #resetpassform,
+            #login_error,
+            .login .message,
+            .login .success,
+            #language-switcher {
+                background: linear-gradient(135deg, rgba(80, 120, 200, 0.7), rgba(200, 100, 160, 0.7)) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+                color: #e0e0e0;
+            }
+        }
+        
+        /* 表单内部结构 */
         .login form p {
             margin: 0 !important;
             width: 100%;
         }
         
-        /* 隐藏默认标签，使用占位符 */
+        /* 标签样式 - 统一表单元素 */
         .login label {
-            display: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+            font-size: 0.9rem;
         }
         
-        /* 登录表单输入框样式 */
+        /* 暗色模式下的标签样式 */
+        @media (prefers-color-scheme: dark) {
+            .login label {
+                color: #adb5bd;
+            }
+        }
+        
+        /* 输入框容器 - 用于实现勋章上移效果 */
+        .login form p {
+            position: relative !important;
+            margin: 0 0 15px 0 !important;
+        }
+        
+        /* 输入框样式 - 紫色渐变背景 */
         .login form .input,
         .login input[type="text"],
-        .login input[type="password"] {
-            height: 48px;
-            padding: 0 16px;
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-            color: #333;
+        .login input[type="password"],
+        .login input[type="email"],
+        .login textarea {
+            height: 45px !important;
+            padding: 15px 15px 0 15px !important;
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.3), rgba(220, 150, 255, 0.3)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 25px !important;
+            box-shadow: none !important;
+            transition: all 0.3s ease !important;
+            font-size: 14px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            color: #000000 !important;
             margin: 0 !important;
+        }
+        
+        /* 输入框聚焦样式 - 完全参考登录页面设计 */
+        .login form .input:focus,
+        .login input[type="text"]:focus,
+        .login input[type="password"]:focus,
+        .login input[type="email"]:focus,
+        .login textarea:focus {
+            background: rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5) !important;
+            border-color: rgba(255, 255, 255, 0.5) !important;
+            transform: none !important;
+            outline: none !important;
+        }
+        
+        /* 输入框占位符样式 - 完全参考登录页面设计 */
+        .login form .input::placeholder,
+        .login input[type="text"]::placeholder,
+        .login input[type="password"]::placeholder,
+        .login input[type="email"]::placeholder,
+        .login textarea::placeholder {
+            color: transparent !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        /* 输入框聚焦时占位符显示 - 完全参考登录页面设计 */
+        .login form .input:focus::placeholder,
+        .login input[type="text"]:focus::placeholder,
+        .login input[type="password"]:focus::placeholder,
+        .login input[type="email"]:focus::placeholder,
+        .login textarea:focus::placeholder {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        
+        /* 勋章上移效果 - 黑色文本 */
+        /* 只对包含输入框的表单段落应用勋章效果 */
+        .login form p:has(input),
+        #lostpasswordform p:has(input),
+        #resetpassform p:has(input) {
+            position: relative !important;
+        }
+        
+        /* 用户名/邮箱输入框 - 只对包含.input类或特定输入类型的段落应用 */
+        .login form p:has(.input[type="text"]),
+        .login form p:has(input[type="email"]),
+        #lostpasswordform p:has(input[type="text"]),
+        #lostpasswordform p:has(input[type="email"]) {
+            position: relative !important;
+        }
+        
+        /* 用户名/邮箱输入框勋章 */
+        .login form p:has(.input[type="text"])::before,
+        .login form p:has(input[type="email"])::before,
+        #lostpasswordform p:has(input[type="text"])::before,
+        #lostpasswordform p:has(input[type="email"])::before {
+            content: "用户名或邮箱地址";
+            position: absolute !important;
+            left: 20px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            font-size: 14px !important;
+            color: rgba(0, 0, 0, 0.7) !important;
+            transition: all 0.3s ease !important;
+            pointer-events: none !important;
+            z-index: 15 !important;
+        }
+        
+        /* 密码输入框勋章 */
+        .login form p:has(.input[type="password"]),
+        .login form p:has(input[type="password"]),
+        #resetpassform p:has(input[type="password"]) {
+            position: relative !important;
+        }
+        
+        .login form p:has(.input[type="password"])::before,
+        .login form p:has(input[type="password"])::before,
+        #resetpassform p:has(input[type="password"])::before {
+            content: "密码";
+            position: absolute !important;
+            left: 20px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            font-size: 14px !important;
+            color: rgba(0, 0, 0, 0.7) !important;
+            transition: all 0.3s ease !important;
+            pointer-events: none !important;
+            z-index: 15 !important;
+        }
+        
+        /* 确认密码输入框勋章 */
+        #resetpassform p:has(input[type="password"]):nth-child(3)::before {
+            content: "确认密码" !important;
+        }
+        
+        /* 重置密码页面特殊元素样式 - 密码强度指示器 */
+        #resetpassform .pw-weak,
+        #resetpassform .pw-weak + .pw-strength-result,
+        #resetpassform .pw-medium + .pw-strength-result,
+        #resetpassform .pw-strong + .pw-strength-result {
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-radius: 15px !important;
+            padding: 8px 15px !important;
+            margin: 10px 0 !important;
+            text-align: center !important;
+            font-size: 12px !important;
+            color: #000000 !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        /* 密码强度指示器文本样式 */
+        #resetpassform .pw-strength-result {
+            background: rgba(255, 255, 255, 0.3) !important;
+            color: #000000 !important;
+            border-radius: 15px !important;
+            padding: 8px 15px !important;
+            margin: 10px 0 !important;
+            text-align: center !important;
+            font-size: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+        }
+        
+        /* 密码强度指示器不同强度的样式 */
+        #resetpassform .pw-strength-result.weak {
+            background: linear-gradient(135deg, rgba(255, 120, 120, 0.5), rgba(255, 150, 150, 0.5)) !important;
+        }
+        
+        #resetpassform .pw-strength-result.medium {
+            background: linear-gradient(135deg, rgba(255, 200, 120, 0.5), rgba(255, 220, 150, 0.5)) !important;
+        }
+        
+        #resetpassform .pw-strength-result.strong {
+            background: linear-gradient(135deg, rgba(120, 255, 120, 0.5), rgba(150, 255, 150, 0.5)) !important;
+        }
+        
+        /* 生成密码和复制密码按钮样式 */
+        #resetpassform .pw-button {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.5), rgba(220, 150, 255, 0.5)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 25px !important;
+            color: #000000 !important;
+            padding: 8px 15px !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            margin: 5px !important;
+            display: inline-block !important;
+        }
+        
+        /* 生成密码和复制密码按钮悬停效果 */
+        #resetpassform .pw-button:hover {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.7), rgba(220, 150, 255, 0.7)) !important;
+            box-shadow: 0 0 10px rgba(180, 120, 255, 0.3) !important;
+        }
+        
+        /* 输入框聚焦或有内容时勋章上移 - 高斯模糊半透明背景 */
+        /* 只对包含输入框且聚焦或有内容的段落应用勋章效果 */
+        .login form p:has(.input:focus)::before,
+        .login form p:has(input:focus)::before,
+        .login form p:has(.input:not(:placeholder-shown))::before,
+        .login form p:has(input:not(:placeholder-shown))::before,
+        .login form p.has-content::before,
+        #lostpasswordform p:has(.input:focus)::before,
+        #lostpasswordform p:has(input:focus)::before,
+        #lostpasswordform p:has(.input:not(:placeholder-shown))::before,
+        #lostpasswordform p:has(input:not(:placeholder-shown))::before,
+        #lostpasswordform p.has-content::before,
+        #resetpassform p:has(.input:focus)::before,
+        #resetpassform p:has(input:focus)::before,
+        #resetpassform p:has(.input:not(:placeholder-shown))::before,
+        #resetpassform p:has(input:not(:placeholder-shown))::before,
+        #resetpassform p.has-content::before {
+            top: -8px !important;
+            left: 15px !important;
+            font-size: 12px !important;
+            color: #000000 !important;
+            background: rgba(255, 255, 255, 0.3) !important;
+            backdrop-filter: blur(10px) !important;
+            -webkit-backdrop-filter: blur(10px) !important;
+            padding: 2px 8px !important;
+            border-radius: 10px !important;
+            z-index: 9999 !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+            transform: none !important;
+        }
+        
+        /* 暗色模式下的输入框样式 */
+        @media (prefers-color-scheme: dark) {
+            .login form .input,
+            .login input[type="text"],
+            .login input[type="password"],
+            .login input[type="email"],
+            .login textarea {
+                background: rgba(0, 0, 0, 0.2);
+                border-color: rgba(255, 255, 255, 0.1);
+                color: #fff;
+            }
         }
         
         /* 输入框聚焦样式 */
         .login form .input:focus,
         .login input[type="text"]:focus,
-        .login input[type="password"]:focus {
-            background: rgba(255, 255, 255, 1);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-            transform: translateY(-2px);
+        .login input[type="password"]:focus,
+        .login input[type="email"]:focus,
+        .login textarea:focus {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 0 3px rgba(139, 61, 255, 0.2);
+            border-color: #8b3dff;
+            transform: translateY(-1px);
             outline: none;
         }
         
-        /* 修复登录表单提交按钮样式 */
+        /* 暗色模式下的输入框聚焦样式 */
+        @media (prefers-color-scheme: dark) {
+            .login form .input:focus,
+            .login input[type="text"]:focus,
+            .login input[type="password"]:focus,
+            .login input[type="email"]:focus,
+            .login textarea:focus {
+                background: rgba(0, 0, 0, 0.4);
+                border-color: #8b3dff;
+            }
+        }
+        
+        /* 提交按钮样式 - 紫色渐变背景 */
         .login .button-primary {
-            width: 100%;
-            margin: 0 !important;
-            padding: 12px 24px;
-            cursor: pointer;
-            border-radius: 12px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            border: none;
-            box-shadow: 0 6px 16px rgba(139, 61, 255, 0.4);
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, #8b3dff 0%, #a76fff 100%);
-            color: white;
-            font-size: 1rem;
-            text-transform: uppercase;
-            height: auto;
+            width: 100% !important;
+            margin: 10px 0 0 0 !important;
+            padding: 0 !important;
+            cursor: pointer !important;
+            border-radius: 25px !important;
+            font-weight: 600 !important;
+            letter-spacing: 1px !important;
+            border: none !important;
+            box-shadow: none !important;
+            transition: all 0.3s ease !important;
+            position: relative !important;
+            overflow: hidden !important;
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.5), rgba(220, 150, 255, 0.5)) !important;
+            color: #000000 !important;
+            font-size: 14px !important;
+            text-transform: uppercase !important;
+            height: 45px !important;
+            /* 确保文字居中 */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            /* 确保按钮文字不换行 */
+            white-space: nowrap !important;
+            /* 确保按钮内文字居中 */
+            text-align: center !important;
+            line-height: 45px !important;
         }
         
-        /* 按钮悬停效果 */
+        /* 按钮悬停效果 - 紫色渐变增强 */
         .login .button-primary:hover {
-            background: linear-gradient(135deg, #a76fff 0%, #8b3dff 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(139, 61, 255, 0.5);
+            transform: none !important;
+            box-shadow: 0 0 15px rgba(180, 120, 255, 0.5) !important;
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.7), rgba(220, 150, 255, 0.7)) !important;
         }
         
-        /* 按钮点击效果 */
+        /* 按钮点击效果 - 紫色渐变增强 */
         .login .button-primary:active {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(139, 61, 255, 0.4);
+            transform: none !important;
+            box-shadow: 0 0 10px rgba(180, 120, 255, 0.3) !important;
+            background: linear-gradient(135deg, rgba(160, 100, 235, 0.7), rgba(200, 130, 235, 0.7)) !important;
         }
         
-        /* 修复登录表单记住我复选框样式 */
-        .login .login-remember {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        /* 按钮扫光动画 - 完全参考登录页面设计 */
+        .login .button-primary::after {
+            content: none !important;
+        }
+        
+        /* 标签样式 - 完全参考登录页面设计 */
+        .login label {
+            display: none !important;
+        }
+        
+        /* 表单段落样式 - 完全参考登录页面设计 */
+        .login form p {
+            margin: 0 !important;
+            width: 100% !important;
+        }
+        
+        /* 提交按钮容器样式 - 完全参考登录页面设计 */
+        .login form .submit {
             margin: 0 !important;
             padding: 0 !important;
         }
         
-        .login .login-remember label {
-            display: inline-block;
-            margin-bottom: 0;
-            font-weight: normal;
-            cursor: pointer;
-            font-size: 0.85rem;
-            color: #666;
-        }
-        
-        /* 修复登录表单链接区域 */
-        .login #nav, 
+        /* 链接样式 - 黑色文本 */
+        .login #nav,
         .login #backtoblog {
-            margin: 1rem 0 0 !important;
-            text-align: center;
-            padding: 0 !important;
+            margin: 15px auto !important;
+            text-align: center !important;
+            display: block !important;
+            width: 100% !important;
+            max-width: 360px !important;
         }
         
-        /* 修复登录表单消息样式 */
-        .login .message, 
-        .login .error {
-            margin: 0 0 1.5rem 0 !important;
-            padding: 1rem;
-            width: 100%;
-        }
-        
-        /* 自定义登录标题 */
-        .login h2 {
-            text-align: center;
-            font-size: 1.6rem;
-            font-weight: bold;
-            margin: 0 0 0.5rem 0 !important;
-            padding: 0 !important;
-            color: #333;
-        }
-        
-        /* 自定义登录副标题 */
-        .login .login-subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 0.9rem;
-            margin: 0 0 2rem 0 !important;
-            padding: 0 !important;
-        }
-        
-        /* 修复登录表单链接样式 */
         .login #nav a,
         .login #backtoblog a {
-            color: #8b3dff;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 0.85rem;
+            color: rgba(0, 0, 0, 0.8) !important;
+            font-size: 12px !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
         }
         
         .login #nav a:hover,
         .login #backtoblog a:hover {
-            text-decoration: underline;
+            color: #000000 !important;
+            text-decoration: underline !important;
         }
         
-        /* 修复错误和消息样式 */
+        /* 标题样式 - 黑色文本 */
+        .login h2 {
+            text-align: center !important;
+            font-size: 20px !important;
+            font-weight: bold !important;
+            margin: 0 0 10px 0 !important;
+            padding: 0 !important;
+            color: #000000 !important;
+        }
+        
+        /* 提示文字样式 - 黑色文本 */
+        .login .login-tagline {
+            text-align: center !important;
+            color: rgba(0, 0, 0, 0.8) !important;
+            font-size: 12px !important;
+            margin: 0 0 20px 0 !important;
+            padding: 0 !important;
+        }
+        
+        /* 消息容器样式 - 黑色文本 */
+        .login #login_error,
         .login .message,
-        .login .error {
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem !important;
+        .login .success {
+            margin: 0 auto 15px auto !important;
+            padding: 12px !important;
+            width: 100% !important;
+            max-width: 360px !important;
+            border-radius: 15px !important;
+            border: none !important;
+            color: #000000 !important;
+            font-size: 12px !important;
+            box-shadow: none !important;
+            text-align: center !important;
         }
         
-        /* 修复重定向隐藏字段 */
-        .login form input[type="hidden"] {
-            display: none;
-        }
-        
-        /* 修复登录表单底部链接 */
-        .login .login-form-bottom {
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
-        /* 添加logo */
-        .login-logo {
-            text-align: center;
-            margin-bottom: 1.5rem;
+        /* 登录Logo样式 - 在表单内部显示 */
+        .login form .login-logo,
+        #lostpasswordform .login-logo,
+        #resetpassform .login-logo {
+            margin: 0 auto 15px auto !important;
+            text-align: center !important;
+            display: block !important;
         }
         
         .login-logo img {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            width: 80px !important;
+            height: 80px !important;
+            border-radius: 50% !important;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3) !important;
+            display: block !important;
+            margin: 0 auto !important;
         }
         
-        /* 标题下方的小字 */
-        .login-tagline {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 2rem;
+        /* 标题样式 - 在表单内部显示 */
+        .login form h2,
+        #lostpasswordform h2,
+        #resetpassform h2 {
+            margin: 0 auto 10px auto !important;
+            text-align: center !important;
         }
         
-        /* 版权信息 */
+        /* 提示文字样式 - 在表单内部显示 */
+        .login form .login-tagline,
+        #lostpasswordform .login-tagline,
+        #resetpassform .login-tagline {
+            margin: 0 auto 20px auto !important;
+            text-align: center !important;
+        }
+        
+        /* 隐藏默认的记住我复选框和其他不需要的元素 - 完全参考登录页面设计 */
+        .login .login-remember,
+        .login .forgetmenot,
+        /* 隐藏重复的文本标签 */
+        .login form p label,
+        .login form p br,
+        /* 隐藏所有默认标签 */
+        .login label,
+        /* 确保丢失密码页面的标签被完全隐藏 */
+        #lostpasswordform p label,
+        #lostpasswordform p br,
+        /* 确保重置密码页面的标签被完全隐藏 */
+        #resetpassform p label,
+        #resetpassform p br {
+            display: none !important;
+            visibility: hidden !important;
+            position: absolute !important;
+            width: 0 !important;
+            height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        /* 确保只显示勋章样式的文本，同时允许勋章溢出显示 */
+        .login form p,
+        #lostpasswordform p,
+        #resetpassform p {
+            overflow: visible !important;
+        }
+        
+        /* 隐藏输入框内的占位符文本 */
+        .login form .input::placeholder,
+        .login input[type="text"]::placeholder,
+        .login input[type="password"]::placeholder,
+        .login input[type="email"]::placeholder,
+        .login textarea::placeholder {
+            color: transparent !important;
+        }
+        
+        /* 统一表单元素样式 - 紫色渐变背景 */
+        .login select,
+        #language-switcher select,
+        .login button,
+        #language-switcher button {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.3), rgba(220, 150, 255, 0.3)) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            border-radius: 25px !important;
+            color: #000000 !important;
+            padding: 8px 15px !important;
+            font-size: 14px !important;
+            cursor: pointer !important;
+            transition: all 0.3s ease !important;
+            outline: none !important;
+        }
+        
+        /* 表单元素悬停效果 */
+        .login select:hover,
+        #language-switcher select:hover,
+        .login button:hover,
+        #language-switcher button:hover {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.5), rgba(220, 150, 255, 0.5)) !important;
+            box-shadow: 0 0 10px rgba(180, 120, 255, 0.3) !important;
+        }
+        
+        /* 美化select下拉框 - 自定义箭头 */
+        .login select,
+        #language-switcher select {
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            position: relative !important;
+            padding-right: 40px !important;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23000000' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 15px center !important;
+        }
+        
+        /* 美化select下拉菜单容器 */
+        select[name="wp_lang"] {
+            border-radius: 25px !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+            outline: none !important;
+        }
+        
+        /* 浏览器对option元素样式支持有限，我们重点美化select容器和选中状态 */
+        /* 美化select下拉选项 - 注意：浏览器对option的border-radius等属性支持有限 */
+        .login select option,
+        #language-switcher select option {
+            background: rgba(255, 255, 255, 0.95) !important;
+            color: #000000 !important;
+            padding: 12px 15px !important;
+            font-size: 14px !important;
+        }
+        
+        /* 美化select下拉选项选中状态 */
+        .login select option:checked,
+        #language-switcher select option:checked {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.6), rgba(220, 150, 255, 0.6)) !important;
+            color: #000000 !important;
+        }
+        
+        /* 美化select下拉选项悬停效果 */
+        .login select option:hover,
+        #language-switcher select option:hover {
+            background: linear-gradient(135deg, rgba(180, 120, 255, 0.5), rgba(220, 150, 255, 0.5)) !important;
+            color: #000000 !important;
+        }
+        
+        /* 为select元素添加自定义下拉容器样式（模拟效果） */
+        select[name="wp_lang"] {
+            /* 这里可以使用JavaScript库或CSS伪元素来创建自定义下拉框，但超出了当前任务范围 */
+            /* 我们已经美化了select容器，使其具有圆角，这是浏览器支持的 */
+        }
+        
+        /* 美化select下拉菜单 */
+        .login select::-ms-expand,
+        #language-switcher select::-ms-expand {
+            display: none !important;
+        }
+        
+        /* 确保下拉菜单样式统一 */
+        select[name="wp_lang"] {
+            width: auto !important;
+            min-width: 150px !important;
+        }
+        
+
+        
+        /* 版权信息样式 - 完全参考登录页面设计 */
         .login-copyright {
-            text-align: center;
-            font-size: 0.75rem;
-            color: #999;
-            margin-top: 1.5rem;
-            margin-bottom: 0;
-        }
-        
-        /* 修复"忘记密码"链接样式 */
-        .login #nav {
-            margin-top: 1rem !important;
-        }
-        
-        /* 修复"返回首页"链接样式 */
-        .login #backtoblog {
-            margin-top: 0.5rem !important;
-        }
-        
-        /* 修复"忘记密码"链接 */
-        .login #nav {
-            margin-bottom: 0;
-        }
-        
-        /* 修复输入框占位符样式 */
-        ::placeholder {
-            color: #999;
-            opacity: 1;
-        }
-        
-        :-ms-input-placeholder {
-            color: #999;
-        }
-        
-        ::-ms-input-placeholder {
-            color: #999;
+            text-align: center !important;
+            font-size: 10px !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+            margin-top: 20px !important;
+            margin-bottom: 0 !important;
+            width: 100% !important;
+            max-width: 360px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
         }
     </style>
+    
+    <script type="text/javascript">
+    // 确保DOM加载完成后执行
+    document.addEventListener('DOMContentLoaded', function() {
+        // 设置延迟确保所有元素都已渲染
+        setTimeout(function() {
+            // 获取需要移动的元素
+            var navElement = document.getElementById('nav');
+            var backtoblogElement = document.getElementById('backtoblog');
+            var languageForm = document.getElementById('language-switcher');
+            var lostpasswordForm = document.getElementById('lostpasswordform');
+            var loginForm = document.getElementById('loginform');
+            var resetpassForm = document.getElementById('resetpassform');
+            var loginLogo = document.querySelector('.login-logo');
+            var loginTitle = document.querySelector('.login h2');
+            var loginTagline = document.querySelector('.login-tagline');
+            
+            // 检查当前页面是否为登录相关页面
+            var bodyClass = document.body.className;
+            
+            // 只在登录页面执行元素移动操作
+            if (bodyClass.indexOf('login') !== -1) {
+                // 将logo、标题和提示文字移动到表单内部输入框上方
+                var mainForm = lostpasswordForm || loginForm || resetpassForm;
+                if (mainForm) {
+                    // 找到表单中的第一个输入框容器
+                    var firstInputContainer = mainForm.querySelector('p:has(input)') || mainForm.querySelector('p:first-child');
+                    
+                    // 依次插入元素到输入框容器之前，确保顺序：logo → title → tagline
+                    if (loginTagline && firstInputContainer) {
+                        mainForm.insertBefore(loginTagline, firstInputContainer);
+                    }
+                    if (loginTitle && firstInputContainer) {
+                        mainForm.insertBefore(loginTitle, loginTagline);
+                    }
+                    if (loginLogo && firstInputContainer) {
+                        mainForm.insertBefore(loginLogo, loginTitle);
+                    }
+                }
+                
+                // 移动导航链接到语言切换表单
+                if (navElement && backtoblogElement && languageForm) {
+                    // 创建一个导航容器来包裹nav和backtoblog元素
+                    var navContainer = document.createElement('div');
+                    
+                    // 将nav和backtoblog元素添加到导航容器中
+                    navContainer.appendChild(navElement);
+                    navContainer.appendChild(backtoblogElement);
+                    
+                    // 将导航容器添加到语言切换表单的末尾
+                    languageForm.appendChild(navContainer);
+                }
+                
+                // 将语言切换表单移动到登录表单下面
+                if (languageForm && mainForm) {
+                    // 确保mainForm的父元素存在
+                    var parent = mainForm.parentNode;
+                    if (parent) {
+                        // 设置语言切换表单的上间距
+                        languageForm.style.marginTop = '15px';
+                        
+                        // 将语言切换表单移动到mainForm的后面
+                        parent.insertBefore(languageForm, mainForm.nextSibling);
+                    }
+                }
+                
+                // 为所有输入框添加内容检测，控制勋章显示
+                var inputs = document.querySelectorAll('.login input[type="text"], .login input[type="email"], .login input[type="password"], #lostpasswordform input, #resetpassform input');
+                inputs.forEach(function(input) {
+                    // 检测输入框内容变化
+                    input.addEventListener('input', function() {
+                        var parent = input.closest('p');
+                        if (parent) {
+                            if (input.value.trim() !== '') {
+                                parent.classList.add('has-content');
+                            } else {
+                                parent.classList.remove('has-content');
+                            }
+                        }
+                    });
+                    
+                    // 初始化时检查输入框是否有内容
+                    if (input.value.trim() !== '') {
+                        var parent = input.closest('p');
+                        if (parent) {
+                            parent.classList.add('has-content');
+                        }
+                    }
+                });
+            }
+        }, 100);
+    });
+    </script>
     <?php
 }
 add_action('login_head', 'boxmoe_custom_login_style');
 
-// 🎨 添加自定义登录页面内容
+// 🎨 添加自定义登录页面内容 - 根据页面类型显示不同内容
 function boxmoe_custom_login_content() {
-    // 获取网站logo或使用默认logo
-    $site_logo = get_site_icon_url(60, get_template_directory_uri() . '/assets/images/logo.png');
+    // 获取主题设置的Favicon地址
+    $favicon_src = get_boxmoe('boxmoe_favicon_src');
+    if ($favicon_src) {
+        $site_logo = $favicon_src;
+    } else {
+        $site_logo = boxmoe_theme_url() . '/assets/images/favicon.ico';
+    }
+    
+    // 获取当前页面类型
+    $action = isset($_GET['action']) ? $_GET['action'] : 'login';
+    
+    // 根据页面类型设置标题和提示文字
+    if ($action == 'lostpassword' || $action == 'retrievepassword') {
+        $page_title = '忘记密码';
+        $page_tagline = '请输入您的用户名或邮箱地址，您会收到一封包含重设密码指引的邮件';
+    } elseif ($action == 'resetpass' || $action == 'rp') {
+        $page_title = '重置密码';
+        $page_tagline = '请设置您的新密码';
+    } else {
+        $page_title = '欢迎回来站长大人';
+        $page_tagline = '登录后台管理系统';
+    }
+    
+    // 直接输出HTML，确保代码被执行，设置高z-index显示在遮罩层上面
     ?>
-    <div class="login-logo">
-        <img src="<?php echo esc_url($site_logo); ?>" alt="<?php echo esc_attr(get_bloginfo('name')); ?>">
+    <div class="login-logo" style="display: block !important; margin: 0 auto 1.5rem auto !important; text-align: center !important; position: relative !important; z-index: 10 !important;">
+        <img src="<?php echo esc_url($site_logo); ?>" alt="<?php echo esc_attr(get_bloginfo('name')); ?>" style="width: 60px !important; height: 60px !important; border-radius: 12px !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important; display: block !important; margin: 0 auto !important;">
     </div>
-    <h2>欢迎回来站长大人</h2>
+    
+    <h2><?php echo esc_html($page_title); ?></h2>
     <p class="login-tagline">
-        登录后台管理系统
+        <?php echo esc_html($page_tagline); ?>
     </p>
     <?php
 }
@@ -1065,7 +1768,8 @@ function boxmoe_add_login_copyright() {
     </div>
     <?php
 }
-add_action('login_form', 'boxmoe_custom_login_content');
+// 只保留login_header动作钩子，避免重复输出
+add_action('login_header', 'boxmoe_custom_login_content'); // 登录页面头部，适合输出Logo
 add_action('login_footer', 'boxmoe_add_login_copyright');
 
 // 🆔 生成随机且唯一的6位以上数字ID

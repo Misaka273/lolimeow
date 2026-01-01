@@ -1,0 +1,236 @@
+/* 🎨 Shiroki图片加载优化样式 */
+
+/* 🌟 基础图片容器样式 */
+.shiroki-image-container {
+    position: relative;
+    overflow: hidden;
+    background: transparent;
+}
+
+/* 🎭 图片占位符动画 */
+.shiroki-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bs-light, #f8f9fa);
+    z-index: 1;
+    border-radius: inherit;
+}
+
+/* 🌆 暗色模式占位符 */
+[data-bs-theme="dark"] .shiroki-image-placeholder {
+    background: var(--bs-dark, #1a1a1a);
+}
+
+/* ✨ 占位符消失动画 */
+.shiroki-image-placeholder.loaded {
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+    pointer-events: none;
+}
+
+/* 🎯 Banner图片特殊效果 */
+.boxmoe_header_banner_img img {
+    opacity: 0;
+    transform: scale(0.9) translateY(10px);
+    transition: all 1.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: blur(12px);
+    will-change: transform, opacity, filter;
+}
+
+.boxmoe_header_banner_img img.loaded {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+}
+
+/* 📱 移动端优化 */
+@media (max-width: 768px) {
+    .boxmoe_header_banner_img img {
+        transition-duration: 1s;
+        transform: scale(0.95) translateY(5px);
+    }
+}
+
+/* 🖼️ 文章封面图片效果 */
+.post-list-img img {
+    opacity: 0;
+    transform: scale(0.92) translateY(8px);
+    transition: all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: blur(8px);
+    will-change: transform, opacity, filter;
+}
+
+.post-list-img img.loaded {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+}
+
+/* 🎨 懒加载图片效果 */
+img.lazy {
+    opacity: 0;
+    transform: scale(0.88) translateY(12px);
+    transition: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    filter: blur(6px);
+    will-change: transform, opacity, filter;
+}
+
+img.lazy.loaded {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+}
+
+/* ⚡ 高性能模式 */
+@media (prefers-reduced-motion: reduce) {
+    .shiroki-image-placeholder,
+    .boxmoe_header_banner_img img,
+    .post-list-img img,
+    img.lazy {
+        animation: none;
+        transition: opacity 0.3s ease;
+    }
+    
+    .boxmoe_header_banner_img img {
+        transform: scale(1);
+        filter: blur(0);
+    }
+    
+    .post-list-img img,
+    img.lazy {
+        transform: scale(1);
+        filter: blur(0);
+    }
+}
+
+/* 🌈 特殊效果：彩色边框 */
+.shiroki-image-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        45deg,
+        rgba(114, 229, 244, 0.1),
+        rgba(60, 89, 251, 0.1),
+        rgba(218, 234, 255, 0.1)
+    );
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+
+.shiroki-image-container.loaded::before {
+    opacity: 1;
+}
+
+/* 🎯 加载状态指示器 */
+.shiroki-loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top: 3px solid var(--bs-primary, #007bff);
+    border-radius: 50%;
+    animation: shiroki-spin 1s linear infinite;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.shiroki-image-container.loading .shiroki-loading-indicator {
+    opacity: 1;
+}
+
+@keyframes shiroki-spin {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 📊 性能优化类 */
+.shiroki-optimize-performance {
+    contain: layout style paint;
+    content-visibility: auto;
+}
+
+/* 🎭 错误状态处理 */
+img.shiroki-error {
+    filter: grayscale(100%) blur(2px);
+    opacity: 0.7;
+}
+
+.shiroki-error-placeholder {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: var(--bs-gray-500, #6c757d);
+    font-size: 14px;
+    z-index: 4;
+}
+
+/* 🎨 响应式优化 */
+@media (max-width: 576px) {
+    .shiroki-image-placeholder {
+        animation-duration: 1.5s;
+    }
+    
+    .post-list-img img {
+        transition-duration: 0.6s;
+        transform: scale(0.95) translateY(5px);
+    }
+    
+    img.lazy {
+        transition-duration: 0.5s;
+        transform: scale(0.9) translateY(8px);
+    }
+}
+
+/* 🌟 悬停效果增强 */
+.shiroki-image-container:hover img.loaded {
+    transform: scale(1.02);
+    transition: transform 0.3s ease;
+}
+
+/* 🎨 主题色适配 */
+:root {
+    --shiroki-primary: #007bff;
+    --shiroki-secondary: #6c757d;
+    --shiroki-success: #28a745;
+    --shiroki-info: #17a2b8;
+    --shiroki-warning: #ffc107;
+    --shiroki-danger: #dc3545;
+    --shiroki-light: #f8f9fa;
+    --shiroki-dark: #343a40;
+}
+
+/* 🌆 暗色模式完整适配 */
+[data-bs-theme="dark"] {
+    --shiroki-primary: #0d6efd;
+    --shiroki-secondary: #6c757d;
+    --shiroki-success: #198754;
+    --shiroki-info: #0dcaf0;
+    --shiroki-warning: #ffc107;
+    --shiroki-danger: #dc3545;
+    --shiroki-light: #f8f9fa;
+    --shiroki-dark: #212529;
+}
+
+/* 🎯 最终优化：硬件加速 */
+.shiroki-image-container,
+.boxmoe_header_banner_img,
+.post-list-img,
+img {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}

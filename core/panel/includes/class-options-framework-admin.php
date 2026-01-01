@@ -25,10 +25,10 @@ class Options_Framework_Admin {
     public function init() {
 
 		// Gets options to load
-    	$options = & Options_Framework::_optionsframework_options();
+		$options = & Options_Framework::_optionsframework_options();
 
 		// Checks if options are available
-    	if ( $options ) {
+		if ( $options ) {
 
 			// Add the options page and menu item.
 			add_action( 'admin_menu', array( $this, 'add_custom_options_page' ) );
@@ -45,7 +45,7 @@ class Options_Framework_Admin {
 
 		}
 
-    }
+	}
 
 	/**
      * Registers the settings
@@ -191,7 +191,8 @@ class Options_Framework_Admin {
 	 *
      * @since 1.7.0
      */
-	 function options_page() { ?><?php $menu = $this->menu_settings(); ?>
+	 function options_page() { 
+		?><?php $menu = $this->menu_settings(); ?>
 	  
 	  <div id="optionsframework-wrap" class="wrap">
 	  <?php settings_errors( 'options-framework' ); ?> 
@@ -217,35 +218,37 @@ class Options_Framework_Admin {
 		<div class="el-button" style="padding: 8px 16px; line-height: 1.5; display: inline-block; text-align: center;">
 			<a href="https://www.boxmoe.com/706.html" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: none;">📃在线文档</a>  
 			🚀V<?php echo THEME_VERSION; ?>  
-			🎉更新日期：2025-12-16<br>
+			🎉更新日期：2025-12-29<br>
 			🥰本主题二次创作 <a href="https://gl.baimu.live/864" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: underline;">白木</a>
 		</div>
 		</div>			
 				<div id="optionsframework" class="postbox">
-					<form action="options.php" method="post">
-					<?php settings_fields( 'optionsframework' ); ?>
-					<?php Options_Framework_Interface::optionsframework_fields(); /* Settings */ ?>
-				</div>
+				<form action="options.php" method="post">
+				<?php settings_fields( 'optionsframework' ); ?>
+				<?php Options_Framework_Interface::optionsframework_fields(); /* Settings */ ?>
 				<?php do_action( 'optionsframework_after' ); ?>
-
-			</div> <!-- / .wrap -->
-		</div>		
-		<div id="optionsframework-submit">
-			<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( '保存设置', 'textdomain' ); ?>" />
-			<input type="submit" class="reset-button button-secondary" name="reset" value="<?php esc_attr_e( '重置所有设置', 'textdomain' ); ?>" onclick="return confirm( '<?php print esc_js( __( '警告：点击确定，之前所有设置修改都将丢失！', 'textdomain' ) ); ?>' );" />
-			<div class="clear"></div>
-		</div>
-		<div id="of-slogan-modal-mask" class="of-modal-mask" style="display:none">
-			<div id="of-slogan-modal" class="of-modal">
-				<div class="of-modal-header"><?php esc_html_e('重置页面标语','textdomain'); ?></div>
-				<div class="of-modal-body"><?php esc_html_e('仅重置“页面标语设置”，其他设置不受影响。是否继续？','textdomain'); ?></div>
-				<div class="of-modal-actions">
-					<button type="button" id="of-slogan-cancel" class="of-btn of-btn-secondary"><?php esc_html_e('取消','textdomain'); ?></button>
-					<button type="button" id="of-slogan-confirm" class="of-btn of-btn-primary"><?php esc_html_e('确定','textdomain'); ?></button>
-				</div>
+				
+				<div id="optionsframework-submit">
+				<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( '保存设置', 'textdomain' ); ?>" />
+				<!-- 恢复为submit类型，但添加隐藏字段 -->
+				<input type="hidden" name="reset_confirm" value="false" />
+				<input type="submit" class="reset-button button-secondary" name="reset" value="<?php esc_attr_e( '重置所有设置', 'textdomain' ); ?>" onclick="return confirm('<?php print esc_js( __( '警告：点击确定，之前所有设置修改都将丢失！', 'textdomain' ) ); ?>');" />
+				<div class="clear"></div>
 			</div>
-		</div>
-					</form>
+				
+				<div id="of-slogan-modal-mask" class="of-modal-mask" style="display:none">
+					<div id="of-slogan-modal" class="of-modal">
+						<div class="of-modal-header"><?php esc_html_e('重置页面标语','textdomain'); ?></div>
+						<div class="of-modal-body"><?php esc_html_e('仅重置“页面标语设置”，其他设置不受影响。是否继续？','textdomain'); ?></div>
+						<div class="of-modal-actions">
+							<button type="button" id="of-slogan-cancel" class="of-btn of-btn-secondary"><?php esc_html_e('取消','textdomain'); ?></button>
+							<button type="button" id="of-slogan-confirm" class="of-btn of-btn-primary"><?php esc_html_e('确定','textdomain'); ?></button>
+						</div>
+					</div>
+				</div>
+			</form>
+		</div> <!-- / .wrap -->
+	</div>
 </div> 
 <style id="of-slogan-modal-style">
 .of-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;z-index:100000}
@@ -303,8 +306,15 @@ document.addEventListener('DOMContentLoaded', function() {
   // 📡 检测URL参数并显示相应提示
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('settings-updated')) {
-    // 直接显示默认的保存成功提示
-    showTopBanner('设置已保存成功！', 5000);
+    // 判断操作类型并显示相应提示
+    if (urlParams.has('reset')) {
+      showTopBanner('所有设置已重置为默认值！', 5000);
+    } else if (urlParams.has('reset_slogan')) {
+      showTopBanner('页面标语已重置为默认值！', 5000);
+    } else {
+      // 直接显示默认的保存成功提示
+      showTopBanner('设置已保存成功！', 5000);
+    }
   }
 });
 
@@ -319,7 +329,7 @@ var boxmoe_version = function () {
             }
         })
         .catch(error => {
-            console.error('Error fetching version:', error);
+
         });
 };
 boxmoe_version();
@@ -371,44 +381,50 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 		 */
 
 		if ( isset( $_POST['reset'] ) ) {
-			// 不使用默认的WordPress提示框，改为使用自定义的顶部横幅提示
-			// add_settings_error( 'options-framework', 'restore_defaults', __( '已恢复默认选项!', 'textdomain' ), 'updated fade' );
-			// 提示信息将通过JavaScript在前端显示
-			return $this->get_default_values();
+			// 获取所有默认值
+			$defaults = $this->get_default_values();
+			
+			// 使用WordPress默认的提示框
+			add_settings_error( 'options-framework', 'restore_defaults', __( '已恢复默认选项!', 'textdomain' ), 'updated fade' );
+			
+			// 直接返回默认值数组，让WordPress完全重置为默认值
+			return $defaults;
 		}
 
 		/*
-		 * Reset only Page Slogan options
-		 */
-		if ( isset( $_POST['reset_slogan'] ) ) {
-			$options_framework = new Options_Framework;
-			$name = $options_framework->get_option_name();
-			$current = get_option( $name );
-			$defaults = $this->get_default_values();
-			$slogan_keys = array(
-				'boxmoe_slogan_home_text',
-				'boxmoe_slogan_category_text',
-				'boxmoe_slogan_tag_text',
-				'boxmoe_slogan_search_text',
-				'boxmoe_slogan_404_text',
-				'boxmoe_slogan_author_text',
-				'boxmoe_slogan_date_text',
-				'boxmoe_slogan_archive_text',
-				'boxmoe_slogan_post_text',
-				'boxmoe_slogan_page_text',
-				'boxmoe_slogan_page_links_text',
-				'boxmoe_slogan_page_user_center_text',
-			);
-			foreach ( $slogan_keys as $key ) {
-				if ( isset( $defaults[$key] ) ) {
-					$current[$key] = $defaults[$key];
-				}
+	 * Reset only Page Slogan options
+	 */
+	if ( isset( $_POST['reset_slogan'] ) ) {
+		$options_framework = new Options_Framework;
+		$name = $options_framework->get_option_name();
+		$current = get_option( $name );
+		$defaults = $this->get_default_values();
+		$slogan_keys = array(
+			'boxmoe_slogan_home_text',
+			'boxmoe_slogan_category_text',
+			'boxmoe_slogan_tag_text',
+			'boxmoe_slogan_search_text',
+			'boxmoe_slogan_404_text',
+			'boxmoe_slogan_author_text',
+			'boxmoe_slogan_date_text',
+			'boxmoe_slogan_archive_text',
+			'boxmoe_slogan_post_text',
+			'boxmoe_slogan_page_text',
+			'boxmoe_slogan_page_links_text',
+			'boxmoe_slogan_page_user_center_text',
+		);
+		foreach ( $slogan_keys as $key ) {
+			// 使用与validate_options相同的ID处理逻辑，确保键名匹配
+			$processed_key = preg_replace( '/[^a-zA-Z0-9._\-]/', '', strtolower( $key ) );
+			if ( isset( $defaults[$processed_key] ) ) {
+				$current[$processed_key] = $defaults[$processed_key];
 			}
-			// 不使用默认的WordPress提示框，改为使用自定义的顶部横幅提示
-			// add_settings_error( 'options-framework', 'restore_slogan_defaults', __( '页面标语已恢复默认值！', 'textdomain' ), 'updated fade' );
-			// 提示信息将通过JavaScript在前端显示
-			return $current;
 		}
+		// 不使用默认的WordPress提示框，改为使用自定义的顶部横幅提示
+		// add_settings_error( 'options-framework', 'restore_slogan_defaults', __( '页面标语已恢复默认值！', 'textdomain' ), 'updated fade' );
+		// 提示信息将通过JavaScript在前端显示
+		return $current;
+	}
 
 		/*
 		 * 设置默认值防止未定义键警告
@@ -442,34 +458,17 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 				}
 			}
 
-			// For a value to be submitted to database it must pass through a sanitization filter
+			// 无论是否有清理过滤器，都要包含该选项
 			if ( has_filter( 'of_sanitize_' . $option['type'] ) ) {
 				$clean[$id] = apply_filters( 'of_sanitize_' . $option['type'], $input[$id], $option );
+			} else {
+				// 对于没有清理过滤器的选项，直接使用输入值
+				$clean[$id] = $input[$id];
 			}
 		}
 
 		// Hook to run after validation
 		do_action( 'optionsframework_after_validate', $clean );
-
-		// WordPress会自动添加settings-updated参数，我们不需要手动添加
-		// 我们可以直接使用JavaScript检测这个参数来显示提示
-		// 对于不同的操作，我们可以通过检查POST数据来确定显示什么提示
-		// 但是由于WordPress的设置API会自动重定向，我们无法直接在重定向后获取POST数据
-		// 所以我们直接在JavaScript中处理不同的操作类型
-		// 不需要使用transient API来存储操作类型
-
-		// 修改WordPress的重定向URL，添加操作类型参数
-		if ( isset( $_POST['reset'] ) ) {
-			// 恢复默认设置
-			add_filter( 'redirect_post_location', function( $location ) {
-				return add_query_arg( array( 'reset' => 'true' ), $location );
-			} );
-		} elseif ( isset( $_POST['reset_slogan'] ) ) {
-			// 重置页面标语
-			add_filter( 'redirect_post_location', function( $location ) {
-				return add_query_arg( array( 'reset_slogan' => 'true' ), $location );
-			} );
-		}
 
 		return $clean;
 	}
@@ -509,8 +508,15 @@ if(ofResetBtn&&mask&&confirmBtn&&cancelBtn){
 			if ( ! isset( $option['type'] ) ) {
 				continue;
 			}
+			// 使用与validate_options相同的ID处理逻辑
+			$id = preg_replace( '/[^a-zA-Z0-9._\-]/', '', strtolower( $option['id'] ) );
+			
+			// 无论是否有清理过滤器，都要包含该选项的默认值
 			if ( has_filter( 'of_sanitize_' . $option['type'] ) ) {
-				$output[$option['id']] = apply_filters( 'of_sanitize_' . $option['type'], $option['std'], $option );
+				$output[$id] = apply_filters( 'of_sanitize_' . $option['type'], $option['std'], $option );
+			} else {
+				// 对于没有清理过滤器的选项，直接使用默认值
+				$output[$id] = $option['std'];
 			}
 		}
 		return $output;

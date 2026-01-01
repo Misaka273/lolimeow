@@ -792,6 +792,29 @@ function boxmoe_manage_post_tag_columns($columns) {
 }
 add_filter('manage_edit-post_tag_columns', 'boxmoe_manage_post_tag_columns');
 
+// 🌐 翻译WPJAM Basic插件侧边栏菜单名称
+function boxmoe_translate_wpjam_menu() {
+    global $menu, $submenu;
+    
+    // 翻译主菜单名称
+    foreach ($menu as $key => $item) {
+        if ($item[2] == 'wpjam-basic') {
+            $menu[$key][0] = 'WPJAM优化设置';
+        }
+    }
+    
+    // 翻译子菜单名称
+    if (isset($submenu['wpjam-basic'])) {
+        // 主菜单的子菜单标题
+        foreach ($submenu['wpjam-basic'] as $key => $item) {
+            if ($item[2] == 'wpjam-basic') {
+                $submenu['wpjam-basic'][$key][0] = '优化设置';
+            }
+        }
+    }
+}
+add_action('admin_menu', 'boxmoe_translate_wpjam_menu', 11);
+
 // 📅 修复WordPress后台日期显示，确保读取当前系统时间
 // 移除直接时区设置，依赖WordPress核心时区机制
 

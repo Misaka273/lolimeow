@@ -356,6 +356,8 @@ function boxmoe_pagination($query = null) {
         }
         echo '</ul></nav>';
     }elseif($paging_type == 'loadmore'){
+    }elseif($paging_type == 'infinite'){
+        // 无限加载模式，返回空，由前端处理
     }
 }
 function p_link( $i, $title = '', $w='' ) {
@@ -531,8 +533,18 @@ function boxmoe_custom_post_order($query) {
         return;
     }
     
-    // 首页文章分类筛选
+    // 获取当前页码
+    $paged = get_query_var('paged') ?: 1;
+    
+    // 获取当前的置顶文章
+    $sticky_posts = get_option('sticky_posts');
+    
+    // 首页文章分类筛选和文章数量设置
     if ($query->is_home()) {
+        // 首页显示文章数量，默认3篇
+        $posts_per_page = intval(get_boxmoe('boxmoe_home_posts_per_page', 3));
+        $query->set('posts_per_page', $posts_per_page);
+        
         $selected_categories_str = get_boxmoe('boxmoe_home_article_categories', '');
         
         if (!empty($selected_categories_str)) {
@@ -550,9 +562,6 @@ function boxmoe_custom_post_order($query) {
             $categories_ids = array_unique($categories_ids);
             
             if (!empty($categories_ids)) {
-                // 获取当前的置顶文章
-                $sticky_posts = get_option('sticky_posts');
-                
                 if (!empty($sticky_posts)) {
                     // 筛选出属于所选分类的置顶文章
                     $filtered_sticky_posts = array();
@@ -565,12 +574,44 @@ function boxmoe_custom_post_order($query) {
                         }
                     }
                     
-                    // 更新置顶文章列表，只保留符合条件的置顶文章
-                    $query->set('post__not_in', array_diff($sticky_posts, $filtered_sticky_posts));
+                    // 1. 确保置顶文章显示在最前面
+                    $query->set('ignore_sticky_posts', 0);
+                    
+                    // 2. 处理分页和无限加载的情况
+                    if ($paged > 1) {
+                        // 分页（包括无限加载的后续请求）：将所有置顶文章从查询中排除，避免重复显示
+                        $original_post_not_in = $query->get('post__not_in') ?: array();
+                        $query->set('post__not_in', array_merge($original_post_not_in, $sticky_posts));
+                    } else {
+                        // 第一页：将不属于筛选分类的置顶文章排除
+                        $original_post_not_in = $query->get('post__not_in') ?: array();
+                        $excluded_sticky_posts = array_diff($sticky_posts, $filtered_sticky_posts);
+                        $query->set('post__not_in', array_merge($original_post_not_in, $excluded_sticky_posts));
+                    }
                 }
                 
                 // 设置分类筛选条件
                 $query->set('category__in', $categories_ids);
+            }
+        } else {
+            // 没有设置分类筛选，处理所有置顶文章
+            if (!empty($sticky_posts)) {
+                if ($paged > 1) {
+                    // 分页时忽略置顶文章
+                    $query->set('ignore_sticky_posts', 1);
+                    $original_post_not_in = $query->get('post__not_in') ?: array();
+                    $query->set('post__not_in', array_merge($original_post_not_in, $sticky_posts));
+                }
+            }
+        }
+    } else {
+        // 归档页和搜索页：只在第一页显示置顶文章，分页时忽略
+        if (!empty($sticky_posts)) {
+            if ($paged > 1) {
+                // 分页时忽略置顶文章
+                $query->set('ignore_sticky_posts', 1);
+                $original_post_not_in = $query->get('post__not_in') ?: array();
+                $query->set('post__not_in', array_merge($original_post_not_in, $sticky_posts));
             }
         }
     }

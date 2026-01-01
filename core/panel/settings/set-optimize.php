@@ -87,8 +87,8 @@ $options[] = array(
         'name' => __('移除 Emojis', 'ui_boxmoe_com'),
         'id' => 'boxmoe_emojis_switch',
         'type' => "checkbox",
-        'std' => false,
-        'desc' => __('建议开启', 'ui_boxmoe_com'),
+        'std' => true,
+        'desc' => __('建议开启，减少外部emoji图片URL加载', 'ui_boxmoe_com'),
         );
     $options[] = array(
         'group' => 'end',

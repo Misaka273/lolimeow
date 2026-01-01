@@ -58,7 +58,7 @@ add_filter('get_avatar', 'boxmoe_get_avatar', 10, 6);
 // 提取头像地址--------------------------boxmoe.com--------------------------
 // 🎨 使用WordPress原生逻辑，确保与后台显示一致
 function boxmoe_get_avatar_url($id_or_email, $size = 100) {
-    // 1. 首先获取用户信息，确定用户邮箱
+    // 首先获取用户信息，确定用户邮箱
     $email = '';
     $user = false;
     
@@ -80,7 +80,7 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
         $email = $user->user_email;
     }
     
-    // 2. 检查用户自定义头像（优先）
+    // 检查用户自定义头像（优先）
     if ($user) {
         $user_avatar_url = get_user_meta($user->ID, 'user_avatar', true);
         if (!empty($user_avatar_url)) {
@@ -88,7 +88,7 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
         }
     }
     
-    // 3. 检查QQ邮箱并返回QQ头像（优先级高于WordPress默认头像）
+    // 检查QQ邮箱并返回QQ头像（优先级高于WordPress默认头像）
     if (stripos($email, '@qq.com') !== false) {
         $qq = str_ireplace('@qq.com', '', $email);
         if (preg_match('/^\d+$/', $qq)) {
@@ -98,15 +98,15 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
         }
     }
     
-    // 4. 尝试使用WordPress原生get_avatar_url函数获取头像
+    // 尝试使用WordPress原生get_avatar_url函数获取头像
     $wp_avatar_url = get_avatar_url($id_or_email, array('size' => $size));
     
-    // 5. 如果获取成功且不是gravatar.com的头像，直接返回
+    // 如果获取成功且不是gravatar.com的头像，直接返回
     if (!empty($wp_avatar_url) && strpos($wp_avatar_url, 'gravatar.com') === false) {
         return $wp_avatar_url;
     }
     
-    // 6. 最后返回默认头像
+    // 最后返回默认头像
     return boxmoe_default_avatar_url();
 }
 

@@ -74,7 +74,7 @@ function boxmoe_music_player_html() {
         // 只有在没有设置自定义API时，才使用预设API
         switch ($default_api) {
             case 'tencent_vip':
-                $api_url = 'https://musicapi.chuyel.top/meting/api';
+                $api_url = 'https://musicapi.chuyel.top/meting/api?server=:server&type=:type&id=:id&r=:r';
                 break;
             default:
                 // 默认API不设置，使用Meting.js内置的API
@@ -170,16 +170,16 @@ document.addEventListener("DOMContentLoaded", function() {
     var toggleBtn = document.querySelector(".music-player-toggle-btn");
     
     // 🚀 预加载音乐资源 - 避免点击打开时等待
-    // 1. 首先，让播放器在不可见状态下初始化，预加载资源
+    // 首先，让播放器在不可见状态下初始化，预加载资源
     playerContent.style.visibility = "hidden";
     playerContent.style.position = "absolute";
     playerContent.style.display = "block";
     
-    // 2. 设置按钮初始状态为打开状态（显示🎵）
+    // 设置按钮初始状态为打开状态（显示🎵）
     toggleBtn.innerHTML = "<span class=\"open-indicator\">🎵</span>";
     toggleBtn.classList.add("open-btn");
     
-    // 3. 等待Meting.js和APlayer完全初始化并加载资源
+    // 等待Meting.js和APlayer完全初始化并加载资源
     setTimeout(function() {
         // 🔊 修复音量滑块点击静音问题 - 终极修复方案
         document.querySelectorAll('.aplayer').forEach(function(aplayerElement) {
@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function() {
             volumeWrap.parentNode.replaceChild(newVolumeWrap, volumeWrap);
             
             // 🔧 重新绑定事件
-            // 1. 静音按钮事件
+            // 静音按钮事件
             newVolumeIcon.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             });
             
-            // 2. 音量条包装器事件
+            // 音量条包装器事件
             newVolumeBarWrap.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
@@ -234,14 +234,14 @@ document.addEventListener("DOMContentLoaded", function() {
                 aplayerElement.aplayer.volume(volume, true);
             });
             
-            // 3. 音量条事件
+            // 音量条事件
             newVolumeBar.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
             });
         });
         
-        // 4. 资源预加载完成后，恢复播放器的隐藏状态
+        // 资源预加载完成后，恢复播放器的隐藏状态
         setTimeout(function() {
             playerContent.style.display = "none";
             playerContent.style.visibility = "visible";

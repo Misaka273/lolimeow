@@ -22,7 +22,7 @@ $options[] = array(
 		'name' => __( 'Banner欢迎语', 'ui_boxmoe_com' ),
 		'desc' => __('（留空则不显示）', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_banner_font',
-		'std' => 'Hello! 欢迎来到盒子萌！',
+		'std' => 'Hello! 欢迎来到盒子萌-🎉纸鸢版！',
 		'type' => 'text');
     $options[] = array(
 		'name' => __('banner一言开关', 'ui_boxmoe_com'),
@@ -33,6 +33,13 @@ $options[] = array(
     $options[] = array(
 		'name' => __('关闭彩虹色banner欢迎语', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_banner_rainbow_switch',
+		'type' => "checkbox",
+		'std' => false,
+		);
+    $options[] = array(
+		'name' => __('关闭打字效果', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_banner_typing_switch',
+		'desc' => __('（开启后欢迎语将直接显示，不显示打字动画）', 'ui_boxmoe_com'),
 		'type' => "checkbox",
 		'std' => false,
 		);

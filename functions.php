@@ -154,10 +154,20 @@ function boxmoe_enqueue_fix_prettify_script() {
     // 🎭 加载Animate.css和WOW.js用于飞来模块动画
     wp_enqueue_style(
         'animate-css',
-        'https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css',
+        get_template_directory_uri() . '/assets/css/animate.min.css',
         array(),
         '4.1.1'
     );
+    
+    // 🎨 加载Shiroki图片加载优化样式
+    wp_enqueue_style(
+        'shiroki-image-loader',
+        get_template_directory_uri() . '/assets/css/shiroki-image-loader.css',
+        array(),
+        '1.0.0'
+    );
+    
+
     
     wp_enqueue_script(
         'wow-js',
@@ -166,6 +176,8 @@ function boxmoe_enqueue_fix_prettify_script() {
         '1.1.3',
         true
     );
+    
+
 }
 add_action('wp_enqueue_scripts', 'boxmoe_enqueue_fix_prettify_script');
 
@@ -991,16 +1003,16 @@ function lolimeow_custom_login_page() {
             ' . $login_error . '
 
             <!-- 登录表单 -->
-            <form class="needs-validation mb-3" action="' . esc_url(site_url('wp-login.php', 'login_post')) . '" method="post" id="loginform" novalidate>
+            <form class="needs-validation mb-3" action="" method="post" id="loginform" novalidate>
                <div class="mb-3 floating-label-group">
-                  <input type="text" name="log" class="form-control" id="username" required placeholder=" " value="' . (isset($_GET['login']) ? esc_attr($_GET['login']) : '') . '" />
+                  <input type="text" name="username" class="form-control" id="username" required placeholder=" " value="' . (isset($_GET['login']) ? esc_attr($_GET['login']) : '') . '" />
                   <label for="username" data-default="电子邮件/用户名" data-active="账号"></label>
                   <div class="invalid-feedback">请输入用户名或邮箱。</div>
                </div>
                
                <div class="mb-4 position-relative floating-label-group">
                   <div class="password-field">
-                      <input type="password" name="pwd" class="form-control fakePassword" id="password" required placeholder=" " />
+                      <input type="password" name="password" class="form-control fakePassword" id="password" required placeholder=" " />
                       <label for="password" data-default="请输入密码" data-active="密码"></label>
                       <i class="bi bi-eye-slash passwordToggler"></i>
                   </div>
@@ -1009,17 +1021,15 @@ function lolimeow_custom_login_page() {
 
                <div class="d-flex align-items-center justify-content-between mb-4">
                   <div class="form-check">
-                     <input class="form-check-input" type="checkbox" name="rememberme" id="rememberme" value="forever">
+                     <input class="form-check-input" type="checkbox" name="rememberme" id="rememberme">
                      <label class="form-check-label small text-muted" for="rememberme">记住账号</label>
                   </div>
                   <a href="' . $reset_password_link . '" class="small text-primary text-decoration-none fw-bold">忘记密码?</a>
                </div>
 
-               <input type="hidden" name="redirect_to" value="' . esc_attr($redirect_to) . '">
-               <input type="hidden" name="testcookie" value="1">
-               
+               ' . wp_nonce_field('user_login', 'login_nonce', true, false) . '
                <div class="d-grid">
-                  <button class="btn btn-primary" type="submit" name="wp-submit">
+                  <button class="btn btn-primary" type="submit" name="login_submit">
                      <span class="spinner-border spinner-border-sm me-2 d-none" role="status"></span>
                      <span class="btn-text">立即登录</span>
                   </button>
@@ -1082,21 +1092,87 @@ function lolimeow_custom_login_page() {
         $wp_footer_output = ob_get_clean();
         $html .= preg_replace('/\n/', "\n    ", trim($wp_footer_output)) . "\n    ";
         
-        // 添加JavaScript - 仅用于显示加载状态，不阻止默认提交
+        // 添加JavaScript - 使用主题自定义AJAX登录处理
         $html .= '<script>
-      // 🔗 登录表单提交事件监听 - 仅用于显示加载状态
+      // 直接定义ajax_object，避免依赖主题脚本加载
+      var ajax_object = {
+        ajaxurl: \'' . admin_url("admin-ajax.php") . '\',
+        themeurl: \'' . boxmoe_theme_url() . '\'
+      };
+      // 🔗 登录表单提交事件监听
       document.addEventListener(\'DOMContentLoaded\', function() {
     document.getElementById(\'loginform\').addEventListener(\'submit\', function(e) {
+        e.preventDefault();
+        
         const loginButton = this.querySelector(\'button[type="submit"]\');
         const spinner = loginButton.querySelector(\'.spinner-border\');
         const btnText = loginButton.querySelector(\'.btn-text\');
 
-        // 显示加载状态
         loginButton.disabled = true;
         spinner.classList.remove(\'d-none\');
         btnText.textContent = \'登录中...\';
 
-        // 不阻止默认提交，让表单正常提交到WordPress登录处理URL
+        // 🔗 获取 URL 中的 redirect_to 参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect_to = urlParams.get(\'redirect_to\');
+
+        // 🔄 动态生成新的nonce，避免过期问题
+        const newNonce = document.querySelector(\'input[name="login_nonce"]\').value;
+        const formData = {
+            username: document.getElementById(\'username\').value,
+            password: document.getElementById(\'password\').value,
+            rememberme: document.getElementById(\'rememberme\').checked,
+            login_nonce: newNonce,
+            redirect_to: redirect_to // ⬅️ 将重定向参数传给后端
+        };
+        
+        // 使用FormData来构建请求体，确保WordPress能正确解析
+        const formDataToSend = new FormData();
+        formDataToSend.append(\'action\', \'user_login_action\');
+        formDataToSend.append(\'formData\', JSON.stringify(formData));
+        
+        fetch(ajax_object.ajaxurl, {
+            method: \'POST\',
+            credentials: \'same-origin\',
+            body: formDataToSend
+        })
+        .then(response => response.json())
+        .then(response => {
+            if(response.success) {
+                document.getElementById(\'login-message\').innerHTML = 
+                    \'<div class="alert alert-success mt-3">\' + response.data.message + \'，正在跳转...</div>\';
+                setTimeout(() => {
+                    // 🔗 优先跳转到后端返回的地址，其次尝试 URL 参数，最后回落到 referrer 或首页
+                    if (response.data.redirect_url) {
+                        window.location.href = response.data.redirect_url;
+                    } else if (redirect_to) {
+                        window.location.href = redirect_to;
+                    } else {
+                         window.location.href = \'/\';
+                    }
+                }, 1000);
+            } else {
+                loginButton.disabled = false;
+                spinner.classList.add(\'d-none\');
+                btnText.textContent = \'登录\';
+                
+                document.getElementById(\'login-message\').innerHTML = 
+                    \'<div class="alert alert-danger mt-3">\' + response.data.message + \'</div>\';
+            }
+        })
+        .catch(error => {
+            loginButton.disabled = false;
+            spinner.classList.add(\'d-none\');
+            btnText.textContent = \'登录\';
+            
+            // 显示更详细的错误信息，帮助用户了解登录失败的原因
+            const errorMessage = error.message || \'未知错误\';
+            document.getElementById(\'login-message\').innerHTML = 
+                \'<div class="alert alert-danger mt-3">登录请求失败: \' + errorMessage + \'，请稍后重试</div>\';
+            
+            // 在控制台打印完整的错误信息，方便开发者调试
+            console.error(\'登录请求失败:\', error);
+        });
     });
 });
     </script>';
@@ -1229,6 +1305,36 @@ function lolimeow_rename_wpvivid_toolbar_menu($wp_admin_bar) {
         }
     }
 }
+
+// 📝 复制带版权功能 - YI KAN博客提供功能代码
+function zm_copyright_tips() {
+    // 检查是否开启了复制带版权功能
+    if (get_boxmoe('boxmoe_copy_copyright_switch')) {
+        ?> 
+        <script type="text/javascript"> 
+        // 标准监听copy事件，仅在真正复制时触发 
+        document.addEventListener('copy', function(e) { 
+            // 阻止默认复制行为 
+            e.preventDefault(); 
+            
+            // 获取选中的文本（去除空白，避免空选触发） 
+            var selection = window.getSelection().toString().trim(); 
+            if (!selection) return; // 无选中内容则直接返回 
+            
+            // 配置你的博客信息（\n 是标准换行符） 
+            var blogName = "<?php echo get_bloginfo('name'); ?>"; 
+            // 版权信息（可自定义，\n\n 是为了和复制内容空两行，更美观） 
+            var copyrightText = "\n\n原文出自[" + blogName + "] 转载请保留原文链接: " + document.location.href; 
+            var copyText = selection + copyrightText; 
+            
+            // 将带版权的内容写入剪贴板（标准API，兼容所有浏览器） 
+            e.clipboardData.setData('text/plain', copyText); 
+        }); 
+        </script> 
+        <?php 
+    }
+} 
+add_action( 'wp_footer', 'zm_copyright_tips', 100 );
 add_action('admin_bar_menu', 'lolimeow_rename_wpvivid_toolbar_menu', 100);
 
 // 📋 修改WP-Optimize插件子菜单名称

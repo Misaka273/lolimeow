@@ -19,7 +19,7 @@ function boxmoe_add_context_menu() {
     <style>
     /* 右键菜单容器 */
     #boxmoe-context-menu {
-        display: none;
+        display: block;
         position: fixed;
         z-index: 999999;
         width: 160px;
@@ -34,14 +34,15 @@ function boxmoe_add_context_menu() {
         -webkit-user-select: none;
         opacity: 0;
         transform: scale(0.95);
-        transition: opacity 0.2s ease, transform 0.2s ease;
+        visibility: hidden;
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
         pointer-events: none; /* 初始不可点击 */
     }
 
     #boxmoe-context-menu.show {
-        display: block;
         opacity: 1;
         transform: scale(1);
+        visibility: visible;
         pointer-events: auto;
     }
 
@@ -296,7 +297,7 @@ function boxmoe_add_context_menu() {
             };
 
             try {
-                // 1. 尝试直接 fetch (支持 CORS)
+                // 尝试直接 fetch (支持 CORS)
                 const response = await fetch(src, {mode: 'cors', credentials: 'omit'});
                 if (!response.ok) throw new Error('Network response was not ok');
                 const blob = await response.blob();
@@ -308,7 +309,7 @@ function boxmoe_add_context_menu() {
 
             } catch (err) {
                 console.warn('Fetch copy failed/skipped, trying canvas...', err);
-                // 2. 尝试 Canvas (统一转为 PNG，处理 CORS 和 格式问题)
+                // 尝试 Canvas (统一转为 PNG，处理 CORS 和 格式问题)
                 try {
                     const img = new Image();
                     img.crossOrigin = "anonymous";
@@ -487,12 +488,12 @@ function boxmoe_add_context_menu() {
                 try { window.focus(); } catch(e) {}
                 clickedElement.focus();
                 
-                // 1. 尝试原生 paste 命令 (兼容部分旧浏览器或配置过的浏览器)
+                // 尝试原生 paste 命令 (兼容部分旧浏览器或配置过的浏览器)
                 try {
                     if (document.execCommand('paste')) return;
                 } catch(e) {}
 
-                // 2. 尝试 IE 特有 API
+                // 尝试 IE 特有 API
                 try {
                     if (window.clipboardData && window.clipboardData.getData) {
                         const text = window.clipboardData.getData('Text');
@@ -503,7 +504,7 @@ function boxmoe_add_context_menu() {
                     }
                 } catch(e) {}
 
-                // 3. 尝试现代 Clipboard API & 智能降级
+                // 尝试现代 Clipboard API & 智能降级
                 try {
                     // 🔗 使用 Clipboard API 读取剪贴板
                     // 先判断当前环境是否支持

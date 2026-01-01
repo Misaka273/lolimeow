@@ -23,6 +23,10 @@ class widget_currentuser extends WP_Widget {
 	
 	// 小工具前端显示
 	public function widget( $args, $instance ) {
+		// 检查导航会员注册链接开关是否开启
+		if (!get_boxmoe('boxmoe_sign_in_link_switch')) {
+			return;
+		}
 		// 检查用户是否登录
 		if (!is_user_logged_in()) {
 			return;

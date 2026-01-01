@@ -200,6 +200,11 @@ function boxmoe_disable_emojis() {
     remove_filter('the_content_feed', 'wp_staticize_emoji');
     remove_filter('comment_text_rss', 'wp_staticize_emoji');
     remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+    remove_filter('the_content', 'wp_staticize_emoji');
+    remove_filter('comment_text', 'wp_staticize_emoji');
+    remove_filter('widget_text_content', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+    remove_filter('wp_resource_hints', 'wp_resource_hints', 10, 2);
 }
 add_action('init', 'boxmoe_disable_emojis');
 }
