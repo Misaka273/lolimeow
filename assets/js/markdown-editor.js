@@ -40,6 +40,8 @@
     $bar.append(btn('任务清单').on('click',function(){insert('- [ ] ','','任务项');}));
     $bar.append(btn('有序列表').on('click',function(){insert('1. ','','列表项');}));
     $bar.append(btn('卡片').on('click',function(){insert('名称：\n头像链接：\n描述：\n链接：\n勋章：\n\n','','');}));
+    /* 🌊 添加分割线按钮 */
+    $bar.append(btn('分割线','md-divider').on('click',function(){insert('\n<!--shiroki-divider-->\n','','');}));
     
     // 视图切换按钮组
     var $btnEdit = btn('编辑', 'md-view-btn active').data('mode', 'edit');

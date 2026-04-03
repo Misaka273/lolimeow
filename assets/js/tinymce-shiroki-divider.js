@@ -1,8 +1,14 @@
 /* 🌊 shiroki分割线TinyMCE插件
- * 🕊️白木 开发 🔗gl.baimu.live
+ * 🕊️白木 原创开发 🔗gl.baimu.live
  */
 (function() {
     /* 🎨 使用现代WordPress TinyMCE API */
+    /* ☀️ 确保tinymce对象已加载 */
+    if (typeof tinymce === 'undefined') {
+        console.warn('【⚠️ TinyMCE】尚未加载，分割线插件等待中...');
+        return;
+    }
+
     tinymce.PluginManager.add('shiroki_divider', function(editor, url) {
         /* 🔗 添加分割线按钮到TinyMCE工具栏 */
         editor.ui.registry.addButton('shiroki_divider', {

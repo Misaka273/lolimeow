@@ -1,0 +1,858 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* ➕ 添加用户页面新UI样式 */
+/* 🎨 拟态拟物玻璃质感设计 */
+/* 🔗 变量定义在 admin-variables.css 中统一管理 */
+
+/* ============================================
+   🎯 添加用户页面整体布局
+   ============================================ */
+
+/* 🪟 添加用户页面背景 */
+.user-new-php {
+  background: var(--shiroki-bg-gradient-light);
+}
+
+.user-new-php.wp-dark-mode,
+.user-new-php .wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark);
+}
+
+/* 📝 隐藏原版表单元素 */
+.user-new-php #createuser,
+.user-new-php #adduser {
+  display: none !important;
+}
+
+.user-new-php .wrap > h1,
+.user-new-php .wrap > p {
+  display: none !important;
+}
+
+/* ============================================
+   📦 主容器
+   ============================================ */
+
+/* 📦 主包装器 */
+.shiroki-user-add-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--admin-space-xl);
+}
+
+/* ============================================
+   🎯 页面标题区域
+   ============================================ */
+
+/* 🎯 标题区域 */
+.shiroki-user-add-header {
+  text-align: center;
+  margin-bottom: var(--admin-space-3xl);
+  padding: var(--admin-space-2xl) 0;
+}
+
+/* 📝 主标题 */
+.shiroki-user-add-title {
+  font-size: 28px;
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-primary);
+  margin: 0 0 var(--admin-space-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-sm);
+}
+
+/* 📝 副标题 */
+.shiroki-user-add-subtitle {
+  font-size: var(--admin-font-size-lg);
+  color: var(--admin-current-text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   🎴 卡片组件
+   ============================================ */
+
+/* 🎴 卡片容器 */
+.shiroki-user-add-card {
+  background: var(--admin-current-bg);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  box-shadow: var(--admin-shadow-md);
+  margin-bottom: var(--admin-space-xl);
+  overflow: hidden;
+  animation: shiroki-card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shiroki-user-add-card:hover {
+  box-shadow: var(--admin-shadow-hover);
+}
+
+/* 🌆 暗色模式悬停效果 */
+.wp-admin.wp-dark-mode .shiroki-user-add-card:hover {
+  box-shadow: var(--admin-shadow-hover-dark);
+}
+
+/* 🎬 卡片入场动画 */
+@keyframes shiroki-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 🌟 stagger 动画延迟 */
+.shiroki-user-add-card:nth-child(1) { animation-delay: 0.05s; }
+.shiroki-user-add-card:nth-child(2) { animation-delay: 0.1s; }
+.shiroki-user-add-card:nth-child(3) { animation-delay: 0.15s; }
+.shiroki-user-add-card:nth-child(4) { animation-delay: 0.2s; }
+.shiroki-user-add-card:nth-child(5) { animation-delay: 0.25s; }
+
+/* 📋 卡片头部 */
+.shiroki-user-add-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-lg) var(--admin-space-xl);
+  background: linear-gradient(135deg, rgba(99, 179, 237, 0.1) 0%, rgba(183, 148, 244, 0.1) 100%);
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+/* 🎨 卡片图标 */
+.shiroki-user-add-card-icon {
+  font-size: var(--admin-font-size-xl);
+}
+
+/* 📝 卡片标题 */
+.shiroki-user-add-card-title {
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+}
+
+/* 📄 卡片主体 */
+.shiroki-user-add-card-body {
+  padding: var(--admin-space-xl);
+}
+
+/* ============================================
+   📝 表单字段
+   ============================================ */
+
+/* 📝 字段容器 */
+.shiroki-user-add-field {
+  margin-bottom: var(--admin-space-lg);
+}
+
+.shiroki-user-add-field:last-child {
+  margin-bottom: 0;
+}
+
+/* ⭐ 必填字段 */
+.shiroki-user-add-field.required .shiroki-user-add-label-text::after {
+  content: '';
+}
+
+/* 🏷️ 标签 */
+.shiroki-user-add-field label {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  margin-bottom: var(--admin-space-sm);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+}
+
+/* 🔴 必填标记 */
+.shiroki-user-add-required {
+  color: var(--admin-danger-text);
+  font-weight: var(--admin-font-weight-bold);
+}
+
+/* 📦 输入框包装器 */
+.shiroki-user-add-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 🎨 输入框图标 */
+.shiroki-user-add-input-icon {
+  position: absolute;
+  left: var(--admin-space-md);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-muted);
+  z-index: 1;
+}
+
+/* 📝 输入框 */
+.shiroki-user-add-input-wrapper input[type="text"],
+.shiroki-user-add-input-wrapper input[type="email"],
+.shiroki-user-add-input-wrapper input[type="url"],
+.shiroki-user-add-input-wrapper input[type="password"] {
+  width: 100%;
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  padding-left: 40px;
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+  transition: all var(--admin-transition-fast);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-user-add-input-wrapper input[type="text"]:focus,
+.shiroki-user-add-input-wrapper input[type="email"]:focus,
+.shiroki-user-add-input-wrapper input[type="url"]:focus,
+.shiroki-user-add-input-wrapper input[type="password"]:focus {
+  outline: none;
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+}
+
+/* 📝 没有图标的输入框 */
+.shiroki-user-add-input-wrapper input:not(.shiroki-user-add-input-icon + *) {
+  padding-left: var(--admin-space-lg);
+}
+
+/* 📝 字段描述 */
+.shiroki-user-add-description {
+  margin: var(--admin-space-xs) 0 0 0;
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+}
+
+/* 📝 介绍文字 */
+.shiroki-user-add-intro {
+  margin: 0 0 var(--admin-space-lg) 0;
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-secondary);
+  line-height: 1.6;
+}
+
+/* ============================================
+   🔽 下拉选择框
+   ============================================ */
+
+/* 📦 选择框包装器 */
+.shiroki-user-add-select-wrapper {
+  position: relative;
+}
+
+.shiroki-user-add-select-wrapper select,
+.shiroki-user-add-select-wrapper .locale-selection {
+  width: 100%;
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  padding-right: 40px;
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: all var(--admin-transition-fast);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-user-add-select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: var(--admin-space-lg);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+  pointer-events: none;
+}
+
+.shiroki-user-add-select-wrapper select:focus {
+  outline: none;
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+}
+
+/* ============================================
+   🔐 密码设置
+   ============================================ */
+
+/* 📦 密码区域 */
+.shiroki-user-add-password-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-md);
+}
+
+/* 🔘 生成密码按钮 */
+.shiroki-user-add-generate-pw {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-xs);
+  padding: var(--admin-space-sm) var(--admin-space-lg);
+  background: var(--admin-primary-bg);
+  border: 1px solid var(--admin-primary-border);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-primary-text);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  align-self: flex-start;
+}
+
+.shiroki-user-add-generate-pw:hover {
+  background: var(--admin-primary-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+/* 📦 密码输入包装器 */
+.shiroki-user-add-pw-wrapper {
+  display: none;
+}
+
+.shiroki-user-add-pw-wrapper.show {
+  display: block;
+}
+
+/* 🔐 密码输入框容器 */
+.shiroki-user-add-password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.shiroki-user-add-password-input-wrapper input {
+  width: 100%;
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  padding-right: 44px;
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+  font-family: monospace;
+  transition: all var(--admin-transition-fast);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-user-add-password-input-wrapper input:focus {
+  outline: none;
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+}
+
+/* 🔐 确认密码区域 */
+.shiroki-user-add-password-confirm-wrapper {
+  margin-top: var(--admin-space-lg);
+  padding-top: var(--admin-space-lg);
+  border-top: 1px dashed var(--admin-current-border);
+}
+
+.shiroki-user-add-password-confirm-label {
+  display: block;
+  margin-bottom: var(--admin-space-sm);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+}
+
+/* ✅❌ 密码匹配状态 */
+#shiroki-pass-match-result.match {
+  color: var(--admin-success-text);
+  font-weight: var(--admin-font-weight-medium);
+}
+
+#shiroki-pass-match-result.mismatch {
+  color: var(--admin-danger-text);
+  font-weight: var(--admin-font-weight-medium);
+}
+
+/* 👁️ 切换密码显示按钮 */
+.shiroki-user-add-toggle-pw {
+  position: absolute;
+  right: var(--admin-space-sm);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-sm);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-user-add-toggle-pw:hover {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+}
+
+.shiroki-user-add-toggle-pw .dashicons {
+  font-size: 18px;
+  color: var(--admin-current-text-secondary);
+}
+
+/* 💪 密码强度指示器 */
+.shiroki-user-add-pass-strength {
+  margin-top: var(--admin-space-sm);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  text-align: center;
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-user-add-pass-strength.short {
+  background: var(--admin-danger-bg);
+  border: 1px solid var(--admin-danger-border);
+  color: var(--admin-danger-text);
+}
+
+.shiroki-user-add-pass-strength.bad {
+  background: var(--admin-danger-bg);
+  border: 1px solid var(--admin-danger-border);
+  color: var(--admin-danger-text);
+}
+
+.shiroki-user-add-pass-strength.good {
+  background: var(--admin-warning-bg);
+  border: 1px solid var(--admin-warning-border);
+  color: var(--admin-warning-text);
+}
+
+.shiroki-user-add-pass-strength.strong {
+  background: var(--admin-success-bg);
+  border: 1px solid var(--admin-success-border);
+  color: var(--admin-success-text);
+}
+
+/* ⚠️ 弱密码确认 */
+.shiroki-user-add-pw-weak {
+  margin-top: var(--admin-space-md);
+  padding: var(--admin-space-md);
+  background: var(--admin-warning-bg);
+  border: 1px solid var(--admin-warning-border);
+  border-radius: var(--admin-radius-md);
+}
+
+/* 📦 弱密码确认标签 */
+.shiroki-user-add-weak-pw-label {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* 🔘 隐藏原生复选框 */
+.shiroki-user-add-weak-pw-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* 🎨 自定义复选框 */
+.shiroki-user-add-weak-pw-check {
+  width: 20px;
+  height: 20px;
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--admin-transition-fast);
+  flex-shrink: 0;
+}
+
+.shiroki-user-add-weak-pw-label input[type="checkbox"]:checked + .shiroki-user-add-weak-pw-check {
+  background: var(--admin-warning-text);
+  border-color: var(--admin-warning-text);
+}
+
+.shiroki-user-add-weak-pw-label input[type="checkbox"]:checked + .shiroki-user-add-weak-pw-check::after {
+  content: '✓';
+  font-size: 12px;
+  color: #fff;
+  font-weight: var(--admin-font-weight-bold);
+}
+
+/* 📝 弱密码确认文本 */
+.shiroki-user-add-weak-pw-text {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-warning-text);
+}
+
+/* ============================================
+   🌐 语言选择
+   ============================================ */
+
+/* 📦 语言选项容器 */
+.shiroki-user-add-lang-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-sm);
+}
+
+/* 🌐 语言选项 */
+.shiroki-user-add-lang-option {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-full);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-user-add-lang-option:hover {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+  transform: translateX(2px);
+}
+
+.shiroki-user-add-lang-option.selected {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 2px var(--admin-primary-shadow);
+}
+
+/* 🔘 隐藏原生单选框 */
+.shiroki-user-add-lang-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 📝 语言选项文本 */
+.shiroki-user-add-lang-option-text {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-user-add-lang-option.selected .shiroki-user-add-lang-option-text {
+  color: var(--admin-primary-text);
+}
+
+/* ============================================
+   🎭 角色选择
+   ============================================ */
+
+/* 📦 角色选项容器 */
+.shiroki-user-add-role-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-sm);
+}
+
+/* 🎭 角色选项 */
+.shiroki-user-add-role-option {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-full);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-user-add-role-option:hover {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+  transform: translateX(2px);
+}
+
+.shiroki-user-add-role-option.selected {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 2px var(--admin-primary-shadow);
+}
+
+/* 🔘 隐藏原生单选框 */
+.shiroki-user-add-role-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 📝 角色选项文本 */
+.shiroki-user-add-role-option-text {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-user-add-role-option.selected .shiroki-user-add-role-option-text {
+  color: var(--admin-primary-text);
+}
+
+/* ============================================
+   ☑️ 复选框样式
+   ============================================ */
+
+/* 📦 复选框标签 */
+.shiroki-user-add-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--admin-space-sm);
+  cursor: pointer;
+}
+
+/* 🔘 隐藏原生复选框 */
+.shiroki-user-add-checkbox-label input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* 🎨 自定义复选框 */
+.shiroki-user-add-checkbox-custom {
+  width: 20px;
+  height: 20px;
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--admin-transition-fast);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.shiroki-user-add-checkbox-label input[type="checkbox"]:checked + .shiroki-user-add-checkbox-custom {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+}
+
+.shiroki-user-add-checkbox-label input[type="checkbox"]:checked + .shiroki-user-add-checkbox-custom::after {
+  content: '✓';
+  font-size: 12px;
+  color: var(--admin-primary-text);
+  font-weight: var(--admin-font-weight-bold);
+}
+
+/* 📝 复选框文本 */
+.shiroki-user-add-checkbox-text {
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+}
+
+/* 📦 大型复选框 */
+.shiroki-user-add-checkbox-large {
+  align-items: center;
+  padding: var(--admin-space-md);
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-user-add-checkbox-large:hover {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+}
+
+.shiroki-user-add-checkbox-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-xs);
+}
+
+.shiroki-user-add-checkbox-title {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-user-add-checkbox-desc {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+}
+
+/* ============================================
+   🚀 操作按钮
+   ============================================ */
+
+/* 📦 操作按钮容器 */
+.shiroki-user-add-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-lg);
+  margin-top: var(--admin-space-2xl);
+  padding-top: var(--admin-space-xl);
+  border-top: 1px solid var(--admin-current-border);
+}
+
+/* 🚀 提交按钮 */
+.shiroki-user-add-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-md) var(--admin-space-2xl);
+  background: var(--admin-success-bg);
+  border: 1px solid var(--admin-success-border);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-success-text);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-user-add-submit:hover {
+  background: var(--admin-success-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+.shiroki-user-add-submit:active {
+  transform: translateY(0);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-user-add-submit-icon {
+  font-size: var(--admin-font-size-xl);
+}
+
+/* ❌ 取消按钮 */
+.shiroki-user-add-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-xs);
+  padding: var(--admin-space-md) var(--admin-space-xl);
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-secondary);
+  text-decoration: none;
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-user-add-cancel:hover {
+  background: var(--admin-danger-bg);
+  border-color: var(--admin-danger-border);
+  color: var(--admin-danger-text);
+  text-decoration: none;
+}
+
+/* ============================================
+   📱 响应式设计
+   ============================================ */
+
+@media screen and (max-width: 782px) {
+  .shiroki-user-add-wrapper {
+    padding: var(--admin-space-md);
+  }
+
+  .shiroki-user-add-header {
+    margin-bottom: var(--admin-space-xl);
+    padding: var(--admin-space-lg) 0;
+  }
+
+  .shiroki-user-add-title {
+    font-size: 24px;
+  }
+
+  .shiroki-user-add-card-body {
+    padding: var(--admin-space-lg);
+  }
+
+  .shiroki-user-add-role-options {
+    flex-direction: column;
+  }
+
+  .shiroki-user-add-role-option {
+    width: 100%;
+  }
+
+  .shiroki-user-add-actions {
+    flex-direction: column;
+    gap: var(--admin-space-md);
+  }
+
+  .shiroki-user-add-submit,
+  .shiroki-user-add-cancel {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .shiroki-user-add-title {
+    font-size: 20px;
+  }
+
+  .shiroki-user-add-card-header {
+    padding: var(--admin-space-md) var(--admin-space-lg);
+  }
+
+  .shiroki-user-add-card-body {
+    padding: var(--admin-space-md);
+  }
+
+  .shiroki-user-add-input-wrapper input,
+  .shiroki-user-add-select-wrapper select {
+    padding: var(--admin-space-sm) var(--admin-space-md);
+    padding-left: 36px;
+  }
+}
+
+/* ============================================
+   ✨ 动画效果
+   ============================================ */
+
+/* 🎬 按钮点击效果 */
+.shiroki-user-add-submit:active,
+.shiroki-user-add-generate-pw:active,
+.shiroki-user-add-role-option:active {
+  transform: scale(0.98);
+}
+
+/* 🌟 焦点状态 */
+.shiroki-user-add-field input:focus,
+.shiroki-user-add-field select:focus {
+  animation: shiroki-focus-pulse 0.3s ease;
+}
+
+@keyframes shiroki-focus-pulse {
+  0% {
+    box-shadow: 0 0 0 0 var(--admin-primary-shadow);
+  }
+  50% {
+    box-shadow: 0 0 0 4px var(--admin-primary-shadow);
+  }
+  100% {
+    box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+  }
+}

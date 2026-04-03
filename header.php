@@ -52,13 +52,16 @@ $search_style = get_boxmoe('boxmoe_search_style', 'glass');
     <meta name="user-center-exists" content="<?php echo boxmoe_user_center_page_exists() ? 'true' : 'false'; ?>">
     <!-- 🖼️ 输出Banner随机图片列表 -->
     <?php boxmoe_banner_random_images_list(); ?>
-    <!-- 🔎 搜索框样式 - 加载所有样式以支持侧边栏同步 -->
+    <!-- 🔎 搜索框样式 - 按需加载用户选择的样式 -->
     <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/glassmorphism.css?v=2">
-    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/search-glass.css?v=2">
-    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/search-comic.css?v=2">
-    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/search-shadow.css?v=2">
-    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/search-line.css?v=2">
-    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/search-neon.css?v=2">
+<?php
+$search_style_file = $search_style === 'glass' ? 'search-glass.css' :
+                     ($search_style === 'comic' ? 'search-comic.css' :
+                     ($search_style === 'shadow' ? 'search-shadow.css' :
+                     ($search_style === 'line' ? 'search-line.css' :
+                     ($search_style === 'neon' ? 'search-neon.css' : 'search-glass.css'))));
+?>
+    <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/<?php echo $search_style_file; ?>?v=2">
     <!-- 🔎 搜索框表单验证JS -->
     <script src="<?php echo get_template_directory_uri(); ?>/assets/js/search-validation.js?v=1"></script>
 </head>

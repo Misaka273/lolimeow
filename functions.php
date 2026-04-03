@@ -159,6 +159,13 @@ require_once  get_stylesheet_directory() . '/core/module/fun-theme-update.php'; 
 require_once get_stylesheet_directory() . '/core/module/fun-captcha.php';
 // 🔽 由初叶🍂www.chuyel.top提供，白木🥰gl.baimu.live集成
 require_once  get_stylesheet_directory() . '/core/module/fun-music.php'; // ⬅️ 引入音乐播放器功能
+require_once  get_stylesheet_directory() . '/core/module/media-library/fun-media-library.php'; // ⬅️ 💎 引入拟态玻璃质感媒体库UI
+require_once  get_stylesheet_directory() . '/core/module/media-library/fun-media-modal.php'; // ⬅️ 🪟 引入拟态玻璃质感媒体弹窗UI
+require_once  get_stylesheet_directory() . '/core/module/post-grid/fun-post-grid.php'; // ⬅️ 📝 引入拟态玻璃质感文章列表网格UI
+require_once  get_stylesheet_directory() . '/core/module/page-grid/fun-page-grid.php'; // ⬅️ 📄 引入拟态玻璃质感页面列表网格UI
+require_once  get_stylesheet_directory() . '/core/module/comment-grid/fun-comment-grid.php'; // ⬅️ 💬 引入拟态玻璃质感评论列表网格UI
+require_once  get_stylesheet_directory() . '/core/module/user-grid/fun-user-grid.php'; // ⬅️ 👥 引入拟态玻璃质感用户列表网格UI
+require_once  get_stylesheet_directory() . '/core/module/user-add/fun-user-add.php'; // ⬅️ ➕ 引入拟态玻璃质感添加用户UI
 
 // ============================================
 // 验证码AJAX处理

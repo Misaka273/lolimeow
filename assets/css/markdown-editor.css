@@ -25,7 +25,7 @@
     position: sticky !important;
     top: 48px !important;
     z-index: 1001 !important;
-    box-shadow: var(--shiroki-shadow-black) !important;
+    /* box-shadow: var(--shiroki-shadow-black) !important; */
     background: linear-gradient(135deg, var(--shiroki-gray-light), var(--shiroki-gray-medium), var(--shiroki-gray-dark)) !important;
     border: 1px solid var(--shiroki-gray-medium) !important;
     border-radius: 8px !important;
@@ -543,4 +543,110 @@
 .single-content .md-card-link:active {
     transform: translateY(-1px);
     box-shadow: 0 3px 6px rgba(255, 182, 193, 0.35);
+}
+
+/* ============================================
+   📱 移动端适配 - textarea 编辑区域优化
+   ============================================ */
+
+/* 📱 平板端适配 */
+@media screen and (max-width: 1024px) {
+    /* 📝 编辑器容器优化 */
+    #wp-content-editor-container {
+        max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+        overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+    }
+
+    /* 📝 textarea 编辑区域优化 */
+    #wp-content-editor-container textarea#content {
+        min-height: 450px !important; /* ◀️ 📱 设置更大的最小高度 */
+        height: auto !important; /* ◀️ 📱 高度自适应内容 */
+        overflow-x: hidden !important; /* ◀️ 📱 隐藏水平滚动条，防止内容超出页面 */
+        overflow-y: auto !important; /* ◀️ 📱 允许垂直滚动 */
+        resize: vertical !important; /* ◀️ 📱 允许用户手动调整高度 */
+        field-sizing: content !important; /* ◀️ ☀️ 现代浏览器：根据内容自动调整高度 */
+        max-width: 100% !important; /* ◀️ 📱 确保不超出父容器宽度 */
+        width: 100% !important; /* ◀️ 📱 强制宽度为100% */
+        box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+        word-wrap: break-word !important; /* ◀️ 📱 长文本自动换行 */
+        white-space: pre-wrap !important; /* ◀️ 📱 保留换行符并自动换行 */
+    }
+
+    /* 🌓 分屏模式调整 */
+    #wp-content-editor-container.mode-split {
+        flex-direction: column !important; /* ◀️ 📱 垂直堆叠 */
+    }
+
+    #wp-content-editor-container.mode-split textarea#content,
+    #wp-content-editor-container.mode-split .boxmoe-md-preview {
+        width: 100% !important; /* ◀️ 📱 全宽显示 */
+        min-height: 400px !important;
+    }
+}
+
+/* 📱 移动端适配 */
+@media screen and (max-width: 782px) {
+    /* 📝 编辑器容器优化 */
+    #wp-content-editor-container {
+        max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+        overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+    }
+
+    /* 📝 textarea 编辑区域优化 */
+    #wp-content-editor-container textarea#content {
+        min-height: 400px !important; /* ◀️ 📱 移动端设置更大的最小高度 */
+        height: auto !important; /* ◀️ 📱 高度自适应内容 */
+        overflow-x: hidden !important; /* ◀️ 📱 隐藏水平滚动条，防止内容超出页面 */
+        overflow-y: auto !important; /* ◀️ 📱 允许垂直滚动 */
+        resize: vertical !important; /* ◀️ 📱 允许用户手动调整高度 */
+        field-sizing: content !important; /* ◀️ ☀️ 现代浏览器：根据内容自动调整高度 */
+        max-width: 100% !important; /* ◀️ 📱 确保不超出父容器宽度 */
+        width: 100% !important; /* ◀️ 📱 强制宽度为100% */
+        box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+        word-wrap: break-word !important; /* ◀️ 📱 长文本自动换行 */
+        white-space: pre-wrap !important; /* ◀️ 📱 保留换行符并自动换行 */
+    }
+
+    /* 🎨 工具栏适配 */
+    .boxmoe-md-toolbar {
+        position: relative !important; /* ◀️ 📱 取消 sticky 定位 */
+        top: auto !important;
+        gap: 6px !important;
+        padding: 8px !important;
+    }
+
+    .boxmoe-md-toolbar .md-btn {
+        padding: 8px 12px !important; /* ◀️ 📱 更大的触摸区域 */
+        font-size: 14px !important;
+    }
+}
+
+/* 📱 超小屏幕适配 */
+@media screen and (max-width: 480px) {
+    /* 📝 编辑器容器优化 */
+    #wp-content-editor-container {
+        max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+        overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+    }
+
+    /* 📝 textarea 编辑区域优化 */
+    #wp-content-editor-container textarea#content {
+        min-height: 350px !important; /* ◀️ 📱 超小屏幕适当减小最小高度 */
+        height: auto !important; /* ◀️ 📱 高度自适应内容 */
+        overflow-x: hidden !important; /* ◀️ 📱 隐藏水平滚动条，防止内容超出页面 */
+        overflow-y: auto !important; /* ◀️ 📱 允许垂直滚动 */
+        resize: vertical !important; /* ◀️ 📱 允许用户手动调整高度 */
+        field-sizing: content !important; /* ◀️ ☀️ 现代浏览器：根据内容自动调整高度 */
+        max-width: 100% !important; /* ◀️ 📱 确保不超出父容器宽度 */
+        width: 100% !important; /* ◀️ 📱 强制宽度为100% */
+        box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+        word-wrap: break-word !important; /* ◀️ 📱 长文本自动换行 */
+        white-space: pre-wrap !important; /* ◀️ 📱 保留换行符并自动换行 */
+    }
+
+    /* 🎨 工具栏适配 */
+    .boxmoe-md-toolbar .md-btn {
+        padding: 10px 14px !important; /* ◀️ 📱 更大的触摸区域 */
+        font-size: 13px !important;
+    }
 }

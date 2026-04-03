@@ -71,7 +71,7 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
     /* 👤 首先获取用户信息，确定用户邮箱 */
     $email = '';
     $user = false;
-    
+
     if (is_numeric($id_or_email)) {
         $user = get_userdata($id_or_email);
     } elseif (is_object($id_or_email)) {
@@ -84,12 +84,12 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
         $email = $id_or_email;
         $user = get_user_by('email', $email);
     }
-    
+
     /* 📧 如果是用户对象，获取邮箱 */
     if ($user) {
         $email = $user->user_email;
     }
-    
+
     /* 🖼️ 检查用户自定义头像（优先） */
     if ($user) {
         $user_avatar_url = get_user_meta($user->ID, 'user_avatar', true);
@@ -97,7 +97,7 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
             return $user_avatar_url;
         }
     }
-    
+
     /* 🔍 检查QQ邮箱并返回QQ头像（优先级高于WordPress默认头像） */
     if (!empty($email) && stripos($email, '@qq.com') !== false) {
         $qq = str_ireplace('@qq.com', '', $email);
@@ -107,15 +107,26 @@ function boxmoe_get_avatar_url($id_or_email, $size = 100) {
             return boxmoe_get_qq_avatar_url($qq, $size);
         }
     }
-    
-    /* 🔄 尝试使用WordPress原生get_avatar_url函数获取头像 */
-    $wp_avatar_url = get_avatar_url($id_or_email, array('size' => $size));
-    
-    /* ✅ 如果获取成功且不是gravatar.com的头像，直接返回 */
+
+    /* 🔄 使用WordPress原生get_avatar_data函数获取头像（避免递归） */
+    /* ⚠️ 使用get_avatar_data而不是get_avatar_url，避免触发get_avatar filter导致递归 */
+    $avatar_data = get_avatar_data($id_or_email, array('size' => $size));
+    $wp_avatar_url = isset($avatar_data['url']) ? $avatar_data['url'] : '';
+
+    /* 🖼️ 如果获取成功且不是gravatar.com的头像，直接返回 */
     if (!empty($wp_avatar_url) && stripos($wp_avatar_url, 'gravatar.com') === false) {
         return $wp_avatar_url;
     }
-    
+
+    /* 🚫 如果是Gravatar头像，直接返回本地默认头像（避免Gravatar加载失败显示空白） */
+    /* 📝 如需使用Gravatar，可移除此段代码或添加时间戳参数重新尝试 */
+    if (!empty($wp_avatar_url) && stripos($wp_avatar_url, 'gravatar.com') !== false) {
+        /* ⏰ 每次刷新页面都重新尝试，通过时间戳参数避免缓存 */
+        $default_avatar = boxmoe_default_avatar_url();
+        /* 🔗 给默认头像也添加时间戳，确保每次刷新都重新加载 */
+        return add_query_arg('t', time(), $default_avatar);
+    }
+
     /* 🏠 最后返回默认头像 */
     return boxmoe_default_avatar_url();
 }

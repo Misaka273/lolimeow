@@ -19,25 +19,11 @@ class widget_search extends WP_Widget {
     public function widget($args, $instance) {
         $title = apply_filters('widget_title', $instance['title']);
 
-        // 根据布局边框设置自动选择搜索框样式
+        // 使用主题设置的搜索框样式
         $search_style = 'glass'; // 默认样式
         
         if (function_exists('get_boxmoe')) {
-            // 获取布局边框设置
-            $border_style = get_boxmoe('boxmoe_blog_border', 'default');
-            
-            // emmm...根据边框设置映射到搜索样式
-            $style_map = array(
-                'border' => 'comic',    // 漫画边框效果 -> 漫画风搜索
-                'shadow' => 'shadow',   // 阴影边框效果 -> 阴影搜索
-                'lines' => 'line',      // 线条边框效果 -> 线条搜索
-                'glass' => 'glass',     // 玻璃边框效果 -> 玻璃搜索
-                'default' => 'glass'    // 默认 -> 玻璃搜索
-            );
-            
-            if (isset($style_map[$border_style])) {
-                $search_style = $style_map[$border_style];
-            }
+            $search_style = get_boxmoe('boxmoe_search_style', 'glass');
         }
 
         echo $args['before_widget'];

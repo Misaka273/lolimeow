@@ -1,0 +1,339 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* ⚡ 短代码按钮组样式 */
+/* 🎨 玻璃拟态设计风格 + 明亮淡色系 */
+
+/* ============================================
+   ⚡ 短代码工具栏
+   ============================================ */
+
+.shiroki-shortcode-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  margin-bottom: var(--admin-space-md);
+  background: var(--admin-current-bg);
+  backdrop-filter: var(--admin-glass-blur);
+  border-radius: var(--admin-radius-lg);
+  border: var(--admin-border-glass);
+  flex-wrap: wrap;
+}
+
+.shiroki-shortcode-label {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-secondary);
+  white-space: nowrap;
+}
+
+.shiroki-shortcode-buttons {
+  display: flex;
+  gap: var(--admin-space-xs);
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+/* ============================================
+   🎨 短代码按钮基础样式
+   ============================================ */
+
+.shiroki-shortcode-btn {
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-xs);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  white-space: nowrap;
+  backdrop-filter: var(--admin-glass-blur);
+}
+
+/* ============================================
+   🌈 短代码按钮明亮淡色系
+   ============================================ */
+
+/* 🔴 红色系 - H2设置标 */
+.shiroki-shortcode-btn[data-sc-color="red"] {
+  background: var(--sc-btn-red-bg);
+  border: 1px solid var(--sc-btn-red-border);
+  color: var(--sc-btn-red-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="red"]:hover {
+  background: var(--sc-btn-red-bg-hover);
+  border-color: var(--sc-btn-red-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-red-shadow);
+}
+
+/* 🟠 橙色系 - H2下载标 */
+.shiroki-shortcode-btn[data-sc-color="orange"] {
+  background: var(--sc-btn-orange-bg);
+  border: 1px solid var(--sc-btn-orange-border);
+  color: var(--sc-btn-orange-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="orange"]:hover {
+  background: var(--sc-btn-orange-bg-hover);
+  border-color: var(--sc-btn-orange-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-orange-shadow);
+}
+
+/* 🟡 黄色系 - 下载按钮 */
+.shiroki-shortcode-btn[data-sc-color="yellow"] {
+  background: var(--sc-btn-yellow-bg);
+  border: 1px solid var(--sc-btn-yellow-border);
+  color: var(--sc-btn-yellow-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="yellow"]:hover {
+  background: var(--sc-btn-yellow-bg-hover);
+  border-color: var(--sc-btn-yellow-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-yellow-shadow);
+}
+
+/* 🟢 绿色系 - 链接按钮 */
+.shiroki-shortcode-btn[data-sc-color="green"] {
+  background: var(--sc-btn-green-bg);
+  border: 1px solid var(--sc-btn-green-border);
+  color: var(--sc-btn-green-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="green"]:hover {
+  background: var(--sc-btn-green-bg-hover);
+  border-color: var(--sc-btn-green-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-green-shadow);
+}
+
+/* 🔵 青色系 - 引用模块1 */
+.shiroki-shortcode-btn[data-sc-color="cyan"] {
+  background: var(--sc-btn-cyan-bg);
+  border: 1px solid var(--sc-btn-cyan-border);
+  color: var(--sc-btn-cyan-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="cyan"]:hover {
+  background: var(--sc-btn-cyan-bg-hover);
+  border-color: var(--sc-btn-cyan-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-cyan-shadow);
+}
+
+/* 💙 蓝色系 - 引用模块2 */
+.shiroki-shortcode-btn[data-sc-color="blue"] {
+  background: var(--sc-btn-blue-bg);
+  border: 1px solid var(--sc-btn-blue-border);
+  color: var(--sc-btn-blue-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="blue"]:hover {
+  background: var(--sc-btn-blue-bg-hover);
+  border-color: var(--sc-btn-blue-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-blue-shadow);
+}
+
+/* 🟣 紫色系 - OL列表 */
+.shiroki-shortcode-btn[data-sc-color="purple"] {
+  background: var(--sc-btn-purple-bg);
+  border: 1px solid var(--sc-btn-purple-border);
+  color: var(--sc-btn-purple-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="purple"]:hover {
+  background: var(--sc-btn-purple-bg-hover);
+  border-color: var(--sc-btn-purple-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-purple-shadow);
+}
+
+/* 💗 粉色系 - 药丸模块 */
+.shiroki-shortcode-btn[data-sc-color="pink"] {
+  background: var(--sc-btn-pink-bg);
+  border: 1px solid var(--sc-btn-pink-border);
+  color: var(--sc-btn-pink-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="pink"]:hover {
+  background: var(--sc-btn-pink-bg-hover);
+  border-color: var(--sc-btn-pink-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-pink-shadow);
+}
+
+/* ⚪ 灰色系 - 警告框模块 */
+.shiroki-shortcode-btn[data-sc-color="gray"] {
+  background: var(--sc-btn-gray-bg);
+  border: 1px solid var(--sc-btn-gray-border);
+  color: var(--sc-btn-gray-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="gray"]:hover {
+  background: var(--sc-btn-gray-bg-hover);
+  border-color: var(--sc-btn-gray-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-gray-shadow);
+}
+
+/* 🟤 棕色系 - 代码高亮 */
+.shiroki-shortcode-btn[data-sc-color="brown"] {
+  background: var(--sc-btn-brown-bg);
+  border: 1px solid var(--sc-btn-brown-border);
+  color: var(--sc-btn-brown-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="brown"]:hover {
+  background: var(--sc-btn-brown-bg-hover);
+  border-color: var(--sc-btn-brown-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-brown-shadow);
+}
+
+/* 🌹 玫红色系 - Iframe */
+.shiroki-shortcode-btn[data-sc-color="rose"] {
+  background: var(--sc-btn-rose-bg);
+  border: 1px solid var(--sc-btn-rose-border);
+  color: var(--sc-btn-rose-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="rose"]:hover {
+  background: var(--sc-btn-rose-bg-hover);
+  border-color: var(--sc-btn-rose-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-rose-shadow);
+}
+
+/* 🍊 琥珀色系 - 登录查看一 */
+.shiroki-shortcode-btn[data-sc-color="amber"] {
+  background: var(--sc-btn-amber-bg);
+  border: 1px solid var(--sc-btn-amber-border);
+  color: var(--sc-btn-amber-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="amber"]:hover {
+  background: var(--sc-btn-amber-bg-hover);
+  border-color: var(--sc-btn-amber-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-amber-shadow);
+}
+
+/* 🌿 翠绿色系 - 登录查看二 */
+.shiroki-shortcode-btn[data-sc-color="emerald"] {
+  background: var(--sc-btn-emerald-bg);
+  border: 1px solid var(--sc-btn-emerald-border);
+  color: var(--sc-btn-emerald-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="emerald"]:hover {
+  background: var(--sc-btn-emerald-bg-hover);
+  border-color: var(--sc-btn-emerald-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-emerald-shadow);
+}
+
+/* 🔷 靛蓝色系 - 文章密码保护 */
+.shiroki-shortcode-btn[data-sc-color="indigo"] {
+  background: var(--sc-btn-indigo-bg);
+  border: 1px solid var(--sc-btn-indigo-border);
+  color: var(--sc-btn-indigo-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="indigo"]:hover {
+  background: var(--sc-btn-indigo-bg-hover);
+  border-color: var(--sc-btn-indigo-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-indigo-shadow);
+}
+
+/* 🎵 音乐色系 - 插入音频 */
+.shiroki-shortcode-btn[data-sc-color="music"] {
+  background: var(--sc-btn-music-bg);
+  border: 1px solid var(--sc-btn-music-border);
+  color: var(--sc-btn-music-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="music"]:hover {
+  background: var(--sc-btn-music-bg-hover);
+  border-color: var(--sc-btn-music-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-music-shadow);
+}
+
+/* 🎬 视频色系 - 插入视频 */
+.shiroki-shortcode-btn[data-sc-color="video"] {
+  background: var(--sc-btn-video-bg);
+  border: 1px solid var(--sc-btn-video-border);
+  color: var(--sc-btn-video-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="video"]:hover {
+  background: var(--sc-btn-video-bg-hover);
+  border-color: var(--sc-btn-video-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-video-shadow);
+}
+
+/* 📦 折叠色系 - 折叠内容 */
+.shiroki-shortcode-btn[data-sc-color="collapse"] {
+  background: var(--sc-btn-collapse-bg);
+  border: 1px solid var(--sc-btn-collapse-border);
+  color: var(--sc-btn-collapse-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="collapse"]:hover {
+  background: var(--sc-btn-collapse-bg-hover);
+  border-color: var(--sc-btn-collapse-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-collapse-shadow);
+}
+
+/* 📄 分页色系 - 折叠内容（默认展开） */
+.shiroki-shortcode-btn[data-sc-color="page"] {
+  background: var(--sc-btn-page-bg);
+  border: 1px solid var(--sc-btn-page-border);
+  color: var(--sc-btn-page-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="page"]:hover {
+  background: var(--sc-btn-page-bg-hover);
+  border-color: var(--sc-btn-page-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-page-shadow);
+}
+
+/* 🔲 深灰色系 - 文章分页 */
+.shiroki-shortcode-btn[data-sc-color="dark"] {
+  background: var(--sc-btn-dark-bg);
+  border: 1px solid var(--sc-btn-dark-border);
+  color: var(--sc-btn-dark-text);
+}
+
+.shiroki-shortcode-btn[data-sc-color="dark"]:hover {
+  background: var(--sc-btn-dark-bg-hover);
+  border-color: var(--sc-btn-dark-border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--sc-btn-dark-shadow);
+}
+
+.shiroki-shortcode-btn:active {
+  transform: translateY(0);
+}
+
+/* ============================================
+   📱 响应式适配
+   ============================================ */
+
+@media screen and (max-width: 782px) {
+  .shiroki-shortcode-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--admin-space-sm);
+  }
+
+  .shiroki-shortcode-buttons {
+    width: 100%;
+  }
+}

@@ -447,7 +447,81 @@ function boxmoe_admin_profile_enqueue($hook){
 }
 add_action('admin_enqueue_scripts', 'boxmoe_admin_profile_enqueue');
 
+// 🔗 文章编辑页面加载媒体库脚本（【插入至文章】按钮不显示问题）
+function boxmoe_admin_post_enqueue($hook){
+    if ($hook === 'post.php' || $hook === 'post-new.php') {
+        wp_enqueue_media(); // ⬅️ 加载 WP 媒体库，使【添加媒体】按钮和【插入至文章】按钮正常工作
+    }
+}
+add_action('admin_enqueue_scripts', 'boxmoe_admin_post_enqueue');
+
+// 🔗 添加媒体弹窗脚本
+function boxmoe_media_modal_fix() {
+    ?>
+    <script type="text/javascript">
+    (function($) {
+        /* 🔧 媒体弹窗中【插入至文章】按钮不显示问题 */
+        $(document).ready(function() {
+            /* ◀️ 监听媒体弹窗的打开 */
+            if (typeof wp !== 'undefined' && wp.media) {
+                var originalMedia = wp.media;
+                wp.media = function(options) {
+                    var frame = originalMedia.apply(this, arguments);
+                    
+                    frame.on('open', function() {
+                        /* ◀️ 延迟执行，确保DOM已渲染 */
+                        setTimeout(function() {
+                            /* ◀️ 显示工具栏 */
+                            $('.media-modal .media-frame-toolbar').css({
+                                'display': 'flex',
+                                'visibility': 'visible',
+                                'opacity': '1'
+                            });
+                            
+                            /* ◀️ 显示按钮容器 */
+                            $('.media-modal .media-toolbar-primary').css({
+                                'display': 'flex',
+                                'visibility': 'visible',
+                                'opacity': '1'
+                            });
+                            
+                            /* ◀️ 显示所有按钮 */
+                            $('.media-modal .media-button-select, .media-modal .media-button-insert, .media-modal .media-button').css({
+                                'display': 'inline-block',
+                                'visibility': 'visible',
+                                'opacity': '1'
+                            });
+                            
+                            /* ◀️ 特别处理【插入至文章】按钮 */
+                            var $insertButton = $('.media-modal .media-button-insert, .media-modal .media-button-select');
+                            if ($insertButton.length === 0) {
+                                /* ◀️ 如果按钮不存在，检查是否有其他按钮 */
+                                var $toolbar = $('.media-modal .media-toolbar-primary');
+                                if ($toolbar.length > 0) {
+                                    console.log('🔧 媒体弹窗工具栏内容:', $toolbar.html());
+                                }
+                            } else {
+                                console.log('🔧 【插入至文章】按钮已显示:', $insertButton.text());
+                            }
+                        }, 100);
+                    });
+                    
+                    return frame;
+                };
+                
+                /* ◀️ 复制原 wp.media 的所有属性和方法 */
+                $.extend(wp.media, originalMedia);
+            }
+        });
+    })(jQuery);
+    </script>
+    <?php
+}
+add_action('admin_footer', 'boxmoe_media_modal_fix');
+
 function boxmoe_admin_flat_rounded_enqueue($hook){
+    // 🎨 先加载统一变量文件
+    wp_enqueue_style('admin-variables', get_template_directory_uri() . '/assets/css/admin/admin-variables.css', array(), '1.0');
     wp_enqueue_style('lolimeow-admin-flat-rounded', get_template_directory_uri() . '/assets/css/admin-flat-rounded.css', array(), '1.6');
     // 使用文件修改时间作为版本号，确保缓存更新
     $js_version = file_exists(get_template_directory() . '/assets/js/admin-select-ui.js') ? filemtime(get_template_directory() . '/assets/js/admin-select-ui.js') : '1.2';
@@ -465,12 +539,20 @@ function boxmoe_admin_clear_format_scripts($hook){
 		wp_enqueue_script('boxmoe-quicktags-shiroki', get_template_directory_uri() . '/assets/js/quicktags-shiroki.js', array('quicktags', 'jquery'), THEME_VERSION, true);
 		// 🌊 加载shiroki分割线相关脚本和样式
 		wp_enqueue_style('shiroki-divider', get_template_directory_uri() . '/assets/css/shiroki-divider.css', array(), THEME_VERSION);
-		wp_enqueue_script('tinymce-shiroki-divider', get_template_directory_uri() . '/assets/js/tinymce-shiroki-divider.js', array('jquery'), THEME_VERSION, true);
+		/* ☀️ TinyMCE插件通过mce_external_plugins过滤器加载，无需在此enqueue */
 		wp_enqueue_script('quicktags-shiroki-divider', get_template_directory_uri() . '/assets/js/quicktags-shiroki-divider.js', array('jquery'), THEME_VERSION, true);
-		// 🎬 加载admin-shiroki样式，包含TinyMCE全屏按钮位置修复
-		wp_enqueue_style('admin-shiroki', get_template_directory_uri() . '/assets/css/admin/admin-shiroki.css', array(), THEME_VERSION);
-		// 🎬 加载TinyMCE全屏按钮位置修复脚本
+		// 🎬 加载admin-shiroki样式，包含TinyMCE全屏按钮位置
+		wp_enqueue_style('admin-shiroki', get_template_directory_uri() . '/assets/css/admin/admin-shiroki.css', array('admin-variables'), THEME_VERSION); // ◀️ 依赖变量文件
+		// 🎬 加载TinyMCE全屏按钮位置脚本
 		wp_enqueue_script('admin-tinymce-fullscreen-fix', get_template_directory_uri() . '/assets/js/admin-tinymce-fullscreen-fix.js', array('jquery'), THEME_VERSION, true);
+
+		// 📝 加载写文章/编辑文章页面玻璃拟态UI样式
+		wp_enqueue_style('shiroki-post-edit', get_template_directory_uri() . '/assets/css/admin/post-edit/post-edit.css', array('admin-variables'), THEME_VERSION);
+		// 📝 加载写文章/编辑文章页面交互增强脚本
+		wp_enqueue_script('shiroki-post-edit', get_template_directory_uri() . '/assets/js/admin/post-edit/post-edit.js', array('jquery'), THEME_VERSION, true);
+
+		// 🎨 加载三栏布局编辑文章页面
+		require_once get_template_directory() . '/core/module/post-edit/fun-post-edit-layout.php';
 	}
 }
 add_action('admin_enqueue_scripts', 'boxmoe_admin_clear_format_scripts');
@@ -875,10 +957,10 @@ function boxmoe_translate_wpjam_menu() {
 }
 add_action('admin_menu', 'boxmoe_translate_wpjam_menu', 11);
 
-// 📅 修复WordPress后台日期显示，确保读取当前系统时间
+// 📅 WordPress后台日期显示，确保读取当前系统时间
 // 移除直接时区设置，依赖WordPress核心时区机制
 
-// 📝 修复文章列表中的日期显示
+// 📝 文章列表中的日期显示
 function boxmoe_fix_post_date_column($post_date, $post) {
     // 使用当前系统时间和正确的时区格式化日期
     $date = get_post_datetime($post);
@@ -895,7 +977,7 @@ function boxmoe_fix_post_date_column($post_date, $post) {
 }
 add_filter('post_date_column_time', 'boxmoe_fix_post_date_column', 10, 2);
 
-// 💬 修复评论列表中的日期显示
+// 💬 评论列表中的日期显示
 function boxmoe_fix_comment_date_column($column_output, $column_name, $comment_id) {
     if ('date' === $column_name) {
         $comment = get_comment($comment_id);
@@ -916,7 +998,7 @@ function boxmoe_fix_comment_date_column($column_output, $column_name, $comment_i
 }
 add_filter('manage_comments_custom_column', 'boxmoe_fix_comment_date_column', 10, 3);
 
-// 📊 修复媒体库中的日期显示
+// 📊 媒体库中的日期显示
 function boxmoe_fix_media_date_column($column_output, $column_name, $attachment_id) {
     if ('date' === $column_name) {
         $attachment = get_post($attachment_id);

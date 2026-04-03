@@ -78,7 +78,9 @@ function boxmoe_sign_up_link_page(){
 }
 
 
-// 登录页面链接设置--------------------------boxmoe.com--------------------------
+/* 🔗 登录页面链接设置
+ * 📝 检查登录页面是否正确绑定，未绑定时返回空值以便进行提示
+ */
 function boxmoe_sign_in_link_page(){
     $boxmoe_sign_in_link_page = get_boxmoe('boxmoe_sign_in_link_page');
     if($boxmoe_sign_in_link_page && is_numeric($boxmoe_sign_in_link_page)){
@@ -86,7 +88,7 @@ function boxmoe_sign_in_link_page(){
         if($permalink) return $permalink;
     }
     
-    // 🔍 自动查找使用 p-signin.php 模板的登录页面（尝试多种模板路径格式）
+    /* 🔍 自动查找使用 p-signin.php 模板的登录页面（尝试多种模板路径格式） */
     $template_paths = array(
         'page/p-signin.php',
         'p-signin.php'
@@ -98,12 +100,12 @@ function boxmoe_sign_in_link_page(){
             'meta_value' => $template_path
         ));
         if(!empty($login_pages)){
-            // 🔗 返回找到的第一个登录页面的链接
+            /* 🔗 返回找到的第一个登录页面的链接 */
             return get_the_permalink($login_pages[0]);
         }
     }
     
-    // 🔍 按模板名称查找登录页面
+    /* 🔍 按模板名称查找登录页面 */
     $args = array(
         'post_type' => 'page',
         'posts_per_page' => 1,
@@ -124,13 +126,13 @@ function boxmoe_sign_in_link_page(){
         if($permalink) return $permalink;
     }
     
-    // 🔍 按slug查找登录页面
+    /* 🔍 按slug查找登录页面 */
     $login_page = get_page_by_path('signin');
     if($login_page){
         return get_the_permalink($login_page);
     }
     
-    // 🔗 最后尝试获取所有页面，手动检查模板
+    /* 🔗 最后尝试获取所有页面，手动检查模板 */
     $all_pages = get_pages();
     foreach($all_pages as $page){
         $template = get_page_template_slug($page->ID);
@@ -139,8 +141,357 @@ function boxmoe_sign_in_link_page(){
         }
     }
     
-    // 🔗 回退到默认登录页面链接
-    return home_url('/signin');
+    /* ⚠️ 未找到绑定的登录页面，返回空值 */
+    return '';
+}
+
+/* 🔍 检查登录页面是否存在
+ * 🎯 用于判断登录页面是否正确绑定
+ */
+function boxmoe_sign_in_page_exists(){
+    $login_url = boxmoe_sign_in_link_page();
+    return !empty($login_url);
+}
+
+/* 🚨 显示登录页面未绑定提示
+ * 📝 当用户访问登录/注册链接但页面未绑定时显示弹窗提示
+ */
+function boxmoe_show_login_page_not_bound_notice(){
+    /* 🔍 检查当前是否在登录/注册相关页面 */
+    $current_url = $_SERVER['REQUEST_URI'];
+    $is_login_related = (strpos($current_url, 'signin') !== false) || 
+                        (strpos($current_url, 'signup') !== false) ||
+                        (strpos($current_url, 'login') !== false) ||
+                        (strpos($current_url, 'register') !== false);
+    
+    if(!$is_login_related){
+        return;
+    }
+    
+    /* 🔍 检查登录页面是否存在 */
+    if(boxmoe_sign_in_page_exists()){
+        return;
+    }
+    
+    /* 🚨 显示未绑定弹窗提示 */
+    add_action('wp_footer', 'boxmoe_render_login_not_bound_modal', 999);
+    add_action('admin_footer', 'boxmoe_render_login_not_bound_modal', 999);
+}
+add_action('template_redirect', 'boxmoe_show_login_page_not_bound_notice', 1);
+
+/* 🪟 渲染登录页面未绑定弹窗
+ * 🎨 使用模态窗口显示提示信息
+ */
+function boxmoe_render_login_not_bound_modal(){
+    $admin_url = esc_url(admin_url());
+    $home_url = esc_url(home_url());
+    ?>
+    <!-- 🪟 登录页面未绑定提示弹窗 -->
+    <div id="login-not-bound-modal" class="boxmoe-modal-overlay" style="display: flex;">
+        <div class="boxmoe-modal-container">
+            <div class="boxmoe-modal-header">
+                <span class="boxmoe-modal-icon">⚠️</span>
+                <h3>登录/注册页面未绑定</h3>
+                <button class="boxmoe-modal-close" onclick="closeLoginNotBoundModal()">&times;</button>
+            </div>
+            <div class="boxmoe-modal-body">
+                <p class="boxmoe-modal-desc">当前登录/注册页面没有正确绑定，请联系管理员完成页面绑定设置。</p>
+                <div class="boxmoe-modal-steps">
+                    <h4>📝 绑定步骤：</h4>
+                    <ol>
+                        <li>进入后台【页面】-【添加页面】</li>
+                        <li>页面选择模板「登录页面」，发布</li>
+                        <li>再添加页面</li>
+                        <li>页面选择模板「注册页面」，发布</li>
+                        <li>进入盒子萌主题设置【用户设置】的【用户中心链接设置】中</li>
+                        <li>绑定「登录页面」和「注册页面」</li>
+                        <li>保存设置即可</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="boxmoe-modal-footer">
+                <!-- <a href="<?php echo $admin_url; ?>" class="boxmoe-btn boxmoe-btn-primary">进入后台管理</a> -->
+                <a href="<?php echo $home_url; ?>" class="boxmoe-btn boxmoe-btn-secondary">返回首页</a>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        /* 🪟 弹窗遮罩层 */
+        .boxmoe-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* 🪟 弹窗容器 */
+        .boxmoe-modal-container {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes modalSlideIn {
+            from { 
+                opacity: 0; 
+                transform: scale(0.9) translateY(-20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: scale(1) translateY(0); 
+            }
+        }
+        
+        /* 🌆 暗色模式适配 */
+        [data-bs-theme="dark"] .boxmoe-modal-container {
+            background: #2d2d2d;
+            color: #e0e0e0;
+        }
+        
+        /* 🪟 弹窗头部 */
+        .boxmoe-modal-header {
+            display: flex;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e7eb;
+            position: relative;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-header {
+            border-bottom-color: #444;
+        }
+        
+        .boxmoe-modal-icon {
+            font-size: 28px;
+            margin-right: 12px;
+        }
+        
+        .boxmoe-modal-header h3 {
+            flex: 1;
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-header h3 {
+            color: #e0e0e0;
+        }
+        
+        .boxmoe-modal-close {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #9ca3af;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        
+        .boxmoe-modal-close:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-close:hover {
+            background: #444;
+            color: #e0e0e0;
+        }
+        
+        /* 🪟 弹窗内容 */
+        .boxmoe-modal-body {
+            padding: 24px;
+        }
+        
+        .boxmoe-modal-desc {
+            margin: 0 0 20px 0;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-desc {
+            color: #aaa;
+        }
+        
+        .boxmoe-modal-steps {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 16px 20px;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-steps {
+            background: #3d3d3d;
+        }
+        
+        .boxmoe-modal-steps h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-steps h4 {
+            color: #e0e0e0;
+        }
+        
+        .boxmoe-modal-steps ol {
+            margin: 0;
+            padding-left: 18px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 2;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-modal-steps ol {
+            color: #aaa;
+        }
+        
+        .boxmoe-modal-steps li {
+            margin-bottom: 4px;
+        }
+        
+        /* 🪟 弹窗底部 */
+        .boxmoe-modal-footer {
+            display: flex;
+            gap: 12px;
+            padding: 16px 24px 24px;
+            justify-content: flex-end;
+        }
+        
+        /* 🔘 按钮样式 */
+        .boxmoe-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+        
+        .boxmoe-btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        
+        .boxmoe-btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            color: #fff;
+        }
+        
+        .boxmoe-btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        
+        .boxmoe-btn-secondary:hover {
+            background: #e5e7eb;
+            color: #111827;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-btn-secondary {
+            background: #4a4a4a;
+            color: #e0e0e0;
+        }
+        
+        [data-bs-theme="dark"] .boxmoe-btn-secondary:hover {
+            background: #555;
+            color: #fff;
+        }
+        
+        /* 📱 移动端适配 */
+        @media (max-width: 640px) {
+            .boxmoe-modal-container {
+                margin: 16px;
+                max-height: calc(100vh - 32px);
+            }
+            
+            .boxmoe-modal-header {
+                padding: 16px 20px;
+            }
+            
+            .boxmoe-modal-body {
+                padding: 20px;
+            }
+            
+            .boxmoe-modal-footer {
+                flex-direction: column;
+                padding: 16px 20px 20px;
+            }
+            
+            .boxmoe-btn {
+                width: 100%;
+            }
+        }
+    </style>
+    
+    <script>
+        /* 🔗 关闭弹窗函数 */
+        function closeLoginNotBoundModal() {
+            var modal = document.getElementById('login-not-bound-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(function() {
+                    modal.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        /* 🔗 点击遮罩层关闭弹窗 */
+        document.addEventListener('DOMContentLoaded', function() {
+            var modal = document.getElementById('login-not-bound-modal');
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeLoginNotBoundModal();
+                    }
+                });
+                
+                /* 🔗 ESC键关闭弹窗 */
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closeLoginNotBoundModal();
+                    }
+                });
+            }
+        });
+    </script>
+    <?php
 }
 
 // 重置密码页面链接设置--------------------------boxmoe.com--------------------------
@@ -834,6 +1185,7 @@ function boxmoe_user_center_page_exists() {
 /* 🔒 禁用WordPress默认登录页面wp-login.php
  * 🎯 将所有访问wp-login.php的请求重定向到自定义登录页面
  * ⚠️ 但保留必要的认证功能（如重置密码链接验证）
+ * ⚠️ 如果自定义登录页面未绑定，不重定向
  */
 add_action('init', 'boxmoe_disable_default_login_page', 1);
 function boxmoe_disable_default_login_page() {
@@ -841,6 +1193,11 @@ function boxmoe_disable_default_login_page() {
     if (!is_admin() && strpos($_SERVER['REQUEST_URI'], 'wp-login.php') !== false) {
         /* 🔗 获取自定义登录页面URL */
         $custom_login_url = boxmoe_sign_in_link_page();
+        
+        /* ⚠️ 如果自定义登录页面未绑定，不重定向，使用默认登录页面 */
+        if (empty($custom_login_url)) {
+            return;
+        }
         
         /* 📋 保留必要的操作：重置密码、退出登录、文章密码验证 */
         $action = isset($_GET['action']) ? $_GET['action'] : '';
@@ -867,11 +1224,17 @@ function boxmoe_disable_default_login_page() {
 
 /* 🔒 替换WordPress默认登录URL
  * 🎯 将所有wp-login.php链接替换为自定义登录页面链接
+ * ⚠️ 如果自定义登录页面未绑定，返回默认登录链接
  */
 add_filter('login_url', 'boxmoe_custom_login_url', 10, 2);
 function boxmoe_custom_login_url($login_url, $redirect) {
     /* 🔗 获取自定义登录页面URL */
     $custom_login_url = boxmoe_sign_in_link_page();
+    
+    /* ⚠️ 如果自定义登录页面未绑定，返回默认登录链接 */
+    if (empty($custom_login_url)) {
+        return $login_url;
+    }
     
     /* 🔗 如果有重定向参数，添加到自定义登录URL */
     if (!empty($redirect)) {
@@ -883,11 +1246,19 @@ function boxmoe_custom_login_url($login_url, $redirect) {
 
 /* 🔒 替换WordPress默认注册URL
  * 🎯 将所有wp-login.php?action=register链接替换为自定义注册页面链接
+ * ⚠️ 如果自定义登录页面未绑定，返回默认注册链接
  */
 add_filter('register_url', 'boxmoe_custom_register_url');
 function boxmoe_custom_register_url($register_url) {
-    /* 🔗 获取自定义登录页面URL并添加注册模式参数 */
+    /* 🔗 获取自定义登录页面URL */
     $custom_login_url = boxmoe_sign_in_link_page();
+    
+    /* ⚠️ 如果自定义登录页面未绑定，返回默认注册链接 */
+    if (empty($custom_login_url)) {
+        return $register_url;
+    }
+    
+    /* 🔗 添加注册模式参数 */
     return add_query_arg('mode', 'signup', $custom_login_url);
 }
 
@@ -917,5 +1288,47 @@ function boxmoe_redirect_after_logout() {
     
     /* 🔄 执行重定向 */
     wp_safe_redirect($home_url);
+    exit;
+}
+
+/* 🔗 wp-admin 访问重定向到管理员后台登录
+ * 🎯 当用户直接访问 /wp-admin 时，根据登录状态决定跳转位置
+ * ✅ 已登录用户：进入后台管理界面
+ * 🔒 未登录用户：跳转到 WordPress 默认登录页面 wp-login.php
+ */
+add_action('init', 'boxmoe_handle_wp_admin_access', 2);
+function boxmoe_handle_wp_admin_access() {
+    /* 🔍 检查当前请求是否是 wp-admin */
+    if (!is_admin()) {
+        return;
+    }
+    
+    /* 🔍 排除 AJAX 请求和 REST API 请求 */
+    if (defined('DOING_AJAX') && DOING_AJAX) {
+        return;
+    }
+    if (defined('REST_REQUEST') && REST_REQUEST) {
+        return;
+    }
+    
+    /* 🔍 检查当前是否在登录页面 */
+    $request_uri = $_SERVER['REQUEST_URI'];
+    if (strpos($request_uri, 'wp-login.php') !== false) {
+        return;
+    }
+    
+    /* 🔍 检查用户是否已登录 */
+    if (is_user_logged_in()) {
+        /* ✅ 已登录用户，允许正常访问后台 */
+        return;
+    }
+    
+    /* 🔒 未登录用户，重定向到 WordPress 默认登录页面 */
+    /* 📋 保留当前访问的地址，登录后自动跳转回来 */
+    $redirect_to = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+    $login_url = wp_login_url($redirect_to);
+    
+    /* 🔄 执行重定向 */
+    wp_safe_redirect($login_url);
     exit;
 }

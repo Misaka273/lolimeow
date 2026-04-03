@@ -1,0 +1,527 @@
+<?php
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* 📝 写文章/编辑文章页面双栏布局 - PHP直接控制布局 */
+/* 🎨 左侧编辑区 | 右侧元框 */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+/**
+ * 🎯 文章编辑页面双栏布局管理类
+ */
+class Shiroki_Post_Edit_Layout {
+
+    /**
+     * 📦 单例实例
+     */
+    private static $instance = null;
+
+    /**
+     * 🚀 获取单例实例
+     */
+    public static function get_instance() {
+        if (null === self::$instance) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * 🔧 构造函数
+     */
+    private function __construct() {
+        /* 🔍 只在写文章和编辑文章页面生效 */
+        global $pagenow;
+        if (!in_array($pagenow, array('post.php', 'post-new.php'))) {
+            return;
+        }
+
+        /* 📝 添加布局样式 */
+        add_action('admin_head', array($this, 'inject_layout_styles'));
+
+        /* 📝 在页面开始处输出双栏布局容器 */
+        add_action('edit_form_after_title', array($this, 'open_layout_wrapper'), 1);
+
+        /* 📝 在页面结束处关闭布局容器 */
+        add_action('edit_form_after_editor', array($this, 'close_layout_wrapper'), 99);
+    }
+
+    /**
+     * 🎨 注入布局样式
+     */
+    public function inject_layout_styles() {
+        echo '<style>';
+        echo '/* 🕊️白木 原创开发 🔗gl.baimu.live */';
+        echo '/* 📝 双栏布局样式 - PHP直接控制 */';
+
+        /* 🎨 双栏布局主容器 - 元框在左，编辑区在右 */
+        echo '.shiroki-editor-layout {';
+        echo '  display: grid;';
+        echo '  grid-template-columns: 380px 1fr;';
+        echo '  grid-template-areas: "sidebar main";';
+        echo '  gap: var(--admin-space-lg);';
+        echo '  max-width: 1600px;';
+        echo '  margin: 0 auto;';
+        echo '  min-height: calc(100vh - 100px);';
+        echo '}';
+
+        /* 📝 右侧编辑区域 */
+        echo '.shiroki-editor-main {';
+        echo '  grid-area: main;';
+        echo '  display: flex;';
+        echo '  flex-direction: column;';
+        echo '  gap: var(--admin-space-lg);';
+        echo '}';
+
+        /* 📦 右侧元框区域 */
+        echo '.shiroki-editor-sidebar {';
+        echo '  grid-area: sidebar;';
+        echo '  position: sticky;';
+        echo '  top: 32px;';
+        echo '  height: calc(100vh - 80px);';
+        echo '  overflow-y: auto;';
+        echo '  overflow-x: hidden;';
+        echo '}';
+
+        /* 📦 侧边栏内的元框样式 */
+        echo '.shiroki-editor-sidebar #side-sortables {';
+        echo '  display: flex;';
+        echo '  flex-direction: column;';
+        echo '  gap: var(--admin-space-lg);';
+        echo '}';
+
+        echo '.shiroki-editor-sidebar .postbox {';
+        echo '  margin-bottom: 0;';
+        echo '  background: var(--admin-current-glass);';
+        echo '  backdrop-filter: var(--admin-glass-blur);';
+        echo '  border: var(--admin-border-glass);';
+        echo '  border-radius: var(--admin-radius-lg);';
+        echo '  box-shadow: var(--admin-shadow-md);';
+        echo '  overflow: hidden;';
+        echo '}';
+
+        /* 📦 元框标题样式 */
+        echo '.shiroki-editor-sidebar .postbox .hndle {';
+        echo '  background: var(--admin-current-glass);';
+        echo '  border-bottom: 1px solid var(--admin-current-border);';
+        echo '  color: var(--admin-current-text-primary);';
+        echo '  font-weight: var(--admin-font-weight-semibold);';
+        echo '  padding: var(--admin-space-md) var(--admin-space-lg);';
+        echo '}';
+
+        /* 📦 元框内容样式 */
+        echo '.shiroki-editor-sidebar .postbox .inside {';
+        echo '  background: var(--admin-current-bg);';
+        echo '  padding: var(--admin-space-lg);';
+        echo '}';
+
+        /* 📦 侧边栏滚动条美化 */
+        echo '.shiroki-editor-sidebar::-webkit-scrollbar {';
+        echo '  width: 4px;';
+        echo '}';
+        echo '.shiroki-editor-sidebar::-webkit-scrollbar-thumb {';
+        echo '  background: var(--admin-current-border);';
+        echo '  border-radius: var(--admin-radius-full);';
+        echo '}';
+
+        /* 🧰 工具栏容器样式 */
+        echo '.shiroki-editor-toolbar {';
+        echo '  background: var(--admin-current-glass);';
+        echo '  backdrop-filter: var(--admin-glass-blur);';
+        echo '  border: var(--admin-border-glass);';
+        echo '  border-radius: var(--admin-radius-lg);';
+        echo '  box-shadow: var(--admin-shadow-md);';
+        echo '  margin-bottom: var(--admin-space-lg);';
+        echo '  overflow: hidden;';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar .toolbar-inner {';
+        echo '  padding: var(--admin-space-md);';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar .toolbar-section {';
+        echo '  margin-bottom: var(--admin-space-md);';
+        echo '  padding-bottom: var(--admin-space-md);';
+        echo '  border-bottom: 1px solid var(--admin-current-border);';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar .toolbar-section:last-child {';
+        echo '  margin-bottom: 0;';
+        echo '  padding-bottom: 0;';
+        echo '  border-bottom: none;';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar .toolbar-title {';
+        echo '  font-size: var(--admin-font-size-sm);';
+        echo '  font-weight: var(--admin-font-weight-semibold);';
+        echo '  color: var(--admin-current-text-secondary);';
+        echo '  margin: 0 0 var(--admin-space-sm) 0;';
+        echo '  padding: 0;';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar .toolbar-content {';
+        echo '  display: flex;';
+        echo '  flex-direction: column;';
+        echo '  gap: var(--admin-space-xs);';
+        echo '}';
+
+        /* 🧰 工具栏元素样式 */
+        echo '#toolbar-media-content #wp-content-media-buttons {';
+        echo '  background: transparent;';
+        echo '  border: none;';
+        echo '  padding: 0;';
+        echo '  margin: 0;';
+        echo '  display: flex;';
+        echo '  flex-direction: column;';
+        echo '  gap: var(--admin-space-xs);';
+        echo '}';
+
+        echo '#toolbar-media-content .insert-media {';
+        echo '  background: var(--admin-primary-bg);';
+        echo '  border: 1px solid var(--admin-primary-border);';
+        echo '  border-radius: var(--admin-radius-md);';
+        echo '  color: var(--admin-primary-text);';
+        echo '  padding: var(--admin-space-sm) var(--admin-space-md);';
+        echo '  font-size: var(--admin-font-size-sm);';
+        echo '  width: 100%;';
+        echo '  text-align: center;';
+        echo '  transition: all var(--admin-transition-fast);';
+        echo '}';
+
+        echo '#toolbar-media-content .insert-media:hover {';
+        echo '  background: var(--admin-primary-bg-hover);';
+        echo '}';
+
+        echo '#toolbar-shortcodes-content #short_code_select {';
+        echo '  width: 100%;';
+        echo '  background: var(--admin-current-bg);';
+        echo '  border: var(--admin-border-glass);';
+        echo '  border-radius: var(--admin-radius-md);';
+        echo '  padding: var(--admin-space-sm);';
+        echo '  font-size: var(--admin-font-size-sm);';
+        echo '  color: var(--admin-current-text-primary);';
+        echo '}';
+
+        echo '#toolbar-md-content .boxmoe-md-toolbar {';
+        echo '  background: transparent;';
+        echo '  border: none;';
+        echo '  padding: 0;';
+        echo '  margin: 0;';
+        echo '  display: flex;';
+        echo '  flex-wrap: wrap;';
+        echo '  gap: var(--admin-space-xs);';
+        echo '}';
+
+        echo '#toolbar-md-content .md-btn {';
+        echo '  background: var(--admin-current-bg);';
+        echo '  border: var(--admin-border-glass);';
+        echo '  border-radius: var(--admin-radius-sm);';
+        echo '  padding: var(--admin-space-xs) var(--admin-space-sm);';
+        echo '  font-size: var(--admin-font-size-xs);';
+        echo '  color: var(--admin-current-text-primary);';
+        echo '  cursor: pointer;';
+        echo '  transition: all var(--admin-transition-fast);';
+        echo '}';
+
+        echo '#toolbar-md-content .md-btn:hover {';
+        echo '  background: var(--admin-primary-bg);';
+        echo '  border-color: var(--admin-primary-border);';
+        echo '  color: var(--admin-primary-text);';
+        echo '}';
+
+        echo '#toolbar-md-content .md-separator {';
+        echo '  color: var(--admin-current-text-muted);';
+        echo '  margin: 0 var(--admin-space-xs);';
+        echo '}';
+
+        echo '#toolbar-quicktags-content #ed_toolbar {';
+        echo '  background: transparent;';
+        echo '  border: none;';
+        echo '  padding: 0;';
+        echo '  margin: 0;';
+        echo '  display: flex;';
+        echo '  flex-wrap: wrap;';
+        echo '  gap: var(--admin-space-xs);';
+        echo '  position: relative !important;';
+        echo '  top: auto !important;';
+        echo '  width: 100% !important;';
+        echo '}';
+
+        echo '#toolbar-quicktags-content .ed_button {';
+        echo '  background: var(--admin-current-bg);';
+        echo '  border: var(--admin-border-glass);';
+        echo '  border-radius: var(--admin-radius-sm);';
+        echo '  padding: var(--admin-space-xs) var(--admin-space-sm);';
+        echo '  font-size: var(--admin-font-size-xs);';
+        echo '  color: var(--admin-current-text-primary);';
+        echo '  cursor: pointer;';
+        echo '  transition: all var(--admin-transition-fast);';
+        echo '  margin: 0;';
+        echo '  height: auto;';
+        echo '  line-height: 1.4;';
+        echo '}';
+
+        echo '#toolbar-quicktags-content .ed_button:hover {';
+        echo '  background: var(--admin-primary-bg);';
+        echo '  border-color: var(--admin-primary-border);';
+        echo '  color: var(--admin-primary-text);';
+        echo '}';
+
+        echo '#toolbar-quicktags-content .qt-dfw {';
+        echo '  display: none;';
+        echo '}';
+
+        /* 📱 响应式设计 */
+        echo '@media screen and (max-width: 1400px) {';
+        echo '  .shiroki-editor-layout {';
+        echo '    grid-template-columns: 1fr;';
+        echo '    grid-template-areas: "main";';
+        echo '    gap: var(--admin-space-lg);';
+        echo '  }';
+        echo '  .shiroki-editor-sidebar {';
+        echo '    display: none;';
+        echo '  }';
+        echo '  .shiroki-editor-main {';
+        echo '    grid-area: main;';
+        echo '  }';
+        echo '}';
+
+        echo '@media screen and (max-width: 782px) {';
+        echo '  .shiroki-editor-layout {';
+        echo '    grid-template-columns: 1fr;';
+        echo '    grid-template-areas: "main";';
+        echo '    gap: var(--admin-space-lg);';
+        echo '  }';
+        echo '}';
+
+        echo '</style>';
+    }
+
+    /**
+     * 📦 打开布局包装器 - 输出双栏布局容器开始
+     */
+    public function open_layout_wrapper() {
+        /* 🔗 输出双栏布局容器 */
+        echo '<div id="shiroki-editor-layout" class="shiroki-editor-layout">';
+
+        /* 📝 左侧编辑区域开始 */
+        echo '  <div id="shiroki-editor-main" class="shiroki-editor-main">';
+        echo '    <div class="editor-inner">';
+        /* 这里会包含标题和编辑器，由WordPress默认输出 */
+    }
+
+    /**
+     * 📦 关闭布局包装器
+     */
+    public function close_layout_wrapper() {
+        /* 📝 关闭左侧编辑区域 */
+        echo '    </div><!-- /.editor-inner -->';
+        echo '  </div><!-- /#shiroki-editor-main -->';
+
+        /* 📦 左侧元框区域（包含工具栏和元框） */
+        echo '  <div id="shiroki-editor-sidebar" class="shiroki-editor-sidebar">';
+
+        /* 🧰 工具栏容器 - 放在元框区域顶部 */
+        echo '    <div id="shiroki-editor-toolbar" class="shiroki-editor-toolbar">';
+        echo '      <div class="toolbar-inner">';
+        echo '        <div class="toolbar-section toolbar-media">';
+        echo '          <h4 class="toolbar-title">📎 媒体</h4>';
+        echo '          <div class="toolbar-content" id="toolbar-media-content"></div>';
+        echo '        </div>';
+        echo '        <div class="toolbar-section toolbar-shortcodes">';
+        echo '          <h4 class="toolbar-title">⚡ 短代码</h4>';
+        echo '          <div class="toolbar-content" id="toolbar-shortcodes-content"></div>';
+        echo '        </div>';
+        echo '        <div class="toolbar-section toolbar-md">';
+        echo '          <h4 class="toolbar-title">📝 MD工具</h4>';
+        echo '          <div class="toolbar-content" id="toolbar-md-content"></div>';
+        echo '        </div>';
+        echo '        <div class="toolbar-section toolbar-quicktags">';
+        echo '          <h4 class="toolbar-title">🔧 Quicktags</h4>';
+        echo '          <div class="toolbar-content" id="toolbar-quicktags-content"></div>';
+        echo '        </div>';
+        echo '      </div>';
+        echo '    </div><!-- /#shiroki-editor-toolbar -->';
+
+        echo '    <!-- 元框将由JS移动到这里 -->';
+        echo '  </div><!-- /#shiroki-editor-sidebar -->';
+
+        /* 🔗 关闭双栏布局容器 */
+        echo '</div><!-- /#shiroki-editor-layout -->';
+
+        /* 📱 移动端工具栏浮动按钮 */
+        echo '<button type="button" id="shiroki-toolbar-float-btn" class="shiroki-toolbar-float-btn">';
+        echo '  <span>🧰</span> 语法/附件';
+        echo '</button>';
+
+        /* 📱 移动端工具栏模态框 */
+        echo '<div id="shiroki-toolbar-mobile-modal" class="shiroki-toolbar-mobile-modal" style="display: none;">';
+        echo '  <div class="shiroki-toolbar-mobile-modal-backdrop"></div>';
+        echo '  <div class="shiroki-toolbar-mobile-modal-content">';
+        echo '    <div class="shiroki-toolbar-mobile-modal-header">';
+        echo '      <span class="shiroki-toolbar-mobile-modal-title">🧰 添加语法/添加附件媒体</span>';
+        echo '      <button type="button" class="shiroki-toolbar-mobile-modal-close">✕</button>';
+        echo '    </div>';
+        echo '    <div class="shiroki-toolbar-mobile-modal-body">';
+        echo '      <div class="toolbar-section toolbar-media">';
+        echo '        <h4 class="toolbar-title">🗃️ 媒体</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-media-content-mobile"></div>';
+        echo '      </div>';
+        echo '      <div class="toolbar-section toolbar-shortcodes">';
+        echo '        <h4 class="toolbar-title">⚡ 短代码</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-shortcodes-content-mobile"></div>';
+        echo '      </div>';
+        echo '      <div class="toolbar-section toolbar-md">';
+        echo '        <h4 class="toolbar-title">📝 MD工具</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-md-content-mobile"></div>';
+        echo '      </div>';
+        echo '      <div class="toolbar-section toolbar-quicktags">';
+        echo '        <h4 class="toolbar-title">🔧 Quicktags</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-quicktags-content-mobile"></div>';
+        echo '      </div>';
+        echo '    </div>';
+        echo '  </div>';
+        echo '</div>';
+
+        /* 📱 移动端工具栏交互脚本 */
+        echo '<script>';
+        echo '(function() {';
+        echo '  var floatBtn = document.getElementById("shiroki-toolbar-float-btn");';
+        echo '  var modal = document.getElementById("shiroki-toolbar-mobile-modal");';
+        echo '  var closeBtn = modal.querySelector(".shiroki-toolbar-mobile-modal-close");';
+        echo '  var backdrop = modal.querySelector(".shiroki-toolbar-mobile-modal-backdrop");';
+        echo '  var modalBody = modal.querySelector(".shiroki-toolbar-mobile-modal-body");';
+        echo '  var isModalOpen = false;';
+        echo '  var isContentCloned = false;';
+
+        echo '  /* ◀️ 克隆工具栏内容到移动端模态框 */';
+        echo '  function cloneToolbarContent() {';
+        echo '    if (isContentCloned) return;';
+        echo '    var mediaContent = document.getElementById("toolbar-media-content");';
+        echo '    var shortcodesContent = document.getElementById("toolbar-shortcodes-content");';
+        echo '    var mdContent = document.getElementById("toolbar-md-content");';
+        echo '    var quicktagsContent = document.getElementById("toolbar-quicktags-content");';
+        echo '    var mediaMobile = document.getElementById("toolbar-media-content-mobile");';
+        echo '    var shortcodesMobile = document.getElementById("toolbar-shortcodes-content-mobile");';
+        echo '    var mdMobile = document.getElementById("toolbar-md-content-mobile");';
+        echo '    var quicktagsMobile = document.getElementById("toolbar-quicktags-content-mobile");';
+
+        echo '    if (mediaContent && mediaMobile) {';
+        echo '      mediaMobile.innerHTML = "";';
+        echo '      mediaMobile.appendChild(mediaContent.cloneNode(true));';
+        echo '    }';
+        echo '    if (shortcodesContent && shortcodesMobile) {';
+        echo '      shortcodesMobile.innerHTML = "";';
+        echo '      shortcodesMobile.appendChild(shortcodesContent.cloneNode(true));';
+        echo '    }';
+        echo '    if (mdContent && mdMobile) {';
+        echo '      mdMobile.innerHTML = "";';
+        echo '      mdMobile.appendChild(mdContent.cloneNode(true));';
+        echo '    }';
+        echo '    if (quicktagsContent && quicktagsMobile) {';
+        echo '      quicktagsMobile.innerHTML = "";';
+        echo '      quicktagsMobile.appendChild(quicktagsContent.cloneNode(true));';
+        echo '    }';
+        echo '    isContentCloned = true;';
+        echo '  }';
+
+        echo '  /* ◀️ 打开模态框 */';
+        echo '  function openModal() {';
+        echo '    cloneToolbarContent();';
+        echo '    modal.style.display = "flex";';
+        echo '    setTimeout(function() { modal.classList.add("active"); }, 10);';
+        echo '    floatBtn.classList.add("active");';
+        echo '    floatBtn.innerHTML = "<span>✕</span> 关闭";';
+        echo '    isModalOpen = true;';
+        echo '  }';
+
+        echo '  /* ◀️ 关闭模态框 */';
+        echo '  function closeModal() {';
+        echo '    modal.classList.remove("active");';
+        echo '    setTimeout(function() { ';
+        echo '      modal.style.display = "none";';
+        echo '    }, 300);';
+        echo '    floatBtn.classList.remove("active");';
+        echo '    floatBtn.innerHTML = "<span>🧰</span> 工具箱";';
+        echo '    isModalOpen = false;';
+        echo '  }';
+
+        echo '  /* ◀️ 绑定浮动按钮事件 */';
+        echo '  if (floatBtn) {';
+        echo '    floatBtn.addEventListener("click", function() {';
+        echo '      if (isModalOpen) {';
+        echo '        closeModal();';
+        echo '      } else {';
+        echo '        openModal();';
+        echo '      }';
+        echo '    });';
+        echo '  }';
+
+        echo '  if (closeBtn) closeBtn.addEventListener("click", closeModal);';
+        echo '  if (backdrop) backdrop.addEventListener("click", closeModal);';
+
+        echo '  /* ◀️ 使用事件委托处理模态框内的按钮点击 */';
+        echo '  if (modalBody) {';
+        echo '    modalBody.addEventListener("click", function(e) {';
+        echo '      var target = e.target;';
+        
+        echo '      /* 🔍 查找被点击的按钮 */';
+        echo '      var btn = target.closest("button, input[type=button], .shiroki-shortcode-btn, .md-btn, .ed_button");';
+        echo '      if (!btn) return;';
+        
+        echo '      /* 🎯 获取按钮信息 */';
+        echo '      var btnId = btn.id;';
+        echo '      var btnClass = btn.className;';
+        echo '      var btnCode = btn.getAttribute("data-code");';
+        echo '      var btnValue = btn.value;';
+        
+        echo '      /* 📱 短代码按钮处理 */';
+        echo '      if (btn.classList.contains("shiroki-shortcode-btn")) {';
+        echo '        if (btnCode && typeof send_to_editor === "function") {';
+        echo '          send_to_editor(btnCode);';
+        echo '        }';
+        echo '      }';
+        
+        echo '      /* 📝 MD工具按钮处理 - 通过class匹配 */';
+        echo '      else if (btn.classList.contains("md-btn")) {';
+        echo '        var originalMdToolbar = document.querySelector(".boxmoe-md-toolbar");';
+        echo '        if (originalMdToolbar) {';
+        echo '          var classList = btn.className.split(" ");';
+        echo '          var selector = classList.map(function(c) { return "." + c; }).join("");';
+        echo '          var originalBtn = originalMdToolbar.querySelector(selector);';
+        echo '          if (originalBtn) {';
+        echo '            originalBtn.click();';
+        echo '          }';
+        echo '        }';
+        echo '      }';
+        
+        echo '      /* 🔧 Quicktags按钮处理 - 通过ID匹配 */';
+        echo '      else if (btn.classList.contains("ed_button") && btnId) {';
+        echo '        var originalBtn = document.getElementById(btnId);';
+        echo '        if (originalBtn) {';
+        echo '          originalBtn.click();';
+        echo '        }';
+        echo '      }';
+        
+        echo '      /* 📎 添加媒体按钮处理 */';
+        echo '      else if (btnId === "shiroki-insert-media-button" || btn.classList.contains("shiroki-media-trigger")) {';
+        echo '        var originalBtn = document.getElementById("shiroki-insert-media-button");';
+        echo '        if (originalBtn) {';
+        echo '          originalBtn.click();';
+        echo '        }';
+        echo '      }';
+        
+        echo '      /* 🎬 延迟关闭窗口，让操作先执行 */';
+        echo '      setTimeout(function() {';
+        echo '        closeModal();';
+        echo '      }, 150);';
+        echo '    });';
+        echo '  }';
+        echo '})();';
+        echo '</script>';
+    }
+}
+
+/* 🚀 初始化 */
+Shiroki_Post_Edit_Layout::get_instance();

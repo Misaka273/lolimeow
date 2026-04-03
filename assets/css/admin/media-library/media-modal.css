@@ -1,0 +1,924 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* 🪟 媒体弹窗专用样式 */
+/* 🎨 拟态拟物玻璃质感设计 */
+
+/* ============================================
+   🪟 弹窗遮罩和容器
+   ============================================ */
+
+.shiroki-media-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shiroki-media-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--shiroki-gradient-black-transparent);
+  backdrop-filter: blur(4px);
+}
+
+.shiroki-media-modal-container {
+  position: relative;
+  width: 90%;
+  max-width: 1200px;
+  height: 85vh;
+  background: var(--admin-bg-primary);
+  border-radius: var(--admin-radius-xl);
+  box-shadow: var(--admin-shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ============================================
+   📝 弹窗头部
+   ============================================ */
+
+.shiroki-media-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--admin-space-lg) var(--admin-space-2xl);
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+}
+
+.shiroki-media-modal-title {
+  margin: 0;
+  font-size: var(--admin-font-size-xl);
+  font-weight: var(--admin-font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+}
+
+.shiroki-media-modal-close {
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  color: var(--admin-light-blue-text);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--admin-transition-fast);
+}
+
+.shiroki-media-modal-close:hover {
+  background: rgba(255, 255, 255, 0.9);
+  transform: rotate(90deg);
+}
+
+/* ============================================
+   🧭 分类标签栏
+   ============================================ */
+
+.shiroki-media-modal-tabs {
+  display: flex;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-lg) var(--admin-space-2xl);
+  background: var(--admin-bg-secondary);
+  border-bottom: var(--admin-border-glass);
+  overflow-x: auto;
+  flex-wrap: wrap;
+}
+
+.shiroki-media-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--admin-space-sm) var(--admin-space-lg);
+  background: var(--admin-bg-primary);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-full);
+  cursor: pointer;
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-muted);
+  transition: var(--admin-transition-fast);
+  white-space: nowrap;
+}
+
+.shiroki-media-tab:hover {
+  background: var(--admin-bg-tertiary);
+  border-color: var(--admin-primary-border);
+}
+
+.shiroki-media-tab.active {
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border-color: var(--admin-light-blue-border);
+}
+
+.shiroki-media-tab-icon {
+  font-size: var(--admin-font-size-lg);
+}
+
+.shiroki-media-tab-text {
+  font-weight: var(--admin-font-weight-medium);
+}
+
+/* ============================================
+   📊 日期筛选栏
+   ============================================ */
+
+.shiroki-media-modal-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-md) var(--admin-space-2xl);
+  background: var(--admin-bg-primary);
+  border-bottom: var(--admin-border-glass);
+}
+
+.shiroki-media-filter-btn {
+  padding: 6px 14px;
+  background: var(--admin-bg-tertiary);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-full);
+  cursor: pointer;
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+  transition: var(--admin-transition-fast);
+}
+
+.shiroki-media-filter-btn:hover {
+  background: var(--admin-bg-secondary);
+}
+
+.shiroki-media-filter-btn.active {
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border-color: var(--admin-light-blue-border);
+}
+
+.shiroki-media-search-wrapper {
+  margin-left: auto;
+}
+
+.shiroki-media-search-input {
+  width: 240px;
+  padding: var(--admin-space-sm) var(--admin-space-lg);
+  background: var(--admin-bg-secondary);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-full);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+  outline: none;
+  transition: var(--admin-transition-fast);
+}
+
+.shiroki-media-search-input:focus {
+  background: var(--admin-bg-primary);
+  border-color: var(--admin-primary-border);
+  box-shadow: var(--admin-shadow-glow);
+}
+
+/* ============================================
+   📦 媒体网格区域
+   ============================================ */
+
+.shiroki-media-modal-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--admin-space-xl) var(--admin-space-2xl);
+  background: var(--admin-bg-secondary);
+}
+
+.shiroki-media-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--admin-space-lg);
+}
+
+/* ============================================
+   🃏 媒体卡片
+   ============================================ */
+
+.shiroki-media-modal-item {
+  background: var(--admin-bg-primary);
+  border-radius: var(--admin-radius-lg);
+  overflow: hidden;
+  box-shadow: var(--admin-shadow-sm);
+  cursor: pointer;
+  transition: var(--admin-hover-transition);
+  position: relative;
+}
+
+.shiroki-media-modal-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+.shiroki-media-modal-item.selected {
+  box-shadow: 0 0 0 3px var(--admin-primary-border);
+}
+
+.shiroki-media-modal-item.selected::after {
+  content: '✓';
+  position: absolute;
+  top: var(--admin-space-sm);
+  right: var(--admin-space-sm);
+  width: 24px;
+  height: 24px;
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-bold);
+}
+
+.shiroki-media-item-thumbnail {
+  width: 100%;
+  height: 100px;
+  background: var(--admin-bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.shiroki-media-item-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shiroki-media-item-icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0.6;
+}
+
+.shiroki-media-item-info {
+  padding: 10px var(--admin-space-md);
+}
+
+.shiroki-media-item-type {
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.shiroki-media-item-title {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-primary);
+  font-weight: var(--admin-font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   💬 悬停提示气泡
+   ============================================ */
+
+.shiroki-media-tooltip {
+  position: fixed;
+  background: var(--admin-glass-backdrop);
+  backdrop-filter: var(--admin-glass-blur);
+  -webkit-backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-light-blue-text);
+  font-weight: var(--admin-font-weight-medium);
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+  z-index: 100002;
+  box-shadow: var(--admin-shadow-md);
+  pointer-events: none;
+}
+
+.shiroki-media-tooltip.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.shiroki-media-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 20px;
+  border: 6px solid transparent;
+  border-bottom-color: rgba(255, 255, 255, 0.5);
+  border-top: none;
+}
+
+/* ============================================
+   📭 空状态和加载状态
+   ============================================ */
+
+.shiroki-media-modal-empty,
+.shiroki-media-modal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px var(--admin-space-xl);
+  text-align: center;
+}
+
+.shiroki-media-empty-icon {
+  font-size: 48px;
+  margin-bottom: var(--admin-space-md);
+}
+
+.shiroki-media-empty-text {
+  font-size: var(--admin-font-size-xl);
+  color: var(--admin-current-text-secondary);
+  font-weight: var(--admin-font-weight-medium);
+  margin-bottom: var(--admin-space-sm);
+}
+
+.shiroki-media-empty-subtext {
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-muted);
+}
+
+.shiroki-media-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--admin-bg-tertiary);
+  border-top-color: var(--admin-primary-border);
+  border-radius: 50%;
+  animation: shiroki-spin 1s linear infinite;
+  margin-bottom: var(--admin-space-md);
+}
+
+@keyframes shiroki-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.shiroki-media-loading-text {
+  font-size: var(--admin-font-size-lg);
+  color: var(--admin-current-text-secondary);
+}
+
+/* ============================================
+   ⚡ 底部工具栏
+   ============================================ */
+
+.shiroki-media-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--admin-space-lg) var(--admin-space-2xl);
+  background: var(--admin-bg-primary);
+  border-top: var(--admin-border-glass);
+}
+
+.shiroki-media-modal-actions-left,
+.shiroki-media-modal-actions-right {
+  display: flex;
+  gap: var(--admin-space-md);
+}
+
+.shiroki-media-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px var(--admin-space-xl);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  transition: var(--admin-transition-fast);
+  border: none;
+  outline: none;
+}
+
+.shiroki-media-btn-upload {
+  background: var(--admin-bg-tertiary);
+  color: var(--admin-current-text-muted);
+  border: var(--admin-border-glass);
+}
+
+.shiroki-media-btn-upload:hover {
+  background: var(--admin-bg-secondary);
+}
+
+.shiroki-media-btn-library {
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border: 1px solid var(--admin-light-blue-border);
+}
+
+.shiroki-media-btn-library:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--admin-light-blue-shadow);
+}
+
+.shiroki-media-btn-cancel {
+  background: transparent;
+  color: var(--admin-current-text-muted);
+}
+
+.shiroki-media-btn-cancel:hover {
+  background: var(--admin-bg-tertiary);
+}
+
+.shiroki-media-btn-insert {
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border: 1px solid var(--admin-light-blue-border);
+}
+
+.shiroki-media-btn-insert:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--admin-light-blue-shadow);
+}
+
+.shiroki-media-btn-insert:disabled {
+  background: var(--admin-bg-tertiary);
+  color: var(--admin-current-text-muted);
+  cursor: not-allowed;
+}
+
+.shiroki-media-btn-icon {
+  font-size: var(--admin-font-size-xl);
+}
+
+/* ============================================
+   📋 详情抽屉
+   ============================================ */
+
+.shiroki-media-detail-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 400px;
+  height: 100vh;
+  background: var(--admin-bg-primary);
+  backdrop-filter: var(--admin-glass-blur);
+  -webkit-backdrop-filter: var(--admin-glass-blur);
+  border-left: var(--admin-border-glass);
+  box-shadow: -8px 0 32px rgba(0, 0, 0, 0.15);
+  z-index: 100001;
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.shiroki-media-detail-drawer.active {
+  transform: translateX(0);
+}
+
+.shiroki-media-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(2px);
+  z-index: 100000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.shiroki-media-detail-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ◀️ 抽屉头部 */
+.shiroki-media-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--admin-space-xl) var(--admin-space-2xl);
+  background: var(--admin-gradient-light-blue);
+  border-bottom: var(--admin-border-glass);
+}
+
+.shiroki-media-detail-title {
+  margin: 0;
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-light-blue-text);
+}
+
+.shiroki-media-detail-close {
+  background: rgba(255, 255, 255, 0.6);
+  border: none;
+  color: var(--admin-light-blue-text);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--admin-transition-fast);
+}
+
+.shiroki-media-detail-close:hover {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* ◀️ 抽屉内容 */
+.shiroki-media-detail-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--admin-space-2xl);
+}
+
+/* ◀️ 大图预览 */
+.shiroki-media-detail-preview {
+  width: 100%;
+  height: 200px;
+  background: var(--admin-bg-tertiary);
+  border-radius: var(--admin-radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--admin-space-2xl);
+  overflow: hidden;
+}
+
+.shiroki-media-detail-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.shiroki-media-detail-preview-icon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.5;
+}
+
+/* ◀️ 表单字段 */
+.shiroki-media-detail-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-lg);
+}
+
+.shiroki-media-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shiroki-media-detail-label {
+  font-size: var(--admin-font-size-xs);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shiroki-media-detail-input,
+.shiroki-media-detail-textarea {
+  padding: 10px var(--admin-space-md);
+  background: var(--admin-bg-secondary);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+  outline: none;
+  transition: var(--admin-transition-fast);
+}
+
+.shiroki-media-detail-input:focus,
+.shiroki-media-detail-textarea:focus {
+  background: var(--admin-bg-primary);
+  border-color: var(--admin-light-blue-border);
+  box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.2);
+}
+
+.shiroki-media-detail-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* ◀️ 文件URL复制按钮 */
+.shiroki-media-detail-url-wrapper {
+  display: flex;
+  gap: var(--admin-space-sm);
+  align-items: center;
+}
+
+.shiroki-media-detail-url-input {
+  flex: 1;
+}
+
+.shiroki-media-detail-copy-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px var(--admin-space-md);
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border: 1px solid var(--admin-light-blue-border);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  transition: var(--admin-transition-fast);
+  white-space: nowrap;
+}
+
+.shiroki-media-detail-copy-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--admin-light-blue-shadow);
+}
+
+.shiroki-media-detail-copy-btn.copied {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+  border-color: var(--admin-success-border);
+}
+
+/* ◀️ 文件信息 */
+.shiroki-media-detail-info {
+  background: var(--admin-bg-secondary);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-lg);
+  margin-top: var(--admin-space-sm);
+}
+
+.shiroki-media-detail-info-title {
+  font-size: var(--admin-font-size-xs);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-muted);
+  margin-bottom: var(--admin-space-md);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shiroki-media-detail-info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--admin-space-sm) 0;
+  border-bottom: var(--admin-border-glass);
+  font-size: var(--admin-font-size-md);
+}
+
+.shiroki-media-detail-info-item:last-child {
+  border-bottom: none;
+}
+
+.shiroki-media-detail-info-label {
+  color: var(--admin-current-text-muted);
+}
+
+.shiroki-media-detail-info-value {
+  color: var(--admin-current-text-primary);
+  font-weight: var(--admin-font-weight-medium);
+}
+
+/* ◀️ 操作按钮 */
+.shiroki-media-detail-actions {
+  display: flex;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-xl) var(--admin-space-2xl);
+  border-top: var(--admin-border-glass);
+  background: var(--admin-bg-primary);
+}
+
+.shiroki-media-detail-btn {
+  flex: 1;
+  padding: 10px var(--admin-space-lg);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  transition: var(--admin-transition-fast);
+  border: none;
+  outline: none;
+  text-align: center;
+  text-decoration: none;
+}
+
+.shiroki-media-detail-btn-primary {
+  background: var(--admin-gradient-light-blue);
+  color: var(--admin-light-blue-text);
+  border: 1px solid var(--admin-light-blue-border);
+}
+
+.shiroki-media-detail-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--admin-light-blue-shadow);
+}
+
+.shiroki-media-detail-btn-danger {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger-text);
+  border: 1px solid var(--admin-danger-border);
+}
+
+.shiroki-media-detail-btn-danger:hover {
+  background: var(--admin-danger-bg-hover);
+}
+
+/* ============================================
+   🔔 保存通知
+   ============================================ */
+
+.shiroki-media-save-notification {
+  position: absolute;
+  top: var(--admin-space-xl);
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  padding: var(--admin-space-md) var(--admin-space-xl);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-medium);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 100002;
+  box-shadow: var(--admin-shadow-lg);
+}
+
+.shiroki-media-save-notification.success {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+  border: 1px solid var(--admin-success-border);
+}
+
+.shiroki-media-save-notification.error {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger-text);
+  border: 1px solid var(--admin-danger-border);
+}
+
+.shiroki-media-save-notification.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================
+   🌆 暗色模式支持
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .shiroki-media-modal-container {
+    background: var(--admin-bg-dark-primary);
+  }
+
+  .shiroki-media-modal-tabs {
+    background: var(--admin-bg-dark-secondary);
+    border-bottom-color: var(--admin-border-color-dark);
+  }
+
+  .shiroki-media-tab {
+    background: var(--admin-bg-dark-primary);
+    border-color: var(--admin-border-color-dark);
+    color: var(--admin-current-text-muted);
+  }
+
+  .shiroki-media-tab:hover {
+    background: var(--admin-bg-dark-tertiary);
+  }
+
+  .shiroki-media-modal-filters {
+    background: var(--admin-bg-dark-primary);
+    border-bottom-color: var(--admin-border-color-dark);
+  }
+
+  .shiroki-media-filter-btn {
+    background: var(--admin-bg-dark-tertiary);
+    border-color: var(--admin-border-color-dark);
+    color: var(--admin-current-text-muted);
+  }
+
+  .shiroki-media-filter-btn:hover {
+    background: var(--admin-bg-dark-secondary);
+  }
+
+  .shiroki-media-search-input {
+    background: var(--admin-bg-dark-tertiary);
+    border-color: var(--admin-border-color-dark);
+    color: var(--admin-current-text-primary);
+  }
+
+  .shiroki-media-search-input:focus {
+    background: var(--admin-bg-dark-primary);
+    border-color: var(--admin-primary-border);
+  }
+
+  .shiroki-media-modal-content {
+    background: var(--admin-bg-dark-secondary);
+  }
+
+  .shiroki-media-modal-item {
+    background: var(--admin-bg-dark-primary);
+    box-shadow: var(--admin-shadow-sm);
+  }
+
+  .shiroki-media-item-thumbnail {
+    background: var(--admin-bg-dark-tertiary);
+  }
+
+  .shiroki-media-item-title {
+    color: var(--admin-current-text-primary);
+  }
+
+  .shiroki-media-modal-footer {
+    background: var(--admin-bg-dark-primary);
+    border-top-color: var(--admin-border-color-dark);
+  }
+
+  .shiroki-media-btn-upload {
+    background: var(--admin-bg-dark-tertiary);
+    border-color: var(--admin-border-color-dark);
+    color: var(--admin-current-text-muted);
+  }
+
+  .shiroki-media-btn-upload:hover {
+    background: var(--admin-bg-dark-secondary);
+  }
+
+  .shiroki-media-btn-cancel {
+    color: var(--admin-current-text-muted);
+  }
+
+  .shiroki-media-btn-cancel:hover {
+    background: var(--admin-bg-dark-tertiary);
+  }
+}
+
+/* ============================================
+   📱 响应式适配
+   ============================================ */
+
+@media screen and (max-width: 782px) {
+  .shiroki-media-modal-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+
+  .shiroki-media-modal-tabs {
+    padding: var(--admin-space-md) var(--admin-space-lg);
+  }
+
+  .shiroki-media-tab-text {
+    display: none;
+  }
+
+  .shiroki-media-modal-filters {
+    padding: 10px var(--admin-space-lg);
+    flex-wrap: wrap;
+  }
+
+  .shiroki-media-search-wrapper {
+    width: 100%;
+    margin-left: 0;
+    margin-top: var(--admin-space-sm);
+  }
+
+  .shiroki-media-search-input {
+    width: 100%;
+  }
+
+  .shiroki-media-modal-content {
+    padding: var(--admin-space-lg);
+  }
+
+  .shiroki-media-modal-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: var(--admin-space-md);
+  }
+
+  .shiroki-media-modal-footer {
+    padding: var(--admin-space-md) var(--admin-space-lg);
+    flex-direction: column;
+    gap: var(--admin-space-md);
+  }
+
+  .shiroki-media-modal-actions-left,
+  .shiroki-media-modal-actions-right {
+    width: 100%;
+    justify-content: center;
+  }
+}

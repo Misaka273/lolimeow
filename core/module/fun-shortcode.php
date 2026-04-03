@@ -377,80 +377,128 @@ function shiroki_collapse_shortcode( $atts , $content = '' ) {
 	
 
 
-// 可视化编辑器添加下拉式按钮
+// 可视化编辑器添加短代码按钮组
 function boxmoe_select(){
 echo '
-<select id="short_code_select">
-    <option value="短代码选择！">Boxmoe短代码</option>
-	<option value="[h2set]内容[/h2set]">H2设置标</option>	
-	<option value="[h2down]内容[/h2down]">H2下载标</option>
-	<option value="[downloadbtn link=\'链接\']按钮名称[/downloadbtn]">下载按钮</option>
-	<option value="[linksbtn link=\'链接\']按钮名称[/linksbtn]">链接按钮</option>
-	<option value="[blockquote1 name=\'签名\']内容[/blockquote1]">引用模块1</option>
-	<option value="[blockquote2 name=\'签名\']内容[/blockquote2]">引用模块2</option>
-	<option value="[listol]每行一条内容[/listol]">OL列表</option>
-	<option value="[yaowan style=\'输入数字1-16共16个模式颜色\']内容[/yaowan]">药丸模块</option>
-	<option value="[alert style=\'输入数字1-7共7个模式颜色\']内容[/alert]">警告框模块</option>
-	<option value="[precode]内容[/precode]">代码高亮</option>
-	<option value="[iframe link=\'链接\']内容[/iframe]">Iframe</option>
-	<option value="[userreading]隐藏内容[/userreading]">登录查看一</option>
-	<option value="[userreading notice=\'未登录时候显示的内容\']隐藏内容[/userreading]">登录查看二</option>
-	<option value="[pwd_protected_post key=\'保护密码\']文章密码保护内容[/pwd_protected_post]">文章密码保护</option>
-	<option value="[audio link=\'音频链接\'][/audio]">插入音频</option>
-	<option value="[video link=\'视频链接\'][/video]">插入视频</option>
-	<option value="[shiroki_collapse title=\'折叠内容\']内容[/shiroki_collapse]">折叠内容</option>
-	<option value="[shiroki_collapse title=\'折叠内容\' open=\'1\']内容[/shiroki_collapse]">折叠内容（默认展开）</option>
-	<option value="<!--nextpage-->">文章分页</option>
-	<option value="<div class=\'timeline timeline-one-side\' data-timeline-content=\'axis\' data-timeline-axis-style=\'dashed\'>
-<div class=\'timeline-block\'>
-<span class=\'timeline-step badge-success\'>
-<i class=\'fa fa-bell\'></i>
-</span>
-<div class=\'timeline-content\'>
-<small class=\'text-muted font-weight-bold\'>2021年1月1日</small
-<h5 class=\' mt-3 mb-0\'>主题</h5>
-<p class=\' text-sm mt-1 mb-0\'>内容段</p>
-</div>
-</div>
-<!--时间段时间开始-->
-<div class=\'timeline-block\'>
-<span class=\'timeline-step badge-success\'>
-<i class=\'fa fa-clock-o\'></i>
-</span>
-<div class=\'timeline-content\'>
-<small class=\'text-muted font-weight-bold\'>2021年1月1日</small
-<h5 class=\' mt-3 mb-0\'>主题</h5>
-<p class=\' text-sm mt-1 mb-0\'>内容段</p>
-</div>
-</div>
-<!--时间段时间结束，此段可无限复制往下排列-->
-
-
-<!--以上时间段区--></div>">时间线1(切换文本代码编辑)</option>
-	<option value="<ul class=\'timelines\'>
-<!--时间段时间开始-->
-  <li class=\'timeline-event\'>
-    <label class=\'timeline-event-icon\'></label>
-    <div class=\'timeline-event-copy\'>
-      <p class=\'timeline-event-thumbnail\'>2020/03/05</p>
-      <h3>h3标题</h3>
-      <h4>H4标题2</h4>
-      <p><strong>加粗小标题</strong><br>内容</p>
+<div class="shiroki-shortcode-toolbar">
+    <span class="shiroki-shortcode-label">⚡ 短代码：</span>
+    <div class="shiroki-shortcode-buttons">
+        <button type="button" class="shiroki-shortcode-btn" data-code="[h2set]内容[/h2set]">H2设置标</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[h2down]内容[/h2down]">H2下载标</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[downloadbtn link=\'链接\']按钮名称[/downloadbtn]">下载按钮</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[linksbtn link=\'链接\']按钮名称[/linksbtn]">链接按钮</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[blockquote1 name=\'签名\']内容[/blockquote1]">引用模块1</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[blockquote2 name=\'签名\']内容[/blockquote2]">引用模块2</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[listol]每行一条内容[/listol]">OL列表</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[yaowan style=\'输入数字1-16共16个模式颜色\']内容[/yaowan]">药丸模块</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[alert style=\'输入数字1-7共7个模式颜色\']内容[/alert]">警告框模块</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[precode]内容[/precode]">代码高亮</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[iframe link=\'链接\']内容[/iframe]">Iframe</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[userreading]隐藏内容[/userreading]">登录查看一</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[userreading notice=\'未登录时候显示的内容\']隐藏内容[/userreading]">登录查看二</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[pwd_protected_post key=\'保护密码\']文章密码保护内容[/pwd_protected_post]">文章密码保护</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[audio link=\'音频链接\'][/audio]">插入音频</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[video link=\'视频链接\'][/video]">插入视频</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[shiroki_collapse title=\'折叠内容\']内容[/shiroki_collapse]">折叠内容</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="[shiroki_collapse title=\'折叠内容\' open=\'1\']内容[/shiroki_collapse]">折叠内容（默认展开）</button>
+        <button type="button" class="shiroki-shortcode-btn" data-code="<!--nextpage-->">文章分页</button>
     </div>
-  </li>
- <!--时间段时间结束，此段可无限复制往下排列--> 
-</ul>">时间线2(切换文本代码编辑)</option>
-</select>';
+</div>';
 }
 if (current_user_can('edit_posts') && current_user_can('edit_pages')) {
 	add_action('media_buttons', 'boxmoe_select', 11);
+	// 也输出到工具栏区域
+	add_action('admin_footer', 'boxmoe_select_toolbar');
 }
-//ctlr+enter回复
+
+/* 📦 输出到工具栏的短代码按钮组 */
+function boxmoe_select_toolbar() {
+	$screen = get_current_screen();
+	if (!$screen || ($screen->id !== 'post' && $screen->id !== 'post-new')) {
+		return;
+	}
+	echo '<script type="text/javascript">
+	jQuery(document).ready(function(){
+		var toolbarContent = jQuery("#toolbar-shortcodes-content");
+		if (toolbarContent.length) {
+			toolbarContent.html(
+				`<div class="shiroki-shortcode-buttons">' . boxmoe_get_shortcode_buttons() . '</div>`
+			);
+			/* 🔗 为动态插入的按钮绑定点击事件 */
+			toolbarContent.find(".shiroki-shortcode-btn").on("click", function(){
+				var code = jQuery(this).data("code");
+				send_to_editor(code);
+				return false;
+			});
+		}
+	});
+	</script>';
+}
+
+/* 🎨 获取短代码按钮HTML - 每个按钮都有独特的明亮淡色系 */
+function boxmoe_get_shortcode_buttons() {
+	$buttons = [
+		/* 🔴 红色系 */
+		['code' => '[h2set]内容[/h2set]', 'label' => 'H2设置标', 'color' => 'red'],
+		/* 🟠 橙色系 */
+		['code' => '[h2down]内容[/h2down]', 'label' => 'H2下载标', 'color' => 'orange'],
+		/* 🟡 黄色系 */
+		['code' => "[downloadbtn link='链接']按钮名称[/downloadbtn]", 'label' => '下载按钮', 'color' => 'yellow'],
+		/* 🟢 绿色系 */
+		['code' => "[linksbtn link='链接']按钮名称[/linksbtn]", 'label' => '链接按钮', 'color' => 'green'],
+		/* 🔵 青色系 */
+		['code' => "[blockquote1 name='签名']内容[/blockquote1]", 'label' => '引用模块1', 'color' => 'cyan'],
+		/* 💙 蓝色系 */
+		['code' => "[blockquote2 name='签名']内容[/blockquote2]", 'label' => '引用模块2', 'color' => 'blue'],
+		/* 🟣 紫色系 */
+		['code' => '[listol]每行一条内容[/listol]', 'label' => 'OL列表', 'color' => 'purple'],
+		/* 💗 粉色系 */
+		['code' => "[yaowan style='输入数字1-16共16个模式颜色']内容[/yaowan]", 'label' => '药丸模块', 'color' => 'pink'],
+		/* ⚪ 灰色系 */
+		['code' => "[alert style='输入数字1-7共7个模式颜色']内容[/alert]", 'label' => '警告框模块', 'color' => 'gray'],
+		/* 🟤 棕色系 */
+		['code' => '[precode]内容[/precode]', 'label' => '代码高亮', 'color' => 'brown'],
+		/* 🌹 玫红色系 */
+		['code' => "[iframe link='链接']内容[/iframe]", 'label' => 'Iframe', 'color' => 'rose'],
+		/* 🍊 琥珀色系 */
+		['code' => '[userreading]隐藏内容[/userreading]', 'label' => '登录查看一', 'color' => 'amber'],
+		/* 🌿 翠绿色系 */
+		['code' => "[userreading notice='未登录时候显示的内容']隐藏内容[/userreading]", 'label' => '登录查看二', 'color' => 'emerald'],
+		/* 🔷 靛蓝色系 */
+		['code' => "[pwd_protected_post key='保护密码']文章密码保护内容[/pwd_protected_post]", 'label' => '文章密码保护', 'color' => 'indigo'],
+		/* 🎵 音乐色系 */
+		['code' => "[audio link='音频链接'][/audio]", 'label' => '插入音频', 'color' => 'music'],
+		/* 🎬 视频色系 */
+		['code' => "[video link='视频链接'][/video]", 'label' => '插入视频', 'color' => 'video'],
+		/* 📦 折叠色系 */
+		['code' => "[shiroki_collapse title='折叠内容']内容[/shiroki_collapse]", 'label' => '折叠内容', 'color' => 'collapse'],
+		/* 📄 分页色系 */
+		['code' => "[shiroki_collapse title='折叠内容' open='1']内容[/shiroki_collapse]", 'label' => '折叠内容（默认展开）', 'color' => 'page'],
+		/* 🔲 深灰色系 */
+		['code' => '<!--nextpage-->', 'label' => '文章分页', 'color' => 'dark'],
+	];
+
+	$html = '';
+	foreach ($buttons as $btn) {
+		$html .= '<button type="button" class="shiroki-shortcode-btn" data-sc-color="' . esc_attr($btn['color']) . '" data-code="' . esc_attr($btn['code']) . '">' . esc_html($btn['label']) . '</button>';
+	}
+	return $html;
+}
+// 短代码按钮点击事件和样式
 function boxmoe_button() {
+// 加载短代码按钮样式
+wp_enqueue_style(
+'shiroki-shortcode-buttons',
+get_template_directory_uri() . '/assets/css/admin/post-edit/post-edit-shortcode.css',
+array(),
+wp_get_theme()->get('Version')
+);
+
 echo '<script type="text/javascript">
 	jQuery(document).ready(function(){
-		jQuery("#short_code_select").change(function(){
-			send_to_editor(jQuery("#short_code_select :selected").val());
+		jQuery(".shiroki-shortcode-btn").click(function(){
+			var code = jQuery(this).data("code");
+			send_to_editor(code);
 			return false;
 		});
 	});

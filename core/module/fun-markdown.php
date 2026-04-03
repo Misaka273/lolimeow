@@ -74,7 +74,7 @@ function boxmoe_markdown_to_html($text){
     }, $text);
     
 
-    $text = preg_replace_callback('/(^|\n)(?:-\s+.+(?:\n|$))+/', function($m){
+    $text = preg_replace_callback('/(^|\n)(?:-\s+.+(:?\n|$))+/', function($m){
         $items = preg_split('/\n/', trim($m[0]));
         $lis = '';
         foreach($items as $it){
@@ -82,11 +82,25 @@ function boxmoe_markdown_to_html($text){
         }
         return '<ul>'.$lis.'</ul>';
     }, $text);
-    $text = preg_replace_callback('/(^|\n)(?:\d+\.\s+.+(?:\n|$))+/', function($m){
+    /* 🔢 有序列表（Ordered List）解析 - 支持自定义起始序号 */
+    $text = preg_replace_callback('/(^|\n)(?:\d+\.\s+.+(:?\n|$))+/', function($m){
         $items = preg_split('/\n/', trim($m[0]));
         $lis = '';
+        $start_num = 1; // ◀️ 默认起始序号为1
+        $first = true;
         foreach($items as $it){
-            if(preg_match('/^\d+\.\s+(.+)/',$it,$mm)){$lis .= '<li>'.$mm[1].'</li>';}
+            /* 📋 捕获序号和内容，保留用户指定的序号 */
+            if(preg_match('/^(\d+)\.\s+(.+)/',$it,$mm)){
+                if($first){
+                    $start_num = intval($mm[1]); // ◀️ 获取第一个项目的序号作为起始值
+                    $first = false;
+                }
+                $lis .= '<li>'.$mm[2].'</li>';
+            }
+        }
+        /* 🎯 如果起始序号不是1，添加start属性 */
+        if($start_num !== 1){
+            return '<ol start="'.$start_num.'">'.$lis.'</ol>';
         }
         return '<ol>'.$lis.'</ol>';
     }, $text);

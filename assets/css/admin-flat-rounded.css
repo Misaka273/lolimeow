@@ -5,20 +5,23 @@
 #wpadminbar .ab-item, #wpadminbar a.ab-item{color:var(--shiroki-white) }
 #wpadminbar .ab-item:hover, #wpadminbar a.ab-item:hover{background:rgba(255,255,255,0.1) ;color:var(--shiroki-white) }
 
+/* 🎨 左侧菜单背景 */
 #adminmenuback {
     background: transparent ;
     box-shadow: none ;
+    border-top-right-radius: 20px ; /* ◀️ 与菜单wrap保持一致 */
+    border-bottom-right-radius: 20px ; /* ◀️ 与菜单wrap保持一致 */
 }
 
+/* 🎨 左侧菜单玻璃拟态样式 */
 #adminmenuwrap {
     background: var(--shiroki-gradient-black-transparent) ;
-    backdrop-filter: blur(20px) ; /* ⬅️ 玻璃拟态模糊 */
+    backdrop-filter: blur(20px) ; /* ◀️ 玻璃拟态模糊 */
     -webkit-backdrop-filter: blur(20px) ;
-    border-right: 1px solid rgba(255, 255, 255, 0.2) ; /* ⬅️ 玻璃质感边框 */
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1) ; /* ⬅️ 柔和投影 */
-    border-top-right-radius: 20px ; /* ⬅️ 右上圆角 */
-    border-bottom-right-radius: 20px ; /* ⬅️ 右下圆角 */
-    margin-right: 10px ; /* ⬅️ 给圆角和投影留出空间 */
+    border-right: 1px solid rgba(255, 255, 255, 0.2) ; /* ◀️ 玻璃质感边框 */
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1) ; /* ◀️ 柔和投影 */
+    border-top-right-radius: 20px ; /* ◀️ 右上圆角 */
+    border-bottom-right-radius: 20px ; /* ◀️ 右下圆角 */
 }
 #adminmenu, #adminmenu .wp-submenu{background:transparent }
 #adminmenu .wp-submenu {
@@ -120,7 +123,7 @@ input:focus, textarea:focus, select:focus{border-color:var(--shiroki-black-light
 
 .tablenav .tablenav-pages .button, .tablenav .actions .button{border-radius:8px }
 
-.quicktags-toolbar,#ed_toolbar{background:var(--shiroki-gradient-gray) ;border-radius:8px ;border:1px solid var(--shiroki-gray-medium) ;position:sticky ;top:0 ;z-index:1000 ;margin-bottom:0 ;padding:5px ;height:auto ;box-shadow:var(--shiroki-shadow-black) }
+.quicktags-toolbar,#ed_toolbar{background:var(--shiroki-gradient-gray) ;border-radius:8px ;border:1px solid var(--shiroki-gray-medium) ;position:sticky ;top:0 ;z-index:1000 ;margin-bottom:0 ;padding:5px ;height:auto ;}
 .quicktags-toolbar input[type="button"],#ed_toolbar input[type="button"]{border-radius:8px ;border:1px solid var(--shiroki-gray-medium) ;background:var(--shiroki-white) ;color:var(--shiroki-black-medium) }
 .quicktags-toolbar input[type="button"]:hover,#ed_toolbar input[type="button"]:hover{background:var(--shiroki-pink-light) ;color:var(--shiroki-black-medium) }
 .quicktags-toolbar .separator,#ed_toolbar .separator{background-color:var(--shiroki-black-light) ;height:16px ;margin:0 8px ;opacity:0.5 }
@@ -736,6 +739,7 @@ html.wp-toolbar {
     border: 1px solid var(--shiroki-gray-medium) ;
     border-radius: 8px 8px 0 0 ;
     width: 100% ;
+    max-width: 100% ; /* ◀️ 防止溢出 */
     box-sizing: border-box ;
     clear: both ;
     display: flex ;
@@ -754,6 +758,7 @@ html.wp-toolbar {
     border: 1px solid var(--shiroki-gray-medium) ;
     border-radius: 8px 8px 0 0 ;
     width: 100% ;
+    max-width: 100% ; /* ◀️ 防止溢出 */
     box-sizing: border-box ;
     clear: both ;
     display: flex ;

@@ -1,0 +1,438 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* 🎨 media-new.php 页面UI拟态玻璃质感设计  */
+/* 💎 上传新媒体文件的页面CSS样式文件 */
+/* 🔗 变量定义在 admin-variables.css 中统一管理 */
+
+/* ============================================
+   🎯 media-new.php 页面整体样式
+   ============================================ */
+
+/* 🪟 页面背景 - 使用更通用的选择器 */
+.wp-admin {
+  background: var(--shiroki-bg-gradient-light) !important;
+}
+
+.wp-admin.wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark) !important;
+}
+
+/* 📝 页面标题区域 */
+.wp-admin .wrap > h1 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  color: var(--mn-current-text-primary) !important;
+  margin: 0 auto var(--mn-space-xl) auto !important;
+  padding: var(--mn-space-lg) var(--mn-space-2xl) !important;
+  background: var(--mn-current-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  -webkit-backdrop-filter: var(--mn-glass-blur) !important;
+  border-radius: var(--mn-radius-lg) !important;
+  border: var(--mn-border-glass) !important;
+  box-shadow: var(--mn-shadow-md) !important;
+  /* 🔧 宽度自适应文本 */
+  display: inline-block !important;
+  width: auto !important;
+  text-align: center !important;
+  /* 🔧 确保标题不会盖住帮助按钮 */
+  position: relative !important;
+  z-index: 1 !important;
+  /* 🔧 左偏移 */
+  left: 50px !important;
+}
+
+/* 🔧 让 wrap 容器文本居中，使 h1 水平居中 */
+.wp-admin .wrap {
+  text-align: center !important;
+}
+
+/* 🔧 帮助按钮容器 */
+.wp-admin #screen-meta-links {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+/* 🔧 帮助按钮样式 */
+.wp-admin #screen-meta-links .button {
+  background: var(--mn-current-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  border: var(--mn-border-glass) !important;
+  border-radius: var(--mn-radius-md) !important;
+  color: var(--mn-current-text-secondary) !important;
+  transition: all var(--mn-transition-fast) !important;
+}
+
+.wp-admin #screen-meta-links .button:hover {
+  background: var(--mn-primary-bg) !important;
+  color: var(--mn-primary-text) !important;
+}
+
+/* 🔧 帮助面板样式 */
+.wp-admin #screen-meta {
+  background: var(--mn-current-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  border: var(--mn-border-glass) !important;
+  border-radius: var(--mn-radius-lg) !important;
+  box-shadow: var(--mn-shadow-lg) !important;
+}
+
+.wp-admin #screen-meta #contextual-help-back {
+  background: transparent !important;
+}
+
+.wp-admin #screen-meta .contextual-help-tabs a {
+  color: var(--mn-current-text-secondary) !important;
+}
+
+.wp-admin #screen-meta .contextual-help-tabs a:hover,
+.wp-admin #screen-meta .contextual-help-tabs .active a {
+  color: var(--mn-primary-text) !important;
+  background: var(--mn-primary-bg) !important;
+}
+
+.wp-admin #screen-meta .help-tab-content {
+  color: var(--mn-current-text-primary) !important;
+}
+
+/* ============================================
+   📤 上传区域样式
+   ============================================ */
+
+/* 📦 上传表单容器 */
+.wp-admin #file-form,
+.wp-admin .wp-upload-form {
+  background: var(--mn-current-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  -webkit-backdrop-filter: var(--mn-glass-blur) !important;
+  border-radius: var(--mn-radius-xl) !important;
+  border: var(--mn-border-glass) !important;
+  box-shadow: var(--mn-shadow-lg) !important;
+  padding: var(--mn-space-3xl) !important;
+  margin: var(--mn-space-lg) 0 !important;
+}
+
+/* 📤 拖放上传区域 */
+.wp-admin .drag-drop {
+  background: linear-gradient(135deg, rgba(99, 179, 237, 0.1) 0%, rgba(183, 148, 244, 0.1) 100%) !important;
+  border: 2px dashed var(--mn-primary-border) !important;
+  border-radius: var(--mn-radius-xl) !important;
+  padding: var(--mn-space-3xl) !important;
+  text-align: center !important;
+  transition: all var(--mn-transition-normal) !important;
+}
+
+.wp-admin .drag-drop.drag-over,
+.wp-admin .drag-drop:hover {
+  background: var(--mn-primary-bg) !important;
+  border-color: var(--mn-primary-text) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: var(--mn-shadow-md) !important;
+}
+
+/* 📤 拖放区域内部 */
+.wp-admin #drag-drop-area {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* 📤 拖放区域内部元素 */
+.wp-admin .drag-drop-inside {
+  padding: var(--mn-space-xl) !important;
+}
+
+/* 📤 拖放区域标题 */
+.wp-admin .drag-drop-info {
+  font-size: var(--mn-font-size-xl) !important;
+  font-weight: 600 !important;
+  color: var(--mn-current-text-primary) !important;
+  margin-bottom: var(--mn-space-md) !important;
+}
+
+/* 📤 或分隔文字 */
+.wp-admin .drag-drop-inside > p {
+  font-size: var(--mn-font-size-md) !important;
+  color: var(--mn-current-text-muted) !important;
+  margin: var(--mn-space-md) 0 !important;
+}
+
+/* 🔘 选择文件按钮容器 */
+.wp-admin .drag-drop-buttons {
+  margin-top: var(--mn-space-lg) !important;
+}
+
+/* 🔘 选择文件按钮 */
+.wp-admin .drag-drop .button,
+.wp-admin #plupload-browse-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: var(--mn-space-sm) !important;
+  padding: var(--mn-space-md) var(--mn-space-xl) !important;
+  background: var(--mn-primary-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  border: 1px solid var(--mn-primary-border) !important;
+  border-radius: var(--mn-radius-full) !important;
+  color: var(--mn-primary-text) !important;
+  font-size: var(--mn-font-size-md) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  transition: all var(--mn-transition-normal) !important;
+  box-shadow: none !important;
+}
+
+.wp-admin .drag-drop .button:hover,
+.wp-admin #plupload-browse-button:hover {
+  background: var(--mn-primary-bg-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--mn-shadow-md) !important;
+}
+
+/* 📊 最大上传文件大小提示 */
+.wp-admin .max-upload-size {
+  font-size: var(--mn-font-size-sm) !important;
+  color: var(--mn-current-text-muted) !important;
+  margin-top: var(--mn-space-lg) !important;
+  padding: var(--mn-space-sm) var(--mn-space-md) !important;
+  background: var(--mn-current-glass) !important;
+  border-radius: var(--mn-radius-md) !important;
+  display: inline-block !important;
+}
+
+/* 📋 上传器切换提示 */
+.wp-admin .upload-flash-bypass,
+.wp-admin .upload-html-bypass {
+  font-size: var(--mn-font-size-sm) !important;
+  color: var(--mn-current-text-secondary) !important;
+  margin-top: var(--mn-space-lg) !important;
+  padding: var(--mn-space-md) !important;
+  background: var(--mn-current-glass) !important;
+  border-radius: var(--mn-radius-md) !important;
+}
+
+.wp-admin .upload-flash-bypass .button-link,
+.wp-admin .upload-html-bypass .button-link {
+  color: var(--mn-primary-text) !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  padding: var(--mn-space-xs) var(--mn-space-sm) !important;
+  border-radius: var(--mn-radius-sm) !important;
+  transition: all var(--mn-transition-fast) !important;
+}
+
+.wp-admin .upload-flash-bypass .button-link:hover,
+.wp-admin .upload-html-bypass .button-link:hover {
+  background: var(--mn-primary-bg) !important;
+}
+
+/* ============================================
+   📊 上传进度样式
+   ============================================ */
+
+/* 📊 进度条容器 */
+.wp-admin .media-progress-bar {
+  width: 100% !important;
+  height: 8px !important;
+  background: var(--mn-current-glass) !important;
+  border-radius: var(--mn-radius-full) !important;
+  overflow: hidden !important;
+  margin: var(--mn-space-lg) 0 !important;
+}
+
+/* 📊 进度条填充 */
+.wp-admin .media-progress-bar .bar {
+  height: 100% !important;
+  background: linear-gradient(90deg, var(--mn-primary-text), var(--mn-success-text)) !important;
+  border-radius: var(--mn-radius-full) !important;
+  transition: width 0.3s ease !important;
+}
+
+/* 📊 进度文字 */
+.wp-admin .media-progress-text {
+  font-size: var(--mn-font-size-md) !important;
+  color: var(--mn-current-text-secondary) !important;
+  text-align: center !important;
+  margin-top: var(--mn-space-sm) !important;
+}
+
+/* ============================================
+   📝 上传说明区域
+   ============================================ */
+
+/* 📋 上传说明容器 */
+.wp-admin .upload-inline-status {
+  background: var(--mn-current-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  border-radius: var(--mn-radius-lg) !important;
+  border: var(--mn-border-glass) !important;
+  padding: var(--mn-space-xl) !important;
+  margin: var(--mn-space-lg) 0 !important;
+}
+
+/* ============================================
+   🖼️ 已上传文件列表样式
+   ============================================ */
+
+/* 📦 文件列表容器 */
+.wp-admin #media-items {
+  margin-top: var(--mn-space-xl) !important;
+}
+
+.wp-admin #media-items .media-item {
+  background: var(--mn-current-bg) !important;
+  backdrop-filter: var(--mn-glass-blur) !important;
+  border-radius: var(--mn-radius-lg) !important;
+  border: var(--mn-border-glass) !important;
+  padding: var(--mn-space-lg) !important;
+  margin: var(--mn-space-md) 0 !important;
+  transition: all var(--mn-transition-fast) !important;
+}
+
+.wp-admin #media-items .media-item:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--mn-shadow-md) !important;
+}
+
+/* 🖼️ 文件缩略图 */
+.wp-admin #media-items .media-item .thumbnail {
+  border-radius: var(--mn-radius-md) !important;
+  overflow: hidden !important;
+  box-shadow: var(--mn-shadow-sm) !important;
+}
+
+.wp-admin #media-items .media-item .thumbnail img {
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover !important;
+  transition: transform var(--mn-transition-normal) !important;
+}
+
+.wp-admin #media-items .media-item:hover .thumbnail img {
+  transform: scale(1.05) !important;
+}
+
+/* 📝 文件信息 */
+.wp-admin #media-items .media-item .file-info {
+  padding: var(--mn-space-md) !important;
+}
+
+.wp-admin #media-items .media-item .file-name {
+  font-size: var(--mn-font-size-lg) !important;
+  font-weight: 600 !important;
+  color: var(--mn-current-text-primary) !important;
+  margin-bottom: var(--mn-space-xs) !important;
+}
+
+.wp-admin #media-items .media-item .file-meta {
+  font-size: var(--mn-font-size-sm) !important;
+  color: var(--mn-current-text-muted) !important;
+}
+
+/* ============================================
+   🔘 按钮样式
+   ============================================ */
+
+/* 🔘 主要按钮 */
+.wp-admin .button-primary {
+  background: var(--mn-primary-bg) !important;
+  border: 1px solid var(--mn-primary-border) !important;
+  border-radius: var(--mn-radius-md) !important;
+  color: var(--mn-primary-text) !important;
+  font-weight: 600 !important;
+  padding: var(--mn-space-md) var(--mn-space-xl) !important;
+  transition: all var(--mn-transition-fast) !important;
+}
+
+.wp-admin .button-primary:hover {
+  background: var(--mn-primary-bg-hover) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: var(--mn-shadow-md) !important;
+}
+
+/* 🔘 次要按钮 */
+.wp-admin .button-secondary {
+  background: var(--mn-current-glass) !important;
+  border: var(--mn-border-glass) !important;
+  border-radius: var(--mn-radius-md) !important;
+  color: var(--mn-current-text-secondary) !important;
+  font-weight: 500 !important;
+  padding: var(--mn-space-md) var(--mn-space-xl) !important;
+  transition: all var(--mn-transition-fast) !important;
+}
+
+.wp-admin .button-secondary:hover {
+  background: var(--mn-primary-bg) !important;
+  color: var(--mn-primary-text) !important;
+}
+
+/* ============================================
+   📱 响应式设计
+   ============================================ */
+
+@media screen and (max-width: 782px) {
+  .wp-admin .wrap > h1 {
+    margin: var(--mn-space-md) !important;
+    padding: var(--mn-space-md) !important;
+    font-size: 20px !important;
+  }
+
+  .wp-admin #file-form,
+  .wp-admin .wp-upload-form {
+    margin: var(--mn-space-md) 0 !important;
+    padding: var(--mn-space-xl) !important;
+  }
+
+  .wp-admin .drag-drop {
+    padding: var(--mn-space-xl) !important;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .wp-admin #file-form,
+  .wp-admin .wp-upload-form {
+    padding: var(--mn-space-lg) !important;
+  }
+
+  .wp-admin .drag-drop {
+    padding: var(--mn-space-lg) !important;
+  }
+
+  .wp-admin .drag-drop .button,
+  .wp-admin #plupload-browse-button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* ============================================
+   ✨ 动画效果
+   ============================================ */
+
+/* 🎬 淡入动画 */
+@keyframes mn-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wp-admin #file-form,
+.wp-admin .wp-upload-form {
+  animation: mn-fade-in 0.4s ease forwards !important;
+}
+
+/* 💫 脉冲动画（用于上传中） */
+@keyframes mn-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.wp-admin .uploading .drag-drop {
+  animation: mn-pulse 1.5s ease-in-out infinite !important;
+}

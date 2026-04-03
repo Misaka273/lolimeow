@@ -1,0 +1,574 @@
+/**
+ * Template Name: 🎨 后台管理统一变量系统
+ * Description: 🌈 WordPress后台主题配色和样式变量统一管理文件
+ * Copyright: 🕊️白木 原创开发 🔗gl.baimu.live/
+ */
+
+/* ============================================
+   🌸 Shiroki 主题配色系统
+   ============================================ */
+:root {
+  /* 🌸 粉色系 - 主题主色 */
+  --shiroki-pink-light: #ffb6c1;
+  --shiroki-pink-medium: #ffc0cb;
+  --shiroki-pink-dark: #ff69b4;
+  --shiroki-pink-deep: #ff1493;
+
+  /* 🌑 灰色系 */
+  --shiroki-gray-light: #f5f5f5;
+  --shiroki-gray-medium: #e0e0e0;
+  --shiroki-gray-dark: #d0d0d0;
+
+  /* ⚫ 黑色系 */
+  --shiroki-black-light: #666666;
+  --shiroki-black-medium: #333333;
+  --shiroki-black-dark: #1a1a1a;
+
+  /* 🤍 白色系 */
+  --shiroki-white: #ffffff;
+
+  /* 📝 渐变定义 */
+  --shiroki-gradient-pink: linear-gradient(135deg, var(--shiroki-pink-light), var(--shiroki-pink-medium));
+  --shiroki-gradient-pink-deep: linear-gradient(135deg, var(--shiroki-pink-dark), var(--shiroki-pink-deep));
+  --shiroki-gradient-gray: linear-gradient(135deg, var(--shiroki-gray-light), var(--shiroki-gray-medium));
+  --shiroki-gradient-black: linear-gradient(135deg, var(--shiroki-black-light), var(--shiroki-black-medium));
+  --shiroki-gradient-black-deep: linear-gradient(135deg, var(--shiroki-black-medium), var(--shiroki-black-dark));
+
+  /* 🌈 半透明渐变 */
+  --shiroki-gradient-black-transparent: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(19, 18, 18, 0.8));
+  --shiroki-gradient-gray-transparent: linear-gradient(180deg, rgba(54, 53, 53, 0.95), rgba(105, 105, 105, 0.85));
+
+  /* 📦 阴影 */
+  --shiroki-shadow-pink: 0 2px 10px rgba(255, 182, 193, 0.3);
+  --shiroki-shadow-black: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+  /* 🌊 页面背景渐变 - 亮色模式 */
+  --shiroki-bg-gradient-light: linear-gradient(135deg, #e0e5ec 0%, #c9d6e8 100%);
+
+  /* 🌆 页面背景渐变 - 暗色模式 */
+  --shiroki-bg-gradient-dark: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+}
+
+/* ============================================
+   🎨 后台管理通用变量系统
+   ============================================ */
+:root {
+  /* ☀️ 亮色模式基础背景 */
+  --admin-bg-primary: rgba(255, 255, 255, 0.85);
+  --admin-bg-secondary: rgba(245, 247, 250, 0.9);
+  --admin-bg-tertiary: rgba(240, 242, 245, 0.8);
+
+  /* 🌆 暗色模式基础背景 */
+  --admin-bg-dark-primary: rgba(30, 35, 45, 0.9);
+  --admin-bg-dark-secondary: rgba(40, 45, 55, 0.85);
+  --admin-bg-dark-tertiary: rgba(50, 55, 65, 0.8);
+
+  /* 🔵 主色调 - 蓝色系 */
+  --admin-primary-bg: rgba(99, 179, 237, 0.35);
+  --admin-primary-bg-hover: rgba(99, 179, 237, 0.5);
+  --admin-primary-bg-strong: rgba(99, 179, 237, 0.7);
+  --admin-primary-border: rgba(99, 179, 237, 0.6);
+  --admin-primary-shadow: rgba(99, 179, 237, 0.25);
+  --admin-primary-text: #2b6cb0;
+  --admin-primary-text-dark: #90cdf4;
+
+  /* 🔵 浅蓝色系 - 媒体弹窗专用 */
+  --admin-light-blue-1: #e0f2fe;
+  --admin-light-blue-2: #dbeafe;
+  --admin-light-blue-3: #e0e7ff;
+  --admin-light-blue-border: #93c5fd;
+  --admin-light-blue-text: #1e40af;
+  --admin-light-blue-shadow: rgba(147, 197, 253, 0.4);
+  --admin-gradient-light-blue: linear-gradient(135deg, var(--admin-light-blue-1) 0%, var(--admin-light-blue-2) 50%, var(--admin-light-blue-3) 100%);
+
+  /* 🎨 短代码按钮明亮淡色系 */
+  /* 🔴 红色系 - H2设置标 */
+  --sc-btn-red-bg: rgba(254, 226, 226, 0.8);
+  --sc-btn-red-bg-hover: rgba(254, 202, 202, 0.9);
+  --sc-btn-red-border: rgba(252, 165, 165, 0.6);
+  --sc-btn-red-border-hover: rgba(248, 113, 113, 0.8);
+  --sc-btn-red-text: #991b1b;
+  --sc-btn-red-shadow: rgba(252, 165, 165, 0.4);
+
+  /* 🟠 橙色系 - H2下载标 */
+  --sc-btn-orange-bg: rgba(255, 237, 213, 0.8);
+  --sc-btn-orange-bg-hover: rgba(254, 215, 170, 0.9);
+  --sc-btn-orange-border: rgba(253, 186, 116, 0.6);
+  --sc-btn-orange-border-hover: rgba(251, 146, 60, 0.8);
+  --sc-btn-orange-text: #9a3412;
+  --sc-btn-orange-shadow: rgba(253, 186, 116, 0.4);
+
+  /* 🟡 黄色系 - 下载按钮 */
+  --sc-btn-yellow-bg: rgba(254, 249, 195, 0.8);
+  --sc-btn-yellow-bg-hover: rgba(254, 240, 138, 0.9);
+  --sc-btn-yellow-border: rgba(253, 224, 71, 0.6);
+  --sc-btn-yellow-border-hover: rgba(250, 204, 21, 0.8);
+  --sc-btn-yellow-text: #854d0e;
+  --sc-btn-yellow-shadow: rgba(253, 224, 71, 0.4);
+
+  /* 🟢 绿色系 - 链接按钮 */
+  --sc-btn-green-bg: rgba(220, 252, 231, 0.8);
+  --sc-btn-green-bg-hover: rgba(187, 247, 208, 0.9);
+  --sc-btn-green-border: rgba(134, 239, 172, 0.6);
+  --sc-btn-green-border-hover: rgba(74, 222, 128, 0.8);
+  --sc-btn-green-text: #166534;
+  --sc-btn-green-shadow: rgba(134, 239, 172, 0.4);
+
+  /* 🔵 青色系 - 引用模块1 */
+  --sc-btn-cyan-bg: rgba(207, 250, 254, 0.8);
+  --sc-btn-cyan-bg-hover: rgba(165, 243, 252, 0.9);
+  --sc-btn-cyan-border: rgba(103, 232, 249, 0.6);
+  --sc-btn-cyan-border-hover: rgba(34, 211, 238, 0.8);
+  --sc-btn-cyan-text: #155e75;
+  --sc-btn-cyan-shadow: rgba(103, 232, 249, 0.4);
+
+  /* 💙 蓝色系 - 引用模块2 */
+  --sc-btn-blue-bg: rgba(219, 234, 254, 0.8);
+  --sc-btn-blue-bg-hover: rgba(191, 219, 254, 0.9);
+  --sc-btn-blue-border: rgba(147, 197, 253, 0.6);
+  --sc-btn-blue-border-hover: rgba(96, 165, 250, 0.8);
+  --sc-btn-blue-text: #1e40af;
+  --sc-btn-blue-shadow: rgba(147, 197, 253, 0.4);
+
+  /* 💜 紫色系 - OL列表 */
+  --sc-btn-purple-bg: rgba(243, 232, 255, 0.8);
+  --sc-btn-purple-bg-hover: rgba(233, 213, 255, 0.9);
+  --sc-btn-purple-border: rgba(216, 180, 254, 0.6);
+  --sc-btn-purple-border-hover: rgba(192, 132, 252, 0.8);
+  --sc-btn-purple-text: #6b21a8;
+  --sc-btn-purple-shadow: rgba(216, 180, 254, 0.4);
+
+  /* 💗 粉色系 - 药丸模块 */
+  --sc-btn-pink-bg: rgba(252, 231, 243, 0.8);
+  --sc-btn-pink-bg-hover: rgba(251, 207, 232, 0.9);
+  --sc-btn-pink-border: rgba(249, 168, 212, 0.6);
+  --sc-btn-pink-border-hover: rgba(244, 114, 182, 0.8);
+  --sc-btn-pink-text: #9d174d;
+  --sc-btn-pink-shadow: rgba(249, 168, 212, 0.4);
+
+  /* ⚪ 灰色系 - 警告框模块 */
+  --sc-btn-gray-bg: rgba(243, 244, 246, 0.8);
+  --sc-btn-gray-bg-hover: rgba(229, 231, 235, 0.9);
+  --sc-btn-gray-border: rgba(209, 213, 219, 0.6);
+  --sc-btn-gray-border-hover: rgba(156, 163, 175, 0.8);
+  --sc-btn-gray-text: #374151;
+  --sc-btn-gray-shadow: rgba(209, 213, 219, 0.4);
+
+  /* 🟤 棕色系 - 代码高亮 */
+  --sc-btn-brown-bg: rgba(245, 235, 224, 0.8);
+  --sc-btn-brown-bg-hover: rgba(231, 215, 196, 0.9);
+  --sc-btn-brown-border: rgba(214, 180, 148, 0.6);
+  --sc-btn-brown-border-hover: rgba(180, 140, 100, 0.8);
+  --sc-btn-brown-text: #78350f;
+  --sc-btn-brown-shadow: rgba(214, 180, 148, 0.4);
+
+  /* 🌹 玫红色系 - Iframe */
+  --sc-btn-rose-bg: rgba(255, 228, 230, 0.8);
+  --sc-btn-rose-bg-hover: rgba(254, 205, 211, 0.9);
+  --sc-btn-rose-border: rgba(253, 164, 175, 0.6);
+  --sc-btn-rose-border-hover: rgba(251, 113, 133, 0.8);
+  --sc-btn-rose-text: #9f1239;
+  --sc-btn-rose-shadow: rgba(253, 164, 175, 0.4);
+
+  /* 🍊 琥珀色系 - 登录查看一 */
+  --sc-btn-amber-bg: rgba(254, 243, 199, 0.8);
+  --sc-btn-amber-bg-hover: rgba(253, 230, 138, 0.9);
+  --sc-btn-amber-border: rgba(252, 211, 77, 0.6);
+  --sc-btn-amber-border-hover: rgba(250, 204, 21, 0.8);
+  --sc-btn-amber-text: #92400e;
+  --sc-btn-amber-shadow: rgba(252, 211, 77, 0.4);
+
+  /* 🌿 翠绿色系 - 登录查看二 */
+  --sc-btn-emerald-bg: rgba(209, 250, 229, 0.8);
+  --sc-btn-emerald-bg-hover: rgba(167, 243, 208, 0.9);
+  --sc-btn-emerald-border: rgba(110, 231, 183, 0.6);
+  --sc-btn-emerald-border-hover: rgba(52, 211, 153, 0.8);
+  --sc-btn-emerald-text: #065f46;
+  --sc-btn-emerald-shadow: rgba(110, 231, 183, 0.4);
+
+  /* 🔷 靛蓝色系 - 文章密码保护 */
+  --sc-btn-indigo-bg: rgba(224, 231, 255, 0.8);
+  --sc-btn-indigo-bg-hover: rgba(199, 210, 254, 0.9);
+  --sc-btn-indigo-border: rgba(165, 180, 252, 0.6);
+  --sc-btn-indigo-border-hover: rgba(129, 140, 248, 0.8);
+  --sc-btn-indigo-text: #3730a3;
+  --sc-btn-indigo-shadow: rgba(165, 180, 252, 0.4);
+
+  /* 🎵 音乐色系 - 插入音频 */
+  --sc-btn-music-bg: rgba(232, 237, 255, 0.8);
+  --sc-btn-music-bg-hover: rgba(209, 219, 255, 0.9);
+  --sc-btn-music-border: rgba(167, 182, 224, 0.6);
+  --sc-btn-music-border-hover: rgba(129, 149, 207, 0.8);
+  --sc-btn-music-text: #4338ca;
+  --sc-btn-music-shadow: rgba(167, 182, 224, 0.4);
+
+  /* 🎬 视频色系 - 插入视频 */
+  --sc-btn-video-bg: rgba(255, 230, 245, 0.8);
+  --sc-btn-video-bg-hover: rgba(255, 204, 235, 0.9);
+  --sc-btn-video-border: rgba(255, 160, 215, 0.6);
+  --sc-btn-video-border-hover: rgba(255, 112, 195, 0.8);
+  --sc-btn-video-text: #9d1b6b;
+  --sc-btn-video-shadow: rgba(255, 160, 215, 0.4);
+
+  /* 📦 折叠色系 - 折叠内容 */
+  --sc-btn-collapse-bg: rgba(230, 245, 255, 0.8);
+  --sc-btn-collapse-bg-hover: rgba(204, 235, 255, 0.9);
+  --sc-btn-collapse-border: rgba(147, 197, 253, 0.6);
+  --sc-btn-collapse-border-hover: rgba(96, 165, 250, 0.8);
+  --sc-btn-collapse-text: #1e40af;
+  --sc-btn-collapse-shadow: rgba(147, 197, 253, 0.4);
+
+  /* 📄 分页色系 - 折叠内容（默认展开） */
+  --sc-btn-page-bg: rgba(255, 245, 230, 0.8);
+  --sc-btn-page-bg-hover: rgba(255, 230, 204, 0.9);
+  --sc-btn-page-border: rgba(255, 200, 130, 0.6);
+  --sc-btn-page-border-hover: rgba(255, 170, 80, 0.8);
+  --sc-btn-page-text: #9a4a00;
+  --sc-btn-page-shadow: rgba(255, 200, 130, 0.4);
+
+  /* 🔲 深灰色系 - 文章分页 */
+  --sc-btn-dark-bg: rgba(55, 65, 81, 0.85);
+  --sc-btn-dark-bg-hover: rgba(75, 85, 99, 0.95);
+  --sc-btn-dark-border: rgba(107, 114, 128, 0.6);
+  --sc-btn-dark-border-hover: rgba(156, 163, 175, 0.8);
+  --sc-btn-dark-text: #f3f4f6;
+  --sc-btn-dark-shadow: rgba(55, 65, 81, 0.4);
+
+  /* 🟢 成功色 - 绿色系 */
+  --admin-success-bg: rgba(104, 211, 145, 0.35);
+  --admin-success-bg-hover: rgba(104, 211, 145, 0.5);
+  --admin-success-border: rgba(104, 211, 145, 0.6);
+  --admin-success-shadow: rgba(104, 211, 145, 0.25);
+  --admin-success-text: #276749;
+  --admin-success-text-dark: #9ae6b4;
+
+  /* 🟣 辅助色 - 紫色系 */
+  --admin-purple-bg: rgba(183, 148, 244, 0.35);
+  --admin-purple-bg-hover: rgba(183, 148, 244, 0.5);
+  --admin-purple-border: rgba(183, 148, 244, 0.6);
+  --admin-purple-shadow: rgba(183, 148, 244, 0.25);
+  --admin-purple-text: #6b46c1;
+  --admin-purple-text-dark: #d6bcfa;
+
+  /* 🟡 警告色 - 琥珀色系 */
+  --admin-warning-bg: rgba(251, 191, 36, 0.35);
+  --admin-warning-bg-solid: rgba(251, 191, 36, 0.85);
+  --admin-warning-border: rgba(251, 191, 36, 0.6);
+  --admin-warning-text: #92400e;
+
+  /* 🦈 删除/危险色 - 红色系 */
+  --admin-danger-bg: rgba(245, 101, 101, 0.35);
+  --admin-danger-bg-hover: rgba(245, 101, 101, 0.5);
+  --admin-danger-border: rgba(245, 101, 101, 0.6);
+  --admin-danger-text: #c53030;
+
+  /* ❌ 错误状态 */
+  --admin-error-text: #c53030;
+
+  /* 🔮 毛玻璃效果 */
+  --admin-glass-blur: blur(20px) saturate(180%);
+  --admin-glass-blur-strong: blur(30px) saturate(200%);
+  --admin-glass-backdrop: rgba(255, 255, 255, 0.25);
+  --admin-glass-backdrop-dark: rgba(0, 0, 0, 0.35);
+
+  /* 💫 拟态效果 */
+  --admin-neumorph-light: none;
+  --admin-neumorph-light-inset: none;
+  --admin-neumorph-dark: none;
+  --admin-neumorph-dark-inset: none;
+
+  /* 📐 圆角系统 */
+  --admin-radius-sm: 8px;
+  --admin-radius-md: 12px;
+  --admin-radius-lg: 16px;
+  --admin-radius-xl: 20px;
+  --admin-radius-2xl: 24px;
+  --admin-radius-full: 9999px;
+
+  /* 📏 间距系统 */
+  --admin-space-xs: 4px;
+  --admin-space-sm: 8px;
+  --admin-space-md: 12px;
+  --admin-space-lg: 16px;
+  --admin-space-xl: 20px;
+  --admin-space-2xl: 24px;
+  --admin-space-3xl: 32px;
+
+  /* 🎴 卡片尺寸 */
+  --admin-card-width: 280px;
+  --admin-card-min-height: 320px;
+  --admin-card-thumbnail-height: 160px;
+  --admin-card-padding: 16px;
+
+  /* ✨ 阴影系统 */
+  --admin-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --admin-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --admin-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --admin-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.15);
+  --admin-shadow-glow: 0 0 20px rgba(99, 179, 237, 0.3);
+  --admin-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.15);
+  --admin-shadow-hover-dark: 0 12px 32px rgba(0, 0, 0, 0.35);
+
+  /* 🎭 悬停动画 */
+  --admin-hover-translate: -4px;
+  --admin-hover-transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+
+  /* 📝 字体系统 */
+  --admin-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --admin-font-size-xs: 11px;
+  --admin-font-size-sm: 12px;
+  --admin-font-size-md: 13px;
+  --admin-font-size-lg: 14px;
+  --admin-font-size-xl: 16px;
+  --admin-font-weight-normal: 400;
+  --admin-font-weight-medium: 500;
+  --admin-font-weight-semibold: 600;
+  --admin-font-weight-bold: 700;
+
+  /* 🎭 边框系统 */
+  --admin-border-width: 1px;
+  --admin-border-color: rgba(255, 255, 255, 0.5);
+  --admin-border-color-dark: rgba(255, 255, 255, 0.1);
+  --admin-border-glass: 1px solid rgba(255, 255, 255, 0.3);
+
+  /* 🔄 过渡动画 */
+  --admin-transition-fast: 0.15s ease;
+  --admin-transition-normal: 0.25s ease;
+  --admin-transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --admin-transition-bounce: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* 🎯 当前主题变量（默认亮色） */
+  --admin-current-bg: var(--admin-bg-primary);
+  --admin-current-glass: var(--admin-glass-backdrop);
+  --admin-current-neumorph: var(--admin-neumorph-light);
+  --admin-current-neumorph-inset: var(--admin-neumorph-light-inset);
+  --admin-current-border: var(--admin-border-color);
+  --admin-current-text-primary: #1a202c;
+  --admin-current-text-secondary: #4a5568;
+  --admin-current-text-muted: #718096;
+}
+
+/* ============================================
+   🌆 暗色模式覆盖
+   ============================================ */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --admin-current-bg: var(--admin-bg-dark-primary);
+    --admin-current-glass: var(--admin-glass-backdrop-dark);
+    --admin-current-neumorph: var(--admin-neumorph-dark);
+    --admin-current-neumorph-inset: var(--admin-neumorph-dark-inset);
+    --admin-current-border: var(--admin-border-color-dark);
+    --admin-current-text-primary: #f7fafc;
+    --admin-current-text-secondary: #e2e8f0;
+    --admin-current-text-muted: #a0aec0;
+    --admin-primary-text: var(--admin-primary-text-dark);
+    --admin-success-text: var(--admin-success-text-dark);
+    --admin-purple-text: var(--admin-purple-text-dark);
+  }
+}
+
+/* 🌆 WordPress暗色模式类 */
+.wp-admin.wp-dark-mode {
+  --admin-current-bg: var(--admin-bg-dark-primary);
+  --admin-current-glass: var(--admin-glass-backdrop-dark);
+  --admin-current-neumorph: var(--admin-neumorph-dark);
+  --admin-current-neumorph-inset: var(--admin-neumorph-dark-inset);
+  --admin-current-border: var(--admin-border-color-dark);
+  --admin-current-text-primary: #f7fafc;
+  --admin-current-text-secondary: #e2e8f0;
+  --admin-current-text-muted: #a0aec0;
+  --admin-primary-text: var(--admin-primary-text-dark);
+  --admin-success-text: var(--admin-success-text-dark);
+  --admin-purple-text: var(--admin-purple-text-dark);
+}
+
+/* ============================================
+   🔗 兼容性变量映射（旧变量名映射到新变量）
+   ============================================ */
+:root {
+  /* media-library.css 兼容性映射 --ml-* */
+  --ml-bg-primary: var(--admin-bg-primary);
+  --ml-bg-secondary: var(--admin-bg-secondary);
+  --ml-bg-tertiary: var(--admin-bg-tertiary);
+  --ml-bg-dark-primary: var(--admin-bg-dark-primary);
+  --ml-bg-dark-secondary: var(--admin-bg-dark-secondary);
+  --ml-bg-dark-tertiary: var(--admin-bg-dark-tertiary);
+
+  --ml-label-name-bg: var(--admin-primary-bg);
+  --ml-label-name-bg-hover: var(--admin-primary-bg-hover);
+  --ml-label-name-border: var(--admin-primary-border);
+  --ml-label-name-shadow: var(--admin-primary-shadow);
+  --ml-label-name-text: var(--admin-primary-text);
+  --ml-label-name-text-dark: var(--admin-primary-text-dark);
+
+  --ml-label-desc-bg: var(--admin-success-bg);
+  --ml-label-desc-bg-hover: var(--admin-success-bg-hover);
+  --ml-label-desc-border: var(--admin-success-border);
+  --ml-label-desc-shadow: var(--admin-success-shadow);
+  --ml-label-desc-text: var(--admin-success-text);
+  --ml-label-desc-text-dark: var(--admin-success-text-dark);
+
+  --ml-label-url-bg: var(--admin-purple-bg);
+  --ml-label-url-bg-hover: var(--admin-purple-bg-hover);
+  --ml-label-url-border: var(--admin-purple-border);
+  --ml-label-url-shadow: var(--admin-purple-shadow);
+  --ml-label-url-text: var(--admin-purple-text);
+  --ml-label-url-text-dark: var(--admin-purple-text-dark);
+
+  --ml-btn-delete-bg: var(--admin-danger-bg);
+  --ml-btn-delete-bg-hover: var(--admin-danger-bg-hover);
+  --ml-btn-delete-border: var(--admin-danger-border);
+  --ml-btn-delete-text: var(--admin-danger-text);
+
+  --ml-extension-bg: var(--admin-warning-bg-solid);
+  --ml-extension-text: var(--admin-warning-text);
+
+  --ml-error-text: var(--admin-error-text);
+
+  --ml-glass-blur: var(--admin-glass-blur);
+  --ml-glass-blur-strong: var(--admin-glass-blur-strong);
+  --ml-glass-backdrop: var(--admin-glass-backdrop);
+  --ml-glass-backdrop-dark: var(--admin-glass-backdrop-dark);
+
+  --ml-neumorph-light: var(--admin-neumorph-light);
+  --ml-neumorph-light-inset: var(--admin-neumorph-light-inset);
+  --ml-neumorph-dark: var(--admin-neumorph-dark);
+  --ml-neumorph-dark-inset: var(--admin-neumorph-dark-inset);
+
+  --ml-radius-sm: var(--admin-radius-sm);
+  --ml-radius-md: var(--admin-radius-md);
+  --ml-radius-lg: var(--admin-radius-lg);
+  --ml-radius-xl: var(--admin-radius-xl);
+  --ml-radius-2xl: var(--admin-radius-2xl);
+  --ml-radius-full: var(--admin-radius-full);
+
+  --ml-space-xs: var(--admin-space-xs);
+  --ml-space-sm: var(--admin-space-sm);
+  --ml-space-md: var(--admin-space-md);
+  --ml-space-lg: var(--admin-space-lg);
+  --ml-space-xl: var(--admin-space-xl);
+  --ml-space-2xl: var(--admin-space-2xl);
+  --ml-space-3xl: var(--admin-space-3xl);
+
+  --ml-card-width: var(--admin-card-width);
+  --ml-card-min-height: var(--admin-card-min-height);
+  --ml-card-thumbnail-height: var(--admin-card-thumbnail-height);
+  --ml-card-padding: var(--admin-card-padding);
+
+  --ml-shadow-sm: var(--admin-shadow-sm);
+  --ml-shadow-md: var(--admin-shadow-md);
+  --ml-shadow-lg: var(--admin-shadow-lg);
+  --ml-shadow-xl: var(--admin-shadow-xl);
+  --ml-shadow-glow: var(--admin-shadow-glow);
+  --ml-shadow-hover: var(--admin-shadow-hover);
+  --ml-shadow-hover-dark: var(--admin-shadow-hover-dark);
+
+  --ml-hover-translate: var(--admin-hover-translate);
+  --ml-hover-transition: var(--admin-hover-transition);
+
+  --ml-font-family: var(--admin-font-family);
+  --ml-font-size-xs: var(--admin-font-size-xs);
+  --ml-font-size-sm: var(--admin-font-size-sm);
+  --ml-font-size-md: var(--admin-font-size-md);
+  --ml-font-size-lg: var(--admin-font-size-lg);
+  --ml-font-size-xl: var(--admin-font-size-xl);
+  --ml-font-weight-normal: var(--admin-font-weight-normal);
+  --ml-font-weight-medium: var(--admin-font-weight-medium);
+  --ml-font-weight-semibold: var(--admin-font-weight-semibold);
+  --ml-font-weight-bold: var(--admin-font-weight-bold);
+
+  --ml-border-width: var(--admin-border-width);
+  --ml-border-color: var(--admin-border-color);
+  --ml-border-color-dark: var(--admin-border-color-dark);
+  --ml-border-glass: var(--admin-border-glass);
+
+  --ml-transition-fast: var(--admin-transition-fast);
+  --ml-transition-normal: var(--admin-transition-normal);
+  --ml-transition-slow: var(--admin-transition-slow);
+  --ml-transition-bounce: var(--admin-transition-bounce);
+
+  --ml-current-bg: var(--admin-current-bg);
+  --ml-current-glass: var(--admin-current-glass);
+  --ml-current-neumorph: var(--admin-current-neumorph);
+  --ml-current-neumorph-inset: var(--admin-current-neumorph-inset);
+  --ml-current-border: var(--admin-current-border);
+  --ml-current-text-primary: var(--admin-current-text-primary);
+  --ml-current-text-secondary: var(--admin-current-text-secondary);
+  --ml-current-text-muted: var(--admin-current-text-muted);
+
+  /* media-new.css 兼容性映射 --mn-* */
+  --mn-bg-primary: var(--admin-bg-primary);
+  --mn-bg-secondary: var(--admin-bg-secondary);
+  --mn-bg-tertiary: var(--admin-bg-tertiary);
+  --mn-bg-dark-primary: var(--admin-bg-dark-primary);
+  --mn-bg-dark-secondary: var(--admin-bg-dark-secondary);
+  --mn-bg-dark-tertiary: var(--admin-bg-dark-tertiary);
+
+  --mn-primary-bg: var(--admin-primary-bg);
+  --mn-primary-bg-hover: var(--admin-primary-bg-hover);
+  --mn-primary-border: var(--admin-primary-border);
+  --mn-primary-text: var(--admin-primary-text);
+  --mn-primary-text-dark: var(--admin-primary-text-dark);
+
+  --mn-success-bg: var(--admin-success-bg);
+  --mn-success-border: var(--admin-success-border);
+  --mn-success-text: var(--admin-success-text);
+
+  --mn-warning-bg: var(--admin-warning-bg);
+  --mn-warning-border: var(--admin-warning-border);
+  --mn-warning-text: var(--admin-warning-text);
+
+  --mn-danger-bg: var(--admin-danger-bg);
+  --mn-danger-bg-hover: var(--admin-danger-bg-hover);
+  --mn-danger-border: var(--admin-danger-border);
+  --mn-danger-text: var(--admin-danger-text);
+
+  --mn-glass-blur: var(--admin-glass-blur);
+  --mn-glass-backdrop: var(--admin-glass-backdrop);
+  --mn-glass-backdrop-dark: var(--admin-glass-backdrop-dark);
+
+  --mn-radius-sm: var(--admin-radius-sm);
+  --mn-radius-md: var(--admin-radius-md);
+  --mn-radius-lg: var(--admin-radius-lg);
+  --mn-radius-xl: var(--admin-radius-xl);
+  --mn-radius-full: var(--admin-radius-full);
+
+  --mn-space-xs: var(--admin-space-xs);
+  --mn-space-sm: var(--admin-space-sm);
+  --mn-space-md: var(--admin-space-md);
+  --mn-space-lg: var(--admin-space-lg);
+  --mn-space-xl: var(--admin-space-xl);
+  --mn-space-2xl: var(--admin-space-2xl);
+  --mn-space-3xl: var(--admin-space-3xl);
+
+  --mn-shadow-sm: var(--admin-shadow-sm);
+  --mn-shadow-md: var(--admin-shadow-md);
+  --mn-shadow-lg: var(--admin-shadow-lg);
+
+  --mn-font-family: var(--admin-font-family);
+  --mn-font-size-xs: var(--admin-font-size-xs);
+  --mn-font-size-sm: var(--admin-font-size-sm);
+  --mn-font-size-md: var(--admin-font-size-md);
+  --mn-font-size-lg: var(--admin-font-size-lg);
+  --mn-font-size-xl: var(--admin-font-size-xl);
+
+  --mn-border-glass: var(--admin-border-glass);
+
+  --mn-transition-fast: var(--admin-transition-fast);
+  --mn-transition-normal: var(--admin-transition-normal);
+
+  --mn-current-bg: var(--admin-current-bg);
+  --mn-current-glass: var(--admin-current-glass);
+  --mn-current-text-primary: var(--admin-current-text-primary);
+  --mn-current-text-secondary: var(--admin-current-text-secondary);
+  --mn-current-text-muted: var(--admin-current-text-muted);
+
+  /* media-modal.css 兼容性映射 --mm-* */
+  --mm-gradient-header: var(--admin-gradient-light-blue);
+  --mm-text-header: var(--admin-light-blue-text);
+  --mm-border-active: var(--admin-light-blue-border);
+  --mm-shadow-hover: var(--admin-light-blue-shadow);
+  --mm-bg-light-1: var(--admin-light-blue-1);
+  --mm-bg-light-2: var(--admin-light-blue-2);
+  --mm-bg-light-3: var(--admin-light-blue-3);
+}

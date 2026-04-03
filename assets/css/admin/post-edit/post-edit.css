@@ -1,0 +1,1961 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* 📝 写文章/编辑文章页面玻璃拟态UI样式 */
+/* 🎨 与文章列表网格卡片式布局统一风格 */
+/* 🔗 变量定义在 admin-variables.css 中统一管理 */
+
+/* ============================================
+   🎯 写文章/编辑文章页面背景重置
+   ============================================ */
+
+/* 🪟 写文章页面背景 */
+.post-new-php {
+  background: var(--shiroki-bg-gradient-light);
+}
+
+.post-new-php.wp-dark-mode,
+.post-new-php .wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark);
+}
+
+/* 🪟 编辑文章页面背景 */
+.post-php {
+  background: var(--shiroki-bg-gradient-light);
+}
+
+.post-php.wp-dark-mode,
+.post-php .wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark);
+}
+
+/* ============================================
+   📦 页面容器样式 - 三栏布局
+   ============================================ */
+
+/* 📝 主内容区域 */
+.post-new-php #wpcontent,
+.post-php #wpcontent {
+  background: transparent;
+}
+
+/* 📝 页面内容区域 */
+.post-new-php #wpbody-content,
+.post-php #wpbody-content {
+  background: transparent;
+  padding: var(--admin-space-lg);
+  padding-bottom: var(--admin-space-sm); /* ◀️ 减小底部内边距，避免空白 */
+  box-sizing: border-box; /* ◀️ 确保内边距不增加总宽度 */
+  overflow-x: hidden; /* ◀️ 防止水平溢出 */
+}
+
+/* 📦 文章编辑表单容器 - PHP直接控制布局 */
+.post-new-php #post,
+.post-php #post {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  display: block;
+  max-width: none;
+  margin: 0;
+  min-height: 0; /* ◀️ 强制按内容高度 */
+  height: auto; /* ◀️ 高度自适应内容 */
+}
+
+/* ============================================
+   🎨 双栏布局容器 - 元框在左，编辑区在右
+   ============================================ */
+
+/* 🎨 双栏布局主容器 */
+.shiroki-editor-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  grid-template-areas: "sidebar main";
+  gap: var(--admin-space-lg);
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: 0; /* ◀️ 强制自适应内容高度 */
+  height: auto; /* ◀️ 高度自适应内容 */
+  align-items: start; /* ◀️ 顶部对齐 */
+}
+
+/* 📝 右侧编辑区域 - 移除白色描边 */
+.shiroki-editor-main {
+  grid-area: main;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  min-height: auto; /* ◀️ 自适应高度，避免底部空白 */
+  align-self: start; /* ◀️ 顶部对齐，避免拉伸 */
+}
+
+/* 📝 编辑区域内部 */
+.shiroki-editor-main .editor-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-lg);
+  height: auto; /* ◀️ 高度自适应内容 */
+}
+
+/* 📦 左侧元框区域 */
+.shiroki-editor-sidebar {
+  grid-area: sidebar;
+  position: sticky;
+  top: 32px;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-width: 100%; /* ◀️ 防止溢出 */
+  box-sizing: border-box; /* ◀️ 确保内边距不增加总宽度 */
+}
+
+/* 📦 侧边栏内的元框样式 */
+.shiroki-editor-sidebar #side-sortables {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-lg);
+}
+
+.shiroki-editor-sidebar .postbox {
+  margin-bottom: 0;
+}
+
+/* 🧰 工具栏容器样式 */
+.shiroki-editor-toolbar {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  margin-bottom: var(--admin-space-lg);
+  overflow: hidden;
+}
+
+.shiroki-editor-toolbar .toolbar-inner {
+  padding: var(--admin-space-md);
+}
+
+.shiroki-editor-toolbar .toolbar-section {
+  margin-bottom: var(--admin-space-md);
+  padding-bottom: var(--admin-space-md);
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+.shiroki-editor-toolbar .toolbar-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.shiroki-editor-toolbar .toolbar-title {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-secondary);
+  margin: 0 0 var(--admin-space-sm) 0;
+  padding: 0;
+}
+
+.shiroki-editor-toolbar .toolbar-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-xs);
+}
+
+/* ============================================
+   🧰 工具栏元素样式
+   ============================================ */
+
+/* 📎 媒体按钮区域 */
+#toolbar-media-content #wp-content-media-buttons {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-xs);
+}
+
+/* 📎 添加媒体按钮 */
+#toolbar-media-content .insert-media {
+  background: var(--admin-primary-bg);
+  border: 1px solid var(--admin-primary-border);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-primary-text);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  font-size: var(--admin-font-size-sm);
+  width: 100%;
+  text-align: center;
+  transition: all var(--admin-transition-fast);
+}
+
+#toolbar-media-content .insert-media:hover {
+  background: var(--admin-primary-bg-hover);
+}
+
+/* ⚡ 短代码选择器 */
+#toolbar-shortcodes-content #short_code_select {
+  width: 100%;
+  background: var(--admin-current-bg);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-sm);
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-primary);
+}
+
+/* 📝 MD工具栏 - 透明背景 */
+#toolbar-md-content .boxmoe-md-toolbar {
+  background: transparent !important; /* ◀️ 强制透明背景 */
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-xs);
+}
+
+/* 🎨 MD按钮 - 彩色明亮淡色风格 */
+#toolbar-md-content .md-btn {
+  background: rgba(99, 179, 237, 0.15); /* ◀️ 淡蓝色 */
+  border: 1px solid rgba(99, 179, 237, 0.3);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  font-size: var(--admin-font-size-xs);
+  color: #3182ce; /* ◀️ 蓝色文字 */
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  backdrop-filter: blur(4px);
+}
+
+#toolbar-md-content .md-btn:hover {
+  background: rgba(99, 179, 237, 0.3);
+  border-color: rgba(99, 179, 237, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(99, 179, 237, 0.2);
+}
+
+/* 🎨 MD按钮 - 不同颜色 */
+#toolbar-md-content .md-btn:nth-child(1) { /* 加粗 */
+  background: rgba(245, 101, 101, 0.15);
+  border-color: rgba(245, 101, 101, 0.3);
+  color: #c53030;
+}
+#toolbar-md-content .md-btn:nth-child(1):hover {
+  background: rgba(245, 101, 101, 0.3);
+  border-color: rgba(245, 101, 101, 0.5);
+  box-shadow: 0 2px 4px rgba(245, 101, 101, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(2) { /* 斜体 */
+  background: rgba(236, 201, 75, 0.15);
+  border-color: rgba(236, 201, 75, 0.3);
+  color: #b7791f;
+}
+#toolbar-md-content .md-btn:nth-child(2):hover {
+  background: rgba(236, 201, 75, 0.3);
+  border-color: rgba(236, 201, 75, 0.5);
+  box-shadow: 0 2px 4px rgba(236, 201, 75, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(3) { /* H1 */
+  background: rgba(159, 122, 234, 0.15);
+  border-color: rgba(159, 122, 234, 0.3);
+  color: #6b46c1;
+}
+#toolbar-md-content .md-btn:nth-child(3):hover {
+  background: rgba(159, 122, 234, 0.3);
+  border-color: rgba(159, 122, 234, 0.5);
+  box-shadow: 0 2px 4px rgba(159, 122, 234, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(4) { /* H2 */
+  background: rgba(236, 112, 99, 0.15);
+  border-color: rgba(236, 112, 99, 0.3);
+  color: #c05621;
+}
+#toolbar-md-content .md-btn:nth-child(4):hover {
+  background: rgba(236, 112, 99, 0.3);
+  border-color: rgba(236, 112, 99, 0.5);
+  box-shadow: 0 2px 4px rgba(236, 112, 99, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(5) { /* H3 */
+  background: rgba(72, 187, 120, 0.15);
+  border-color: rgba(72, 187, 120, 0.3);
+  color: #276749;
+}
+#toolbar-md-content .md-btn:nth-child(5):hover {
+  background: rgba(72, 187, 120, 0.3);
+  border-color: rgba(72, 187, 120, 0.5);
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(6) { /* 链接 */
+  background: rgba(66, 153, 225, 0.15);
+  border-color: rgba(66, 153, 225, 0.3);
+  color: #2b6cb0;
+}
+#toolbar-md-content .md-btn:nth-child(6):hover {
+  background: rgba(66, 153, 225, 0.3);
+  border-color: rgba(66, 153, 225, 0.5);
+  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(7) { /* 图片 */
+  background: rgba(246, 173, 85, 0.15);
+  border-color: rgba(246, 173, 85, 0.3);
+  color: #c05621;
+}
+#toolbar-md-content .md-btn:nth-child(7):hover {
+  background: rgba(246, 173, 85, 0.3);
+  border-color: rgba(246, 173, 85, 0.5);
+  box-shadow: 0 2px 4px rgba(246, 173, 85, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(8) { /* 代码 */
+  background: rgba(113, 128, 150, 0.15);
+  border-color: rgba(113, 128, 150, 0.3);
+  color: #4a5568;
+}
+#toolbar-md-content .md-btn:nth-child(8):hover {
+  background: rgba(113, 128, 150, 0.3);
+  border-color: rgba(113, 128, 150, 0.5);
+  box-shadow: 0 2px 4px rgba(113, 128, 150, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(9) { /* 引用 */
+  background: rgba(183, 148, 244, 0.15);
+  border-color: rgba(183, 148, 244, 0.3);
+  color: #6b46c1;
+}
+#toolbar-md-content .md-btn:nth-child(9):hover {
+  background: rgba(183, 148, 244, 0.3);
+  border-color: rgba(183, 148, 244, 0.5);
+  box-shadow: 0 2px 4px rgba(183, 148, 244, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(10) { /* 无序列表 */
+  background: rgba(56, 161, 105, 0.15);
+  border-color: rgba(56, 161, 105, 0.3);
+  color: #276749;
+}
+#toolbar-md-content .md-btn:nth-child(10):hover {
+  background: rgba(56, 161, 105, 0.3);
+  border-color: rgba(56, 161, 105, 0.5);
+  box-shadow: 0 2px 4px rgba(56, 161, 105, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(11) { /* 任务清单 */
+  background: rgba(49, 130, 206, 0.15);
+  border-color: rgba(49, 130, 206, 0.3);
+  color: #2c5282;
+}
+#toolbar-md-content .md-btn:nth-child(11):hover {
+  background: rgba(49, 130, 206, 0.3);
+  border-color: rgba(49, 130, 206, 0.5);
+  box-shadow: 0 2px 4px rgba(49, 130, 206, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(12) { /* 有序列表 */
+  background: rgba(214, 158, 46, 0.15);
+  border-color: rgba(214, 158, 46, 0.3);
+  color: #975a16;
+}
+#toolbar-md-content .md-btn:nth-child(12):hover {
+  background: rgba(214, 158, 46, 0.3);
+  border-color: rgba(214, 158, 46, 0.5);
+  box-shadow: 0 2px 4px rgba(214, 158, 46, 0.2);
+}
+
+#toolbar-md-content .md-btn:nth-child(13) { /* 卡片 */
+  background: rgba(237, 100, 166, 0.15);
+  border-color: rgba(237, 100, 166, 0.3);
+  color: #b83280;
+}
+#toolbar-md-content .md-btn:nth-child(13):hover {
+  background: rgba(237, 100, 166, 0.3);
+  border-color: rgba(237, 100, 166, 0.5);
+  box-shadow: 0 2px 4px rgba(237, 100, 166, 0.2);
+}
+
+/* 🎨 视图切换按钮 - 灰色系 */
+#toolbar-md-content .md-view-btn {
+  background: rgba(160, 174, 192, 0.15);
+  border-color: rgba(160, 174, 192, 0.3);
+  color: #4a5568;
+}
+#toolbar-md-content .md-view-btn:hover {
+  background: rgba(160, 174, 192, 0.3);
+  border-color: rgba(160, 174, 192, 0.5);
+  box-shadow: 0 2px 4px rgba(160, 174, 192, 0.2);
+}
+#toolbar-md-content .md-view-btn.active {
+  background: rgba(66, 153, 225, 0.25);
+  border-color: rgba(66, 153, 225, 0.5);
+  color: #2b6cb0;
+}
+
+#toolbar-md-content .md-separator {
+  color: var(--admin-current-text-muted);
+  margin: 0 var(--admin-space-xs);
+  align-self: center;
+}
+
+/* 🔧 Quicktags工具栏 - 透明背景 */
+#toolbar-quicktags-content #ed_toolbar {
+  background: transparent !important; /* ◀️ 强制透明背景 */
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-xs);
+  position: relative !important;
+  top: auto !important;
+  width: 100% !important;
+}
+
+/* 🎨 Quicktags按钮 - 彩色明亮淡色风格 */
+#toolbar-quicktags-content .ed_button {
+  background: rgba(99, 179, 237, 0.15);
+  border: 1px solid rgba(99, 179, 237, 0.3);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  font-size: var(--admin-font-size-xs);
+  color: #3182ce;
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  margin: 0;
+  height: auto;
+  line-height: 1.4;
+  backdrop-filter: blur(4px);
+}
+
+#toolbar-quicktags-content .ed_button:hover {
+  background: rgba(99, 179, 237, 0.3);
+  border-color: rgba(99, 179, 237, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(99, 179, 237, 0.2);
+}
+
+/* 🎨 Quicktags按钮 - 不同颜色（按类型分组） */
+/* 基础格式 - 红色系 */
+#toolbar-quicktags-content .ed_button[value="b"],
+#toolbar-quicktags-content .ed_button[value="i"],
+#toolbar-quicktags-content .ed_button[value="del"],
+#toolbar-quicktags-content .ed_button[value="ins"] {
+  background: rgba(245, 101, 101, 0.15);
+  border-color: rgba(245, 101, 101, 0.3);
+  color: #c53030;
+}
+#toolbar-quicktags-content .ed_button[value="b"]:hover,
+#toolbar-quicktags-content .ed_button[value="i"]:hover,
+#toolbar-quicktags-content .ed_button[value="del"]:hover,
+#toolbar-quicktags-content .ed_button[value="ins"]:hover {
+  background: rgba(245, 101, 101, 0.3);
+  border-color: rgba(245, 101, 101, 0.5);
+  box-shadow: 0 2px 4px rgba(245, 101, 101, 0.2);
+}
+
+/* 链接和媒体 - 蓝色系 */
+#toolbar-quicktags-content .ed_button[value="link"],
+#toolbar-quicktags-content .ed_button[value="img"] {
+  background: rgba(66, 153, 225, 0.15);
+  border-color: rgba(66, 153, 225, 0.3);
+  color: #2b6cb0;
+}
+#toolbar-quicktags-content .ed_button[value="link"]:hover,
+#toolbar-quicktags-content .ed_button[value="img"]:hover {
+  background: rgba(66, 153, 225, 0.3);
+  border-color: rgba(66, 153, 225, 0.5);
+  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.2);
+}
+
+/* 引用 - 紫色系 */
+#toolbar-quicktags-content .ed_button[value="b-quote"],
+#toolbar-quicktags-content .ed_button[value="引用1"],
+#toolbar-quicktags-content .ed_button[value="引用2"] {
+  background: rgba(159, 122, 234, 0.15);
+  border-color: rgba(159, 122, 234, 0.3);
+  color: #6b46c1;
+}
+#toolbar-quicktags-content .ed_button[value="b-quote"]:hover,
+#toolbar-quicktags-content .ed_button[value="引用1"]:hover,
+#toolbar-quicktags-content .ed_button[value="引用2"]:hover {
+  background: rgba(159, 122, 234, 0.3);
+  border-color: rgba(159, 122, 234, 0.5);
+  box-shadow: 0 2px 4px rgba(159, 122, 234, 0.2);
+}
+
+/* 列表 - 绿色系 */
+#toolbar-quicktags-content .ed_button[value="ul"],
+#toolbar-quicktags-content .ed_button[value="ol"],
+#toolbar-quicktags-content .ed_button[value="li"] {
+  background: rgba(72, 187, 120, 0.15);
+  border-color: rgba(72, 187, 120, 0.3);
+  color: #276749;
+}
+#toolbar-quicktags-content .ed_button[value="ul"]:hover,
+#toolbar-quicktags-content .ed_button[value="ol"]:hover,
+#toolbar-quicktags-content .ed_button[value="li"]:hover {
+  background: rgba(72, 187, 120, 0.3);
+  border-color: rgba(72, 187, 120, 0.5);
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.2);
+}
+
+/* 代码 - 灰色系 */
+#toolbar-quicktags-content .ed_button[value="code"],
+#toolbar-quicktags-content .ed_button[value="代码高亮"] {
+  background: rgba(113, 128, 150, 0.15);
+  border-color: rgba(113, 128, 150, 0.3);
+  color: #4a5568;
+}
+#toolbar-quicktags-content .ed_button[value="code"]:hover,
+#toolbar-quicktags-content .ed_button[value="代码高亮"]:hover {
+  background: rgba(113, 128, 150, 0.3);
+  border-color: rgba(113, 128, 150, 0.5);
+  box-shadow: 0 2px 4px rgba(113, 128, 150, 0.2);
+}
+
+/* 标题 - 橙色系 */
+#toolbar-quicktags-content .ed_button[value="H2"],
+#toolbar-quicktags-content .ed_button[value="H2标题"],
+#toolbar-quicktags-content .ed_button[value="H3标题"],
+#toolbar-quicktags-content .ed_button[value="H4标题"] {
+  background: rgba(237, 137, 54, 0.15);
+  border-color: rgba(237, 137, 54, 0.3);
+  color: #c05621;
+}
+#toolbar-quicktags-content .ed_button[value="H2"]:hover,
+#toolbar-quicktags-content .ed_button[value="H2标题"]:hover,
+#toolbar-quicktags-content .ed_button[value="H3标题"]:hover,
+#toolbar-quicktags-content .ed_button[value="H4标题"]:hover {
+  background: rgba(237, 137, 54, 0.3);
+  border-color: rgba(237, 137, 54, 0.5);
+  box-shadow: 0 2px 4px rgba(237, 137, 54, 0.2);
+}
+
+/* 特殊功能 - 粉色系 */
+#toolbar-quicktags-content .ed_button[value="more"],
+#toolbar-quicktags-content .ed_button[value="分页"],
+#toolbar-quicktags-content .ed_button[value="下载框"] {
+  background: rgba(237, 100, 166, 0.15);
+  border-color: rgba(237, 100, 166, 0.3);
+  color: #b83280;
+}
+#toolbar-quicktags-content .ed_button[value="more"]:hover,
+#toolbar-quicktags-content .ed_button[value="分页"]:hover,
+#toolbar-quicktags-content .ed_button[value="下载框"]:hover {
+  background: rgba(237, 100, 166, 0.3);
+  border-color: rgba(237, 100, 166, 0.5);
+  box-shadow: 0 2px 4px rgba(237, 100, 166, 0.2);
+}
+
+/* 会员功能 - 青色系 */
+#toolbar-quicktags-content .ed_button[value="会员查看模式一"],
+#toolbar-quicktags-content .ed_button[value="会员查看模式二"],
+#toolbar-quicktags-content .ed_button[value="文章密码保护"] {
+  background: rgba(56, 178, 172, 0.15);
+  border-color: rgba(56, 178, 172, 0.3);
+  color: #285e61;
+}
+#toolbar-quicktags-content .ed_button[value="会员查看模式一"]:hover,
+#toolbar-quicktags-content .ed_button[value="会员查看模式二"]:hover,
+#toolbar-quicktags-content .ed_button[value="文章密码保护"]:hover {
+  background: rgba(56, 178, 172, 0.3);
+  border-color: rgba(56, 178, 172, 0.5);
+  box-shadow: 0 2px 4px rgba(56, 178, 172, 0.2);
+}
+
+/* 下载按钮 - 绿色系 */
+#toolbar-quicktags-content .ed_button[value="下载按钮"],
+#toolbar-quicktags-content .ed_button[value="链接按钮"] {
+  background: rgba(104, 211, 145, 0.15);
+  border-color: rgba(104, 211, 145, 0.3);
+  color: #276749;
+}
+#toolbar-quicktags-content .ed_button[value="下载按钮"]:hover,
+#toolbar-quicktags-content .ed_button[value="链接按钮"]:hover {
+  background: rgba(104, 211, 145, 0.3);
+  border-color: rgba(104, 211, 145, 0.5);
+  box-shadow: 0 2px 4px rgba(104, 211, 145, 0.2);
+}
+
+/* H2特殊标签 - 黄橙色系 */
+#toolbar-quicktags-content .ed_button[value="H2毛笔标"],
+#toolbar-quicktags-content .ed_button[value="H2设置标"],
+#toolbar-quicktags-content .ed_button[value="H2下载标"],
+#toolbar-quicktags-content .ed_button[value="H2微信标"],
+#toolbar-quicktags-content .ed_button[value="H2QQ企鹅标"] {
+  background: rgba(246, 173, 85, 0.15);
+  border-color: rgba(246, 173, 85, 0.3);
+  color: #975a16;
+}
+#toolbar-quicktags-content .ed_button[value="H2毛笔标"]:hover,
+#toolbar-quicktags-content .ed_button[value="H2设置标"]:hover,
+#toolbar-quicktags-content .ed_button[value="H2下载标"]:hover,
+#toolbar-quicktags-content .ed_button[value="H2微信标"]:hover,
+#toolbar-quicktags-content .ed_button[value="H2QQ企鹅标"]:hover {
+  background: rgba(246, 173, 85, 0.3);
+  border-color: rgba(246, 173, 85, 0.5);
+  box-shadow: 0 2px 4px rgba(246, 173, 85, 0.2);
+}
+
+/* 其他功能 - 靛蓝色系 */
+#toolbar-quicktags-content .ed_button[value="飞来模块"],
+#toolbar-quicktags-content .ed_button[value="OL列表"],
+#toolbar-quicktags-content .ed_button[value="音频"],
+#toolbar-quicktags-content .ed_button[value="视频"] {
+  background: rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: #4c51bf;
+}
+#toolbar-quicktags-content .ed_button[value="飞来模块"]:hover,
+#toolbar-quicktags-content .ed_button[value="OL列表"]:hover,
+#toolbar-quicktags-content .ed_button[value="音频"]:hover,
+#toolbar-quicktags-content .ed_button[value="视频"]:hover {
+  background: rgba(102, 126, 234, 0.3);
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+}
+
+/* 关闭标签 - 红色系 */
+#toolbar-quicktags-content .ed_button[value="关闭标签"] {
+  background: rgba(229, 62, 62, 0.15);
+  border-color: rgba(229, 62, 62, 0.3);
+  color: #c53030;
+}
+#toolbar-quicktags-content .ed_button[value="关闭标签"]:hover {
+  background: rgba(229, 62, 62, 0.3);
+  border-color: rgba(229, 62, 62, 0.5);
+  box-shadow: 0 2px 4px rgba(229, 62, 62, 0.2);
+}
+
+/* 清除格式 - 灰色系 */
+#toolbar-quicktags-content .ed_button[value="清除格式"] {
+  background: rgba(160, 174, 192, 0.15);
+  border-color: rgba(160, 174, 192, 0.3);
+  color: #4a5568;
+}
+#toolbar-quicktags-content .ed_button[value="清除格式"]:hover {
+  background: rgba(160, 174, 192, 0.3);
+  border-color: rgba(160, 174, 192, 0.5);
+  box-shadow: 0 2px 4px rgba(160, 174, 192, 0.2);
+}
+
+/* 🌊 分割线按钮 - 粉紫蓝渐变风格 */
+#toolbar-quicktags-content .ed_button[value="分割线"] {
+  background: linear-gradient(135deg, rgba(236, 112, 99, 0.2), rgba(159, 122, 234, 0.2), rgba(66, 153, 225, 0.2));
+  border-color: rgba(159, 122, 234, 0.4);
+  color: #6b46c1;
+}
+#toolbar-quicktags-content .ed_button[value="分割线"]:hover {
+  background: linear-gradient(135deg, rgba(236, 112, 99, 0.35), rgba(159, 122, 234, 0.35), rgba(66, 153, 225, 0.35));
+  border-color: rgba(159, 122, 234, 0.6);
+  box-shadow: 0 2px 8px rgba(159, 122, 234, 0.3);
+}
+
+/* 💨 换行按钮 - 青绿色系 */
+#toolbar-quicktags-content .ed_button[value="换行"] {
+  background: rgba(56, 178, 172, 0.15);
+  border-color: rgba(56, 178, 172, 0.3);
+  color: #285e61;
+}
+#toolbar-quicktags-content .ed_button[value="换行"]:hover {
+  background: rgba(56, 178, 172, 0.3);
+  border-color: rgba(56, 178, 172, 0.5);
+  box-shadow: 0 2px 4px rgba(56, 178, 172, 0.2);
+}
+
+#toolbar-quicktags-content .qt-dfw {
+  display: none;
+}
+
+/* ============================================
+   📝 主编辑区卡片容器
+   ============================================ */
+
+/* 📝 主编辑区包装器 */
+.post-new-php #poststuff,
+.post-php #poststuff {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-lg);
+  min-height: 0; /* ◀️ 强制按内容高度 */
+  height: auto; /* ◀️ 高度自适应内容 */
+}
+
+/* ============================================
+   📝 标题输入区域
+   ============================================ */
+
+/* 📝 标题输入框包装器 */
+.post-new-php #titlediv,
+.post-php #titlediv {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  padding: var(--admin-space-lg);
+  margin: 0;
+}
+
+/* 📝 标题输入框 */
+.post-new-php #title,
+.post-php #title {
+  background: var(--admin-current-bg);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  font-size: var(--admin-font-size-xl);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  transition: all var(--admin-transition-fast);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%233182ce' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='9' x2='20' y2='9'%3E%3C/line%3E%3Cline x1='4' y1='15' x2='20' y2='15'%3E%3C/line%3E%3Cline x1='10' y1='3' x2='8' y2='21'%3E%3C/line%3E%3Cline x1='16' y1='3' x2='14' y2='21'%3E%3C/line%3E%3C/svg%3E"); /* ◀️ 蓝色 # SVG 图标 */
+  background-repeat: no-repeat;
+  background-position: 16px center;
+  background-size: 20px;
+  text-indent: 32px; /* ◀️ 文本缩进，避免盖住图标 */
+}
+
+.post-new-php #title:focus,
+.post-php #title:focus {
+  outline: none;
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+}
+
+/* 📝 标题标签 */
+.post-new-php #title-prompt-text,
+.post-php #title-prompt-text {
+  color: var(--admin-current-text-muted);
+  font-size: var(--admin-font-size-lg);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  text-indent: 32px; /* ◀️ 与文本缩进对齐 */
+}
+
+/* ============================================
+   📝 内容编辑器区域
+   ============================================ */
+
+/* 📝 编辑器容器 */
+.post-new-php #postdivrich,
+.post-php #postdivrich {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  padding: var(--admin-space-lg);
+  margin: 0;
+  flex: 0 0 auto; /* ◀️ 不伸缩，按内容高度 */
+  min-height: 0; /* ◀️ 强制按内容高度 */
+  height: auto; /* ◀️ 高度自适应内容 */
+}
+
+/* 📝 编辑器包装器 - 移除顶部内边距 */
+.post-new-php #wp-content-wrap,
+.post-php #wp-content-wrap {
+  padding-top: 0 !important; /* ◀️ 移除顶部内边距，避免空白 */
+}
+
+/* 📝 编辑器工具栏容器 - 隐藏或移除 */
+.post-new-php #wp-content-editor-tools,
+.post-php #wp-content-editor-tools {
+  display: none !important; /* ◀️ 隐藏空的工具栏容器 */
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* 📝 编辑器文本域 - 移除多余边距和滚动条 */
+.post-new-php .wp-editor-area,
+.post-php .wp-editor-area {
+  margin-top: 0 !important; /* ◀️ 移除顶部边距 */
+  overflow-x: hidden !important; /* ◀️ 隐藏水平滚动条，防止内容超出页面 */
+  overflow-y: auto !important; /* ◀️ 允许垂直滚动 */
+  resize: vertical !important; /* ◀️ 允许垂直方向手动调整大小，方便移动端扩展 */
+  min-height: 300px !important; /* ◀️ 设置最小高度，确保编辑区域有足够空间 */
+  field-sizing: content !important; /* ◀️ ☀️ 现代浏览器支持：根据内容自动调整高度 */
+  max-width: 100% !important; /* ◀️ 确保不超出父容器宽度 */
+  box-sizing: border-box !important; /* ◀️ 确保内边距不增加总宽度 */
+  word-wrap: break-word !important; /* ◀️ 长文本自动换行 */
+  white-space: pre-wrap !important; /* ◀️ 保留换行符并自动换行 */
+}
+
+/* 📝 编辑器工具栏 */
+.post-new-php .mce-toolbar-grp,
+.post-php .mce-toolbar-grp {
+  background: var(--admin-current-bg) !important;
+  border: var(--admin-border-glass) !important;
+  border-radius: var(--admin-radius-md) var(--admin-radius-md) 0 0 !important;
+}
+
+/* 📝 编辑器内容区域 */
+.post-new-php .mce-edit-area,
+.post-php .mce-edit-area {
+  background: var(--admin-current-bg) !important;
+  border: var(--admin-border-glass) !important;
+  border-top: none !important;
+  border-radius: 0 0 var(--admin-radius-md) var(--admin-radius-md) !important;
+}
+
+/* 📝 编辑器iframe */
+.post-new-php .mce-edit-area iframe,
+.post-php .mce-edit-area iframe {
+  background: var(--admin-current-bg) !important;
+}
+
+/* 📝 媒体按钮容器 */
+.post-new-php #wp-content-media-buttons,
+.post-php #wp-content-media-buttons {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  margin-bottom: var(--admin-space-md);
+}
+
+/* 📝 添加媒体按钮 */
+.post-new-php .insert-media,
+.post-php .insert-media {
+  background: var(--admin-primary-bg);
+  border: 1px solid var(--admin-primary-border);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-primary-text);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php .insert-media:hover,
+.post-php .insert-media:hover {
+  background: var(--admin-primary-bg-hover);
+}
+
+/* ============================================
+   📦 发布框区域
+   ============================================ */
+
+/* 📦 发布框容器 */
+.post-new-php #submitdiv,
+.post-php #submitdiv {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* 📦 发布框标题 */
+.post-new-php #submitdiv .hndle,
+.post-php #submitdiv .hndle {
+  background: var(--admin-primary-bg);
+  border-bottom: 1px solid var(--admin-primary-border);
+  color: var(--admin-primary-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+}
+
+/* 📦 发布框内容 */
+.post-new-php #submitdiv .inside,
+.post-php #submitdiv .inside {
+  background: var(--admin-current-bg);
+  padding: var(--admin-space-lg);
+}
+
+/* 🔘 发布操作区域 */
+.post-new-php #major-publishing-actions,
+.post-php #major-publishing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* ◀️ 去掉子元素之间的间隙 */
+}
+
+/* 📦 发布按钮容器 */
+.post-new-php #publishing-action,
+.post-php #publishing-action {
+  width: 100%;
+  float: none;
+  text-align: left;
+  margin: 0; /* ◀️ 去掉所有边距 */
+  padding: 0;
+}
+
+/* 🗑️ 删除操作区域 - 玻璃拟态风格 */
+.post-new-php #delete-action,
+.post-php #delete-action {
+  margin: var(--admin-space-xs) 0;
+  padding: var(--admin-space-sm);
+  background: rgba(245, 101, 101, 0.1); /* ◀️ 淡红色背景 */
+  border: 1px solid rgba(245, 101, 101, 0.2);
+  border-radius: var(--admin-radius-md);
+  text-align: center;
+}
+
+/* 🗑️ 删除链接样式 */
+.post-new-php #delete-action .submitdelete,
+.post-php #delete-action .submitdelete {
+  color: #c53030; /* ◀️ 红色文字 */
+  text-decoration: none;
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php #delete-action .submitdelete:hover,
+.post-php #delete-action .submitdelete:hover {
+  color: #9b2c2c; /* ◀️ 深红色悬停 */
+  text-decoration: underline;
+}
+
+/* 📦 复制文章按钮容器 - 去掉所有边距 */
+.post-new-php #boxmoe-duplicate-action,
+.post-php #boxmoe-duplicate-action {
+  margin: 0 !important;
+  padding: 0;
+}
+
+/* 🔘 发布按钮 */
+.post-new-php #publish,
+.post-php #publish {
+  background: var(--admin-success-bg);
+  border: 1px solid var(--admin-success-border);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-success-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-xl);
+  transition: all var(--admin-transition-fast);
+  width: 100%; /* ◀️ 自适应父容器宽度 */
+  box-sizing: border-box; /* ◀️ 确保内边距不增加总宽度 */
+  margin-top: 0; /* ◀️ 去掉上边距 */
+}
+
+.post-new-php #publish:hover,
+.post-php #publish:hover {
+  background: var(--admin-success-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* 🔘 保存草稿按钮 */
+.post-new-php #save-post,
+.post-php #save-post {
+  background: var(--admin-warning-bg);
+  border: 1px solid var(--admin-warning-border);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-warning-text);
+  font-weight: var(--admin-font-weight-medium);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php #save-post:hover,
+.post-php #save-post:hover {
+  background: var(--admin-warning-bg-solid);
+}
+
+/* 🔘 预览按钮 */
+.post-new-php #post-preview,
+.post-php #post-preview {
+  background: var(--admin-purple-bg);
+  border: 1px solid var(--admin-purple-border);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-purple-text);
+  font-weight: var(--admin-font-weight-medium);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php #post-preview:hover,
+.post-php #post-preview:hover {
+  background: var(--admin-purple-bg-hover);
+}
+
+/* ============================================
+   🏷️ 分类和标签区域
+   ============================================ */
+
+/* 📦 分类框容器 */
+.post-new-php #categorydiv,
+.post-php #categorydiv,
+.post-new-php #tagsdiv-post_tag,
+.post-php #tagsdiv-post_tag {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* 📦 分类框标题 */
+.post-new-php #categorydiv .hndle,
+.post-php #categorydiv .hndle,
+.post-new-php #tagsdiv-post_tag .hndle,
+.post-php #tagsdiv-post_tag .hndle {
+  background: var(--admin-purple-bg);
+  border-bottom: 1px solid var(--admin-purple-border);
+  color: var(--admin-purple-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+}
+
+/* 📦 分类框内容 */
+.post-new-php #categorydiv .inside,
+.post-php #categorydiv .inside,
+.post-new-php #tagsdiv-post_tag .inside,
+.post-php #tagsdiv-post_tag .inside {
+  background: var(--admin-current-bg);
+  padding: var(--admin-space-lg);
+}
+
+/* 🏷️ 分类列表 - 圆角按钮布局 */
+.post-new-php #categorychecklist,
+.post-php #categorychecklist,
+.post-new-php #categorychecklist-pop,
+.post-php #categorychecklist-pop {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-xs);
+}
+
+/* 🏷️ 分类列表项 - 圆角按钮样式 */
+.post-new-php #categorychecklist li,
+.post-php #categorychecklist li,
+.post-new-php #categorychecklist-pop li,
+.post-php #categorychecklist-pop li {
+  display: inline-flex;
+  margin: 0;
+}
+
+/* 🏷️ 分类按钮样式 - 默认淡灰色 */
+.post-new-php #categorychecklist .selectit,
+.post-php #categorychecklist .selectit,
+.post-new-php #categorychecklist-pop .selectit,
+.post-php #categorychecklist-pop .selectit {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  background: rgba(160, 174, 192, 0.15);
+  border: 1px solid rgba(160, 174, 192, 0.3);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  font-size: var(--admin-font-size-xs);
+  color: #4a5568;
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+/* 🏷️ 分类按钮悬停效果 */
+.post-new-php #categorychecklist .selectit:hover,
+.post-php #categorychecklist .selectit:hover,
+.post-new-php #categorychecklist-pop .selectit:hover,
+.post-php #categorychecklist-pop .selectit:hover {
+  background: rgba(160, 174, 192, 0.25);
+  border-color: rgba(160, 174, 192, 0.5);
+  transform: translateY(-1px);
+}
+
+/* 🏷️ 分类按钮选中状态 - 高亮橙色 ◀️ 使用 :has() 选择器匹配内部选中的 checkbox */
+.post-new-php #categorychecklist li:has(input[type="checkbox"]:checked) .selectit,
+.post-php #categorychecklist li:has(input[type="checkbox"]:checked) .selectit,
+.post-new-php #categorychecklist-pop li:has(input[type="checkbox"]:checked) .selectit,
+.post-php #categorychecklist-pop li:has(input[type="checkbox"]:checked) .selectit {
+  background: rgba(237, 137, 54, 0.2);
+  border-color: rgba(237, 137, 54, 0.5);
+  color: #c05621;
+  box-shadow: 0 2px 4px rgba(237, 137, 54, 0.15);
+}
+
+/* 🏷️ 分类复选框隐藏 ◀️ 使用 clip 隐藏但保持可交互 */
+.post-new-php #categorychecklist input[type="checkbox"],
+.post-php #categorychecklist input[type="checkbox"],
+.post-new-php #categorychecklist-pop input[type="checkbox"],
+.post-php #categorychecklist-pop input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: auto; /* ◀️ 确保点击事件可穿透 */
+}
+
+/* 🏷️ 热门分类特殊标记 */
+.post-new-php #categorychecklist .popular-category .selectit,
+.post-php #categorychecklist .popular-category .selectit,
+.post-new-php #categorychecklist-pop .popular-category .selectit,
+.post-php #categorychecklist-pop .popular-category .selectit {
+  background: rgba(236, 201, 75, 0.1);
+  border-color: rgba(236, 201, 75, 0.3);
+}
+
+.post-new-php #categorychecklist .popular-category .selectit:hover,
+.post-php #categorychecklist .popular-category .selectit:hover,
+.post-new-php #categorychecklist-pop .popular-category .selectit:hover,
+.post-php #categorychecklist-pop .popular-category .selectit:hover {
+  background: rgba(236, 201, 75, 0.2);
+  border-color: rgba(236, 201, 75, 0.5);
+}
+
+/* 🏷️ 标签云容器 - 去掉边框 */
+.post-new-php #tagcloud-post_tag,
+.post-php #tagcloud-post_tag {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* 📂 分类容器 - 去掉边框 */
+.post-new-php #category-all,
+.post-php #category-all,
+.post-new-php #category-pop,
+.post-php #category-pop {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+/* 📂 分类标签页 - 改为圆角按钮风格 */
+.post-new-php #category-tabs,
+.post-php #category-tabs {
+  display: flex;
+  gap: var(--admin-space-xs);
+  margin-bottom: var(--admin-space-sm);
+  padding: 0;
+  list-style: none;
+  border-bottom: none;
+}
+
+.post-new-php #category-tabs li,
+.post-php #category-tabs li {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.post-new-php #category-tabs li a,
+.post-php #category-tabs li a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  background: rgba(160, 174, 192, 0.15);
+  border: 1px solid rgba(160, 174, 192, 0.3);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  font-size: var(--admin-font-size-xs);
+  color: #4a5568;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+.post-new-php #category-tabs li a:hover,
+.post-php #category-tabs li a:hover {
+  background: rgba(160, 174, 192, 0.25);
+  border-color: rgba(160, 174, 192, 0.5);
+  transform: translateY(-1px);
+}
+
+.post-new-php #category-tabs li.tabs a,
+.post-php #category-tabs li.tabs a {
+  background: rgba(237, 137, 54, 0.2);
+  border-color: rgba(237, 137, 54, 0.5);
+  color: #c05621;
+  box-shadow: 0 2px 4px rgba(237, 137, 54, 0.15);
+}
+
+/* 🏷️ 标签云 - 同步分类列表UI风格 */
+.post-new-php .wp-tag-cloud,
+.post-php .wp-tag-cloud {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-xs);
+  list-style: none;
+  margin: 0;
+}
+
+/* 🏷️ 标签云项 - 圆角按钮样式 */
+.post-new-php .wp-tag-cloud li,
+.post-php .wp-tag-cloud li {
+  display: inline-flex;
+  margin: 0;
+}
+
+/* 🏷️ 标签云链接 - 圆角按钮样式 */
+.post-new-php .wp-tag-cloud .tag-cloud-link,
+.post-php .wp-tag-cloud .tag-cloud-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  background: rgba(160, 174, 192, 0.15);
+  border: 1px solid rgba(160, 174, 192, 0.3);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  font-size: var(--admin-font-size-xs);
+  color: #4a5568;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  backdrop-filter: blur(4px);
+  white-space: nowrap;
+}
+
+.post-new-php .wp-tag-cloud .tag-cloud-link:hover,
+.post-php .wp-tag-cloud .tag-cloud-link:hover {
+  background: rgba(237, 137, 54, 0.2);
+  border-color: rgba(237, 137, 54, 0.5);
+  color: #c05621;
+  box-shadow: 0 2px 4px rgba(237, 137, 54, 0.15);
+}
+
+/* 🏷️ 标签输入框和按钮容器 */
+.post-new-php .ajaxtag,
+.post-php .ajaxtag {
+  display: flex;
+  gap: var(--admin-space-xs);
+  align-items: stretch;
+}
+
+/* 🏷️ 标签输入框 - 玻璃拟态风格 */
+.post-new-php #tagsdiv-post_tag .newtag,
+.post-php #tagsdiv-post_tag .newtag,
+.post-new-php .inside .newtag,
+.post-php .inside .newtag {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.5) !important;
+  backdrop-filter: var(--admin-glass-blur);
+  border: 2px solid rgba(160, 174, 192, 0.5) !important; /* ◀️ 默认显示浅色半透明边框 */
+  border-radius: var(--admin-radius-md) !important;
+  padding: var(--admin-space-sm) var(--admin-space-md) !important;
+  color: var(--admin-current-text-primary) !important;
+  transition: all var(--admin-transition-fast);
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.post-new-php #tagsdiv-post_tag .newtag:focus,
+.post-php #tagsdiv-post_tag .newtag:focus,
+.post-new-php .inside .newtag:focus,
+.post-php .inside .newtag:focus {
+  outline: none !important;
+  border-color: rgba(66, 153, 225, 0.9) !important; /* ◀️ 点击后边框加深 */
+  box-shadow: 0 0 0 4px rgba(66, 153, 225, 0.3) !important; /* ◀️ 强提示阴影 */
+  background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* 🏷️ 标签添加按钮 - 玻璃拟态风格 */
+.post-new-php #tagsdiv-post_tag .tagadd,
+.post-php #tagsdiv-post_tag .tagadd,
+.post-new-php .inside .tagadd,
+.post-php .inside .tagadd {
+  background: linear-gradient(135deg, rgba(99, 179, 237, 0.85) 0%, rgba(66, 153, 225, 0.85) 100%) !important; /* ◀️ 未悬停前明亮浅色 */
+  border: none !important;
+  border-radius: var(--admin-radius-md) !important;
+  color: #ffffff !important;
+  font-weight: var(--admin-font-weight-semibold) !important;
+  padding: var(--admin-space-sm) var(--admin-space-lg) !important;
+  transition: all var(--admin-transition-fast);
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(66, 153, 225, 0.3);
+}
+
+.post-new-php #tagsdiv-post_tag .tagadd:hover,
+.post-php #tagsdiv-post_tag .tagadd:hover,
+.post-new-php .inside .tagadd:hover,
+.post-php .inside .tagadd:hover {
+  background: linear-gradient(135deg, rgba(66, 153, 225, 1) 0%, rgba(49, 130, 206, 1) 100%) !important; /* ◀️ 悬停后颜色加深 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(66, 153, 225, 0.4);
+}
+
+/* ============================================
+   🖼️ 特色图片区域
+   ============================================ */
+
+/* 📦 特色图片容器 */
+.post-new-php #postimagediv,
+.post-php #postimagediv {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* 📦 特色图片标题 */
+.post-new-php #postimagediv .hndle,
+.post-php #postimagediv .hndle {
+  background: var(--admin-primary-bg);
+  border-bottom: 1px solid var(--admin-primary-border);
+  color: var(--admin-primary-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+}
+
+/* 📦 特色图片内容 */
+.post-new-php #postimagediv .inside,
+.post-php #postimagediv .inside {
+  background: var(--admin-current-bg);
+  padding: var(--admin-space-lg);
+}
+
+/* 🖼️ 设置特色图片容器 */
+.post-new-php #postimagediv .inside p,
+.post-php #postimagediv .inside p {
+  margin: 0;
+}
+
+/* 🖼️ 设置特色图片按钮 */
+.post-new-php #set-post-thumbnail,
+.post-php #set-post-thumbnail {
+  display: block; /* ◀️ 块级元素，自适应宽度 */
+  width: 100%; /* ◀️ 自适应父容器宽度 */
+  box-sizing: border-box;
+  background: var(--admin-current-glass);
+  border: 2px dashed var(--admin-primary-border);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-xl);
+  text-align: center;
+  transition: all var(--admin-transition-fast);
+  text-decoration: none;
+  color: var(--admin-primary-text);
+}
+
+.post-new-php #set-post-thumbnail:hover,
+.post-php #set-post-thumbnail:hover {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+}
+
+/* ============================================
+   📋 摘要区域
+   ============================================ */
+
+/* 📦 摘要容器 */
+.post-new-php #postexcerpt,
+.post-php #postexcerpt {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* 📦 摘要标题 */
+.post-new-php #postexcerpt .hndle,
+.post-php #postexcerpt .hndle {
+  background: var(--admin-success-bg);
+  border-bottom: 1px solid var(--admin-success-border);
+  color: var(--admin-success-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+}
+
+/* 📦 摘要内容 */
+.post-new-php #postexcerpt .inside,
+.post-php #postexcerpt .inside {
+  background: var(--admin-current-bg);
+  padding: var(--admin-space-lg);
+}
+
+/* 📝 摘要文本域 */
+.post-new-php #excerpt,
+.post-php #excerpt {
+  background: var(--admin-current-bg);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-md);
+  color: var(--admin-current-text-primary);
+  resize: vertical;
+  min-height: 100px;
+}
+
+.post-new-php #excerpt:focus,
+.post-php #excerpt:focus {
+  outline: none;
+  border-color: var(--admin-success-border);
+  box-shadow: 0 0 0 3px var(--admin-success-shadow);
+}
+
+/* ============================================
+   🔗 其他元框区域
+   ============================================ */
+
+/* 📦 通用元框容器 */
+.post-new-php .postbox,
+.post-php .postbox {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+  margin-bottom: var(--admin-space-lg);
+  max-width: 100%; /* ◀️ 防止溢出父容器 */
+  box-sizing: border-box; /* ◀️ 确保边框和内边距不增加总宽度 */
+}
+
+/* 📦 元框标题 */
+.post-new-php .postbox .hndle,
+.post-php .postbox .hndle {
+  background: var(--admin-current-glass);
+  border-bottom: 1px solid var(--admin-current-border);
+  color: var(--admin-current-text-primary);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  text-align: left; /* ◀️ 标题文本靠左显示 */
+  /* 📝 覆盖 WordPress 默认的 flex 布局 */
+  flex-grow: 1 !important;
+  display: flex !important;
+  justify-content: flex-start !important;
+}
+
+/* 📦 元框图标 */
+.post-new-php .postbox .hndle .shiroki-metabox-icon,
+.post-php .postbox .hndle .shiroki-metabox-icon {
+  display: inline;
+  font-size: var(--admin-font-size-base);
+  line-height: 1;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+
+/* 📦 元框内容 */
+.post-new-php .postbox .inside,
+.post-php .postbox .inside {
+  background: var(--admin-current-bg);
+  padding: var(--admin-space-lg);
+}
+
+/* ============================================
+   📝 文章属性区域
+   ============================================ */
+
+/* 📦 文章属性容器 */
+.post-new-php #pageparentdiv,
+.post-php #pageparentdiv {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* 📦 文章属性标题 */
+.post-new-php #pageparentdiv .hndle,
+.post-php #pageparentdiv .hndle {
+  background: var(--admin-warning-bg);
+  border-bottom: 1px solid var(--admin-warning-border);
+  color: var(--admin-warning-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+}
+
+/* ============================================
+   🔗 作者和讨论区域
+   ============================================ */
+
+/* 📦 作者容器 */
+.post-new-php #authordiv,
+.post-php #authordiv {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* 📦 讨论容器 */
+.post-new-php #commentstatusdiv,
+.post-php #commentstatusdiv {
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: hidden;
+}
+
+/* ============================================
+   🎨 表单元素样式
+   ============================================ */
+
+/* 🔘 通用按钮样式 */
+.post-new-php .button,
+.post-php .button,
+.post-new-php .button-secondary,
+.post-php .button-secondary {
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-current-text-primary);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php .button:hover,
+.post-php .button:hover,
+.post-new-php .button-secondary:hover,
+.post-php .button-secondary:hover {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+  color: var(--admin-primary-text);
+}
+
+/* 🔘 主要按钮 */
+.post-new-php .button-primary,
+.post-php .button-primary {
+  background: var(--admin-primary-bg);
+  border: 1px solid var(--admin-primary-border);
+  border-radius: var(--admin-radius-md);
+  color: var(--admin-primary-text);
+  font-weight: var(--admin-font-weight-semibold);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php .button-primary:hover,
+.post-php .button-primary:hover {
+  background: var(--admin-primary-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* 📝 输入框样式 */
+.post-new-php input[type="text"],
+.post-php input[type="text"],
+.post-new-php input[type="password"],
+.post-php input[type="password"],
+.post-new-php input[type="email"],
+.post-php input[type="email"],
+.post-new-php input[type="url"],
+.post-php input[type="url"],
+.post-new-php input[type="number"],
+.post-php input[type="number"],
+.post-new-php textarea,
+.post-php textarea,
+.post-new-php select,
+.post-php select {
+  background: var(--admin-current-bg);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  color: var(--admin-current-text-primary);
+  transition: all var(--admin-transition-fast);
+}
+
+.post-new-php input[type="text"]:focus,
+.post-php input[type="text"]:focus,
+.post-new-php input[type="password"]:focus,
+.post-php input[type="password"]:focus,
+.post-new-php input[type="email"]:focus,
+.post-php input[type="email"]:focus,
+.post-new-php input[type="url"]:focus,
+.post-php input[type="url"]:focus,
+.post-new-php input[type="number"]:focus,
+.post-php input[type="number"]:focus,
+.post-new-php textarea:focus,
+.post-php textarea:focus,
+.post-new-php select:focus,
+.post-php select:focus {
+  outline: none;
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+}
+
+/* ============================================
+   📱 响应式设计 - 三栏布局
+   ============================================ */
+
+/* 📱 中等屏幕 - 两栏布局（隐藏左侧工具栏） */
+@media screen and (max-width: 1400px) {
+  .shiroki-editor-layout {
+    grid-template-columns: 1fr 320px;
+    grid-template-areas: "main sidebar";
+  }
+
+  .shiroki-editor-toolbar {
+    display: none;
+  }
+
+  /* 📝 恢复工具栏到编辑器上方 */
+  .shiroki-editor-main .editor-inner {
+    position: relative;
+  }
+}
+
+/* 📱 小屏幕 - 单栏布局 */
+@media screen and (max-width: 782px) {
+  .post-new-php #wpbody-content,
+  .post-php #wpbody-content {
+    padding: var(--admin-space-md);
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容水平溢出 */
+    max-width: 100vw !important; /* ◀️ 📱 限制最大宽度为视口宽度 */
+    box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+  }
+
+  .shiroki-editor-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "main"
+      "sidebar";
+    gap: var(--admin-space-lg);
+    max-width: 100% !important; /* ◀️ 📱 确保布局不超出视口 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止水平溢出 */
+  }
+
+  .shiroki-editor-sidebar {
+    position: relative;
+    top: auto;
+    height: auto;
+  }
+
+  /* 📝 📱 移动端编辑区域容器优化 */
+  .shiroki-editor-main {
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+  }
+
+  .shiroki-editor-main .editor-inner {
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+  }
+
+  .post-new-php #titlediv,
+  .post-php #titlediv,
+  .post-new-php #postdivrich,
+  .post-php #postdivrich {
+    padding: var(--admin-space-md);
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+    box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+  }
+
+  /* 📝 📱 移动端编辑器包装器优化 */
+  .post-new-php #wp-content-wrap,
+  .post-php #wp-content-wrap {
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+  }
+
+  .post-new-php .postbox,
+  .post-php .postbox {
+    margin-bottom: 0;
+  }
+
+  /* 📝 📱 移动端 textarea 编辑区域优化 - 确保能根据内容自动扩展 */
+  .post-new-php .wp-editor-area,
+  .post-php .wp-editor-area,
+  .post-new-php textarea#content,
+  .post-php textarea#content {
+    min-height: 400px !important; /* ◀️ 📱 移动端设置更大的最小高度 */
+    height: auto !important; /* ◀️ 📱 高度自适应内容 */
+    overflow-x: hidden !important; /* ◀️ 📱 隐藏水平滚动条，防止内容超出页面 */
+    overflow-y: auto !important; /* ◀️ 📱 允许垂直滚动 */
+    resize: vertical !important; /* ◀️ 📱 允许用户手动调整高度 */
+    field-sizing: content !important; /* ◀️ ☀️ 现代浏览器：根据内容自动调整 */
+    max-width: 100% !important; /* ◀️ 📱 确保不超出父容器宽度 */
+    width: 100% !important; /* ◀️ 📱 强制宽度为100% */
+    box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+    word-wrap: break-word !important; /* ◀️ 📱 长文本自动换行 */
+    white-space: pre-wrap !important; /* ◀️ 📱 保留换行符并自动换行 */
+  }
+}
+
+/* 📱 超小屏幕 */
+@media screen and (max-width: 480px) {
+  .post-new-php #wpbody-content,
+  .post-php #wpbody-content {
+    padding: var(--admin-space-sm);
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容水平溢出 */
+    max-width: 100vw !important; /* ◀️ 📱 限制最大宽度为视口宽度 */
+    box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+  }
+
+  .shiroki-editor-layout {
+    gap: var(--admin-space-md);
+    max-width: 100% !important; /* ◀️ 📱 确保布局不超出视口 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止水平溢出 */
+  }
+
+  /* 📝 📱 超小屏幕编辑区域容器优化 */
+  .shiroki-editor-main {
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+  }
+
+  .shiroki-editor-main .editor-inner {
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+  }
+
+  .post-new-php #titlediv,
+  .post-php #titlediv,
+  .post-new-php #postdivrich,
+  .post-php #postdivrich {
+    padding: var(--admin-space-sm);
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+    box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+  }
+
+  /* 📝 📱 超小屏幕编辑器包装器优化 */
+  .post-new-php #wp-content-wrap,
+  .post-php #wp-content-wrap {
+    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+  }
+
+  /* 📝 📱 超小屏幕 textarea 编辑区域优化 */
+  .post-new-php .wp-editor-area,
+  .post-php .wp-editor-area,
+  .post-new-php textarea#content,
+  .post-php textarea#content {
+    min-height: 350px !important; /* ◀️ 📱 超小屏幕适当减小最小高度 */
+    height: auto !important; /* ◀️ 📱 高度自适应内容 */
+    overflow-x: hidden !important; /* ◀️ 📱 隐藏水平滚动条，防止内容超出页面 */
+    overflow-y: auto !important; /* ◀️ 📱 允许垂直滚动 */
+    resize: vertical !important; /* ◀️ 📱 允许用户手动调整高度 */
+    field-sizing: content !important; /* ◀️ ☀️ 现代浏览器：根据内容自动调整 */
+    max-width: 100% !important; /* ◀️ 📱 确保不超出父容器宽度 */
+    width: 100% !important; /* ◀️ 📱 强制宽度为100% */
+    box-sizing: border-box !important; /* ◀️ 📱 确保内边距不增加总宽度 */
+    word-wrap: break-word !important; /* ◀️ 📱 长文本自动换行 */
+    white-space: pre-wrap !important; /* ◀️ 📱 保留换行符并自动换行 */
+  }
+}
+
+/* ============================================
+   ✨ 动画效果
+   ============================================ */
+
+/* 🎬 元框入场动画 */
+@keyframes shiroki-post-edit-box-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.post-new-php .postbox,
+.post-php .postbox {
+  animation: shiroki-post-edit-box-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 🌟 stagger 动画延迟 */
+.post-new-php .postbox:nth-child(1),
+.post-php .postbox:nth-child(1) { animation-delay: 0.05s; }
+.post-new-php .postbox:nth-child(2),
+.post-php .postbox:nth-child(2) { animation-delay: 0.1s; }
+.post-new-php .postbox:nth-child(3),
+.post-php .postbox:nth-child(3) { animation-delay: 0.15s; }
+.post-new-php .postbox:nth-child(4),
+.post-php .postbox:nth-child(4) { animation-delay: 0.2s; }
+.post-new-php .postbox:nth-child(5),
+.post-php .postbox:nth-child(5) { animation-delay: 0.25s; }
+.post-new-php .postbox:nth-child(6),
+.post-php .postbox:nth-child(6) { animation-delay: 0.3s; }
+
+/* ============================================
+   🌆 暗色模式适配
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+  .post-new-php #post,
+  .post-php #post {
+    background: var(--admin-bg-dark-primary);
+  }
+}
+
+.wp-admin.wp-dark-mode .post-new-php #post,
+.wp-admin.wp-dark-mode .post-php #post {
+  background: var(--admin-bg-dark-primary);
+}
+
+/* ============================================
+   📱 响应式适配 - 移动端工具栏
+   ============================================ */
+
+/* 📱 移动端工具栏浮动按钮 */
+.shiroki-toolbar-float-btn {
+  display: none;
+  position: fixed;
+  top: 50px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: var(--admin-space-sm) var(--admin-space-lg);
+  background: var(--admin-primary-bg);
+  border: 1px solid var(--admin-primary-border);
+  border-radius: var(--admin-radius-full);
+  color: var(--admin-primary-text);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  box-shadow: var(--admin-shadow-lg);
+  transition: all var(--admin-transition-fast);
+  backdrop-filter: var(--admin-glass-blur);
+}
+
+.shiroki-toolbar-float-btn:hover {
+  background: var(--admin-primary-bg-hover);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: var(--admin-shadow-xl);
+}
+
+.shiroki-toolbar-float-btn.active {
+  background: var(--admin-danger-bg);
+  border-color: var(--admin-danger-border);
+  color: var(--admin-danger-text);
+}
+
+/* 📱 移动端工具栏模态框 */
+.shiroki-toolbar-mobile-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.shiroki-toolbar-mobile-modal.active {
+  opacity: 1;
+}
+
+.shiroki-toolbar-mobile-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+}
+
+.shiroki-toolbar-mobile-modal-content {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  width: 90%;
+  max-width: 500px;
+  max-height: calc(100vh - 120px);
+  background: var(--admin-current-bg);
+  backdrop-filter: var(--admin-glass-blur);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  box-shadow: var(--admin-shadow-xl);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shiroki-toolbar-mobile-modal.active .shiroki-toolbar-mobile-modal-content {
+  transform: translateX(-50%) scale(1);
+}
+
+.shiroki-toolbar-mobile-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--admin-space-lg) var(--admin-space-xl);
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+.shiroki-toolbar-mobile-modal-title {
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-toolbar-mobile-modal-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--admin-bg-secondary);
+  color: var(--admin-current-text-secondary);
+  border-radius: var(--admin-radius-md);
+  cursor: pointer;
+  font-size: var(--admin-font-size-md);
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-toolbar-mobile-modal-close:hover {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger-text);
+}
+
+.shiroki-toolbar-mobile-modal-body {
+  padding: var(--admin-space-lg);
+  overflow-y: auto;
+  max-height: calc(100vh - 200px);
+}
+
+/* 📱 1400px以下响应式适配 */
+@media screen and (max-width: 1400px) {
+  /* ◀️ 显示浮动按钮 */
+  .shiroki-toolbar-float-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--admin-space-xs);
+  }
+
+  /* ◀️ 隐藏原工具栏 */
+  .shiroki-editor-toolbar {
+    display: none;
+  }
+
+  /* ◀️ 隐藏侧边栏，释放空间 */
+  .shiroki-editor-sidebar {
+    display: none !important;
+  }
+
+  /* ◀️ 调整主内容区域 */
+  .post-new-php #wpbody-content,
+  .post-php #wpbody-content {
+    padding-top: 60px;
+  }
+
+  /* ◀️ 显示移动端模态框 */
+  .shiroki-toolbar-mobile-modal {
+    display: flex;
+  }
+
+  /* ◀️ 编辑器布局改为单栏 */
+  .shiroki-editor-layout {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "main" !important;
+  }
+
+  .shiroki-editor-main {
+    grid-area: main;
+    max-width: 100%;
+  }
+}
