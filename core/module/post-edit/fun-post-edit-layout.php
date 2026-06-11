@@ -55,17 +55,23 @@ class Shiroki_Post_Edit_Layout {
         echo '/* 🕊️白木 原创开发 🔗gl.baimu.live */';
         echo '/* 📝 双栏布局样式 - PHP直接控制 */';
 
-        /* 🎨 双栏布局主容器 - 元框在左，编辑区在右 */
+        /* 🎨 三栏布局主容器 */
         echo '.shiroki-editor-layout {';
         echo '  display: grid;';
-        echo '  grid-template-columns: 380px 1fr;';
-        echo '  grid-template-areas: "sidebar main";';
+        echo '  grid-template-columns: 340px 1fr 380px;';
+        echo '  grid-template-areas: "toolbar main sidebar";';
         echo '  gap: var(--admin-space-lg);';
         echo '  max-width: 1600px;';
         echo '  margin: 0 auto;';
         echo '  min-height: calc(100vh - 100px);';
         echo '}';
-
+        
+        /* 🧰 工具栏占位 - 让 grid 为 fixed 工具栏留出空间 */
+        echo '.shiroki-editor-toolbar {';
+        echo '  grid-area: toolbar;';
+        echo '  min-height: 1px;';
+        echo '}';
+        
         /* 📝 右侧编辑区域 */
         echo '.shiroki-editor-main {';
         echo '  grid-area: main;';
@@ -127,17 +133,27 @@ class Shiroki_Post_Edit_Layout {
 
         /* 🧰 工具栏容器样式 */
         echo '.shiroki-editor-toolbar {';
+        echo '  position: fixed;';
+        echo '  top: 200px;';
+        echo '  left: 180px;';
+        echo '  width: 320px;';
+        echo '  max-height: calc(100vh - 260px)';
         echo '  background: var(--admin-current-glass);';
         echo '  backdrop-filter: var(--admin-glass-blur);';
         echo '  border: var(--admin-border-glass);';
         echo '  border-radius: var(--admin-radius-lg);';
         echo '  box-shadow: var(--admin-shadow-md);';
-        echo '  margin-bottom: var(--admin-space-lg);';
         echo '  overflow: hidden;';
+        echo '  display: flex;';
+        echo '  flex-direction: column;';
+        echo '  z-index: 100;';
         echo '}';
-
+        
         echo '.shiroki-editor-toolbar .toolbar-inner {';
         echo '  padding: var(--admin-space-md);';
+        echo '  overflow-y: auto;';
+        echo '  flex: 1;';
+        echo '  min-height: 0;';
         echo '}';
 
         echo '.shiroki-editor-toolbar .toolbar-section {';
@@ -299,13 +315,35 @@ class Shiroki_Post_Edit_Layout {
     }
 
     /**
-     * 📦 打开布局包装器 - 输出双栏布局容器开始
+     * 📦 打开布局包装器
      */
     public function open_layout_wrapper() {
-        /* 🔗 输出双栏布局容器 */
+        /* 🔗 输出三栏布局容器 */
         echo '<div id="shiroki-editor-layout" class="shiroki-editor-layout">';
 
-        /* 📝 左侧编辑区域开始 */
+        /* 🧰 工具栏区域 - 独立的第一栏 */
+        echo '  <div id="shiroki-editor-toolbar" class="shiroki-editor-toolbar">';
+        echo '    <div class="toolbar-inner">';
+        echo '      <div class="toolbar-section toolbar-media">';
+        echo '        <h4 class="toolbar-title">📎 媒体</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-media-content"></div>';
+        echo '      </div>';
+        echo '      <div class="toolbar-section toolbar-shortcodes">';
+        echo '        <h4 class="toolbar-title">⚡ 短代码</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-shortcodes-content"></div>';
+        echo '      </div>';
+        echo '      <div class="toolbar-section toolbar-md">';
+        echo '        <h4 class="toolbar-title">📝 MD工具</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-md-content"></div>';
+        echo '      </div>';
+        echo '      <div class="toolbar-section toolbar-quicktags">';
+        echo '        <h4 class="toolbar-title">🔧 Quicktags</h4>';
+        echo '        <div class="toolbar-content" id="toolbar-quicktags-content"></div>';
+        echo '      </div>';
+        echo '    </div>';
+        echo '  </div><!-- /#shiroki-editor-toolbar -->';
+
+        /* 📝 中间编辑区域开始 */
         echo '  <div id="shiroki-editor-main" class="shiroki-editor-main">';
         echo '    <div class="editor-inner">';
         /* 这里会包含标题和编辑器，由WordPress默认输出 */
@@ -315,35 +353,12 @@ class Shiroki_Post_Edit_Layout {
      * 📦 关闭布局包装器
      */
     public function close_layout_wrapper() {
-        /* 📝 关闭左侧编辑区域 */
+        /* 📝 关闭中间编辑区域 */
         echo '    </div><!-- /.editor-inner -->';
         echo '  </div><!-- /#shiroki-editor-main -->';
 
-        /* 📦 左侧元框区域（包含工具栏和元框） */
+        /* 📦 右侧元框区域 */
         echo '  <div id="shiroki-editor-sidebar" class="shiroki-editor-sidebar">';
-
-        /* 🧰 工具栏容器 - 放在元框区域顶部 */
-        echo '    <div id="shiroki-editor-toolbar" class="shiroki-editor-toolbar">';
-        echo '      <div class="toolbar-inner">';
-        echo '        <div class="toolbar-section toolbar-media">';
-        echo '          <h4 class="toolbar-title">📎 媒体</h4>';
-        echo '          <div class="toolbar-content" id="toolbar-media-content"></div>';
-        echo '        </div>';
-        echo '        <div class="toolbar-section toolbar-shortcodes">';
-        echo '          <h4 class="toolbar-title">⚡ 短代码</h4>';
-        echo '          <div class="toolbar-content" id="toolbar-shortcodes-content"></div>';
-        echo '        </div>';
-        echo '        <div class="toolbar-section toolbar-md">';
-        echo '          <h4 class="toolbar-title">📝 MD工具</h4>';
-        echo '          <div class="toolbar-content" id="toolbar-md-content"></div>';
-        echo '        </div>';
-        echo '        <div class="toolbar-section toolbar-quicktags">';
-        echo '          <h4 class="toolbar-title">🔧 Quicktags</h4>';
-        echo '          <div class="toolbar-content" id="toolbar-quicktags-content"></div>';
-        echo '        </div>';
-        echo '      </div>';
-        echo '    </div><!-- /#shiroki-editor-toolbar -->';
-
         echo '    <!-- 元框将由JS移动到这里 -->';
         echo '  </div><!-- /#shiroki-editor-sidebar -->';
 

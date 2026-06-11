@@ -150,13 +150,15 @@ function showToast(message, isSuccess = true) {
 function initSearchBox() {
     const searchBtns = document.querySelectorAll('.search-btn, .mobile-search-btn');
     const searchForms = document.querySelectorAll('.search-form, .mobile-search-form');
-    
+
     searchBtns.forEach((btn, index) => {
         const form = searchForms[index];
         const input = form.querySelector('input[type="search"]');
-        
+
         if (btn && form && input) {
+            // 搜索按钮点击事件 - 仅处理展开/收起逻辑
             btn.addEventListener('click', function(e) {
+                // 如果表单未激活，展开并聚焦
                 if (!form.classList.contains('active')) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -165,20 +167,17 @@ function initSearchBox() {
                         input.focus();
                     }, 100);
                 }
+                // 如果表单已激活且有内容，让表单正常提交（不阻止默认行为）
             });
 
-            form.addEventListener('submit', function(e) {
-                if (!input.value.trim()) {
-                    e.preventDefault();
-                }
-            });
-
+            // 点击外部关闭搜索框
             document.addEventListener('click', function(e) {
                 if (!form.contains(e.target) && !btn.contains(e.target)) {
                     form.classList.remove('active');
                 }
             });
 
+            // ESC键关闭搜索框
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     form.classList.remove('active');
@@ -3192,7 +3191,8 @@ function initVideoPlayer() {
         });
 
         // 🎬 音量按钮切换静音
-        volumeBtn.addEventListener('click', () => {
+        volumeBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
             if (video.volume > 0) {
                 volumeSlider.value = 0;
                 video.volume = 0;
@@ -3204,13 +3204,14 @@ function initVideoPlayer() {
             }
         });
 
-        // 🎬 网页全屏功能 - 修复版本，改为占满浏览器视口
+        // 🎬 网页全屏功能
         let isWebFullscreen = false;
-        webFullscreenBtn.addEventListener('click', () => {
+        webFullscreenBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
             isWebFullscreen = !isWebFullscreen;
             const body = document.body;
             const html = document.documentElement;
-            
+
             if (isWebFullscreen) {
                 // 进入网页全屏模式（占满视口）
                 // 保存原始样式
@@ -3218,13 +3219,16 @@ function initVideoPlayer() {
                 html.dataset.originalOverflow = html.style.overflow;
                 body.dataset.originalMargin = body.style.margin;
                 html.dataset.originalMargin = html.style.margin;
-                
+
                 // 设置为占满视口
                 body.style.overflow = 'hidden';
                 html.style.overflow = 'hidden';
                 body.style.margin = '0';
                 html.style.margin = '0';
-                
+
+                // 给视频容器添加网页全屏类名
+                container.classList.add('web-fullscreen');
+
                 // 更新按钮图标
                 webFullscreenBtn.innerHTML = '<i class="fa fa-compress"></i>';
             } else {
@@ -3234,20 +3238,24 @@ function initVideoPlayer() {
                 html.style.overflow = html.dataset.originalOverflow || '';
                 body.style.margin = body.dataset.originalMargin || '';
                 html.style.margin = html.dataset.originalMargin || '';
-                
+
                 // 清除自定义数据属性
                 delete body.dataset.originalOverflow;
                 delete html.dataset.originalOverflow;
                 delete body.dataset.originalMargin;
                 delete html.dataset.originalMargin;
-                
+
+                // 移除视频容器的网页全屏类名
+                container.classList.remove('web-fullscreen');
+
                 // 更新按钮图标
                 webFullscreenBtn.innerHTML = '<i class="fa fa-arrows-alt"></i>';
             }
         });
         
         // 🎬 画中画功能
-        pipBtn.addEventListener('click', () => {
+        pipBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
             if (document.pictureInPictureElement) {
                 // 退出画中画
                 document.exitPictureInPicture().catch(err => {
@@ -3274,7 +3282,8 @@ function initVideoPlayer() {
         
         // 🎬 镜像画面功能
         let isMirrored = false;
-        mirrorBtn.addEventListener('click', () => {
+        mirrorBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
             isMirrored = !isMirrored;
             if (isMirrored) {
                 video.style.transform = 'scaleX(-1)';
@@ -3285,8 +3294,9 @@ function initVideoPlayer() {
             }
         });
 
-        // 🎬 全屏切换 - 修复版本
-        fullscreenBtn.addEventListener('click', () => {
+        // 🎬 全屏切换
+        fullscreenBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡
             // 使用容器元素进行全屏，确保菜单可见
             const targetElement = container;
             
@@ -3321,7 +3331,7 @@ function initVideoPlayer() {
             }
         });
         
-        // 🎬 全屏状态变化 - 修复版本
+        // 🎬 全屏状态变化
         function handleFullscreenChange() {
             const fullscreenApi = {
                 element: document.fullscreenElement || 
@@ -3540,36 +3550,56 @@ function initVideoPlayer() {
             }
         });
 
-        // 🎬 点击视频播放/暂停
+        // 🎬 点击视频播放/暂停 - 小屏幕下首次点击显示控制栏，再次点击播放
         container.addEventListener('click', (e) => {
             // 确保点击的不是控制按钮或播放按钮
-            if (!e.target.closest('.video-controls') && 
-                !e.target.closest('.video-btn') && 
+            if (!e.target.closest('.video-controls') &&
+                !e.target.closest('.video-btn') &&
                 !e.target.closest('.play-btn')) {
-                togglePlay();
+
+                // 检查是否是小屏幕（576px以下）
+                const isMobile = window.innerWidth <= 576;
+
+                if (isMobile) {
+                    // 小屏幕逻辑：首次点击显示控制栏，再次点击播放
+                    if (!controls.classList.contains('show')) {
+                        // 首次点击：显示控制栏
+                        controls.classList.add('show');
+                        // 3秒后自动隐藏
+                        setTimeout(() => {
+                            controls.classList.remove('show');
+                        }, 3000);
+                    } else {
+                        // 再次点击：播放/暂停
+                        togglePlay();
+                    }
+                } else {
+                    // 大屏幕逻辑：直接播放/暂停
+                    togglePlay();
+                }
             }
         });
         
         // 🎬 播放/暂停按钮点击事件
-        toggleBtn.addEventListener('click', togglePlay);
-        
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // 阻止事件冒泡，防止控制栏事件委托重复处理
+            togglePlay();
+        });
+
         // 🎬 中间播放按钮点击事件
         playBtn.addEventListener('click', (e) => {
             e.stopPropagation(); // 阻止事件冒泡
             togglePlay();
         });
-        
-        // 🎬 控制栏事件委托 - 确保即使隐藏也能点击
+
+        // 🎬 控制栏事件委托
         controls.addEventListener('click', (e) => {
-            // 检查点击的是否是播放/暂停按钮或其子元素
-            if (e.target.closest('.video-btn')) {
+            // 检查点击的是否是控制按钮
+            const clickedBtn = e.target.closest('.video-btn');
+            if (clickedBtn && clickedBtn !== toggleBtn) {
                 // 显示控制菜单
                 showControls();
                 delayHideControls();
-                // 如果点击的是播放/暂停按钮，触发播放/暂停
-                if (e.target.closest('.video-btn') === toggleBtn || e.target.closest('.video-btn').querySelector('.fa-play, .fa-pause')) {
-                    togglePlay();
-                }
             }
         });
         

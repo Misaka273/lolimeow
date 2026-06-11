@@ -28,7 +28,9 @@
             search: '',
             isSearch: false, // ⬅️ 是否为搜索模式
             selectedItems: new Set(),
-            currentEditor: 'content'
+            currentEditor: 'content',
+            mode: 'editor', // ⬅️ 'editor' 或 'callback'
+            callback: null  // ⬅️ 回调函数（用于小工具等场景）
         },
 
         /**
@@ -303,10 +305,25 @@
 
         /**
          * 🪟 打开弹窗
+         * @param {Object} options - 可选配置
+         * @param {string} options.mode - 模式：'editor' 或 'callback'
+         * @param {Function} options.callback - 选择后的回调函数
          */
-        open: function() {
+        open: function(options) {
+            options = options || {};
+            
             this.state.isOpen = true;
             this.state.selectedItems.clear();
+            this.state.mode = options.mode || 'editor';
+            this.state.callback = options.callback || null;
+            
+            /* 📝 更新按钮文字 */
+            if (this.state.mode === 'callback') {
+                this.$btnInsert.text('选择图片');
+            } else {
+                this.$btnInsert.text('插入到编辑器');
+            }
+            
             this.updateInsertButton();
             this.$modal.fadeIn(200);
             $('body').addClass('shiroki-media-modal-open');
@@ -533,26 +550,37 @@
                 const title = $item.data('title');
                 const mime = $item.data('mime');
                 
-                /* ◀️ 构建插入内容 */
-                let insertContent = '';
-                
-                if (type === 'image') {
-                    /* 🖼️ 图片 */
-                    insertContent = `<img src="${url}" alt="${title}" />`;
-                } else if (type === 'video') {
-                    /* 🎬 视频 - 使用WordPress视频短代码 */
-                    insertContent = `[video src="${url}"]`;
-                } else if (type === 'audio') {
-                    /* 🎵 音频 - 使用WordPress音频短代码 */
-                    insertContent = `[audio src="${url}"]`;
+                /* ◀️ 如果是回调模式，调用回调函数 */
+                if (self.state.mode === 'callback' && typeof self.state.callback === 'function') {
+                    self.state.callback({
+                        id: id,
+                        url: url,
+                        type: type,
+                        title: title,
+                        mime: mime
+                    });
                 } else {
-                    /* 📄 其他文件 - 使用downloadbtn短代码 */
-                    insertContent = `[downloadbtn link='${url}']${title}[/downloadbtn]`;
-                }
-                
-                /* ◀️ 插入到编辑器 */
-                if (typeof wp !== 'undefined' && wp.media && wp.media.editor) {
-                    wp.media.editor.insert(insertContent);
+                    /* ◀️ 默认：插入到编辑器 */
+                    let insertContent = '';
+                    
+                    if (type === 'image') {
+                        /* 🖼️ 图片 */
+                        insertContent = `<img src="${url}" alt="${title}" />`;
+                    } else if (type === 'video') {
+                        /* 🎬 视频 - 使用WordPress视频短代码 */
+                        insertContent = `[video src="${url}"]`;
+                    } else if (type === 'audio') {
+                        /* 🎵 音频 - 使用WordPress音频短代码 */
+                        insertContent = `[audio src="${url}"]`;
+                    } else {
+                        /* 📄 其他文件 - 使用downloadbtn短代码 */
+                        insertContent = `[downloadbtn link='${url}']${title}[/downloadbtn]`;
+                    }
+                    
+                    /* ◀️ 插入到编辑器 */
+                    if (typeof wp !== 'undefined' && wp.media && wp.media.editor) {
+                        wp.media.editor.insert(insertContent);
+                    }
                 }
             });
 
@@ -1073,8 +1101,8 @@
      * 🚀 DOM加载完成后初始化
      */
     $(document).ready(function() {
-        /* ◀️ 只在文章编辑页面初始化 */
-        if ($('body').hasClass('post-php') || $('body').hasClass('post-new-php')) {
+        /* ◀️ 检查媒体模态框元素是否存在 */
+        if ($('#shiroki-media-modal').length > 0) {
             ShirokiMediaModal.init();
         }
     });

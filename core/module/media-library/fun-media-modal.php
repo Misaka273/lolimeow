@@ -63,8 +63,8 @@ class Shiroki_Media_Modal {
      * 🎨 加载样式和脚本
      */
     public function enqueue_assets($hook) {
-        /* ◀️ 只在文章编辑页面加载 */
-        if ($hook !== 'post.php' && $hook !== 'post-new.php') {
+        /* ◀️ 只在文章编辑页面和小工具页面加载 */
+        if ($hook !== 'post.php' && $hook !== 'post-new.php' && $hook !== 'widgets.php') {
             return;
         }
         
@@ -156,7 +156,7 @@ class Shiroki_Media_Modal {
      */
     public function add_media_modal_template() {
         $screen = get_current_screen();
-        if (!$screen || ($screen->id !== 'post' && $screen->id !== 'post-new')) {
+        if (!$screen || ($screen->id !== 'post' && $screen->id !== 'post-new' && $screen->id !== 'widgets')) {
             return;
         }
         ?>

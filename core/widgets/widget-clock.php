@@ -13,7 +13,7 @@ class widget_clock extends WP_Widget {
 
 	function widget( $args, $instance ) {
 						extract( $args );
-						$title = apply_filters('widget_name', $instance['title']);
+						$title = isset($instance['title']) ? apply_filters('widget_name', $instance['title']) : '';
 						$timezone = isset( $instance['timezone'] ) ? $instance['timezone'] : 'Asia/Shanghai';
 						
 						// 获取自定义字体设置
@@ -60,12 +60,12 @@ class widget_clock extends WP_Widget {
 								overflow: visible !important;
 							}
 							
-							/* 基础时间样式 */
+							/* 基础时间样式 - 使用 clamp 实现自适应字体大小 */
 							#time-<?php echo $this->id; ?>.time {
-								font-size: 2.5rem !important;
+								font-size: clamp(1.2rem, 8vw, 2.5rem) !important;
 								font-weight: bold !important;
 								margin-bottom: 10px !important;
-								letter-spacing: 2px !important;
+								letter-spacing: clamp(0.5px, 1vw, 2px) !important;
 								font-family: "<?php echo $font_family; ?>", monospace !important;
 								line-height: 1.2 !important;
 								background: none !important;
@@ -75,8 +75,10 @@ class widget_clock extends WP_Widget {
 								position: relative !important;
 								z-index: 1 !important;
 								white-space: nowrap !important;
-								overflow: visible !important;
+								overflow: hidden !important;
+								text-overflow: ellipsis !important;
 								word-break: keep-all !important;
+								max-width: 100% !important;
 							}
 							
 							/* 亮色模式：蓝色渐变 */
@@ -103,26 +105,29 @@ class widget_clock extends WP_Widget {
 							}
 							
 							#date-<?php echo $this->id; ?>.date {
-								font-size: 0.9rem !important;
-								color: var(--bs-gray-600) !important;
-								font-weight: 500 !important;
-								margin: 0 !important;
-								line-height: 1.2 !important;
-								white-space: nowrap !important;
-							}
+							font-size: clamp(0.7rem, 2.5vw, 0.9rem) !important;
+							color: var(--bs-gray-600) !important;
+							font-weight: 500 !important;
+							margin: 0 !important;
+							line-height: 1.2 !important;
+							white-space: nowrap !important;
+							overflow: hidden !important;
+							text-overflow: ellipsis !important;
+							max-width: 100% !important;
+						}
 			
 			/* 响应式设计：适配不同屏幕尺寸 */
 			@media (max-width: 1200px) {
 				#time-<?php echo $this->id; ?>.time {
-					font-size: 2.2rem !important;
-					letter-spacing: 1.5px !important;
+					font-size: clamp(1.1rem, 7vw, 2.2rem) !important;
+					letter-spacing: clamp(0.5px, 0.8vw, 1.5px) !important;
 				}
 			}
 			
 			@media (max-width: 992px) {
 				#time-<?php echo $this->id; ?>.time {
-					font-size: 2rem !important;
-					letter-spacing: 1px !important;
+					font-size: clamp(1rem, 6vw, 2rem) !important;
+					letter-spacing: clamp(0.3px, 0.6vw, 1px) !important;
 				}
 			}
 			
@@ -135,9 +140,9 @@ class widget_clock extends WP_Widget {
 				}
 				
 				#time-<?php echo $this->id; ?>.time {
-					font-size: 1.8rem !important;
+					font-size: clamp(0.9rem, 5vw, 1.8rem) !important;
 					margin-bottom: 8px !important;
-					letter-spacing: 1px !important;
+					letter-spacing: clamp(0.3px, 0.5vw, 1px) !important;
 				}
 				
 				#clock-<?php echo $this->id; ?>.clock-display {
@@ -145,19 +150,44 @@ class widget_clock extends WP_Widget {
 				}
 			}
 			
+			/* 小屏幕设备适配 */
+			@media (max-width: 576px) {
+				#time-<?php echo $this->id; ?>.time {
+					font-size: clamp(0.85rem, 5.5vw, 1.5rem) !important;
+					letter-spacing: 0.3px !important;
+				}
+				
+				#date-<?php echo $this->id; ?>.date {
+					font-size: clamp(0.7rem, 3vw, 0.85rem) !important;
+				}
+				
+				#clock-<?php echo $this->id; ?>.clock-display {
+					padding: 12px 6px !important;
+				}
+			}
+			
+			/* 超小屏幕设备 */
+			@media (max-width: 360px) {
+				#time-<?php echo $this->id; ?>.time {
+					font-size: clamp(0.75rem, 5vw, 1.2rem) !important;
+					letter-spacing: 0.2px !important;
+				}
+			}
+			
 			/* 确保小部件容器有足够宽度 */
 			.widget_clock_inner {
 				width: 100% !important;
 				min-width: 0 !important;
-				overflow: visible !important;
+				max-width: 100% !important;
+				overflow: hidden !important;
 				box-sizing: border-box !important;
 			}
 			
-			/* 防止时间被截断 */
-			#time-<?php echo $this->id; ?>.time {
-				overflow: visible !important;
-				text-overflow: clip !important;
-				clip: auto !important;
+			/* 时钟显示容器自适应 */
+			#clock-<?php echo $this->id; ?>.clock-display {
+				width: 100% !important;
+				max-width: 100% !important;
+				box-sizing: border-box !important;
 			}
 		</style>
 		<div class="widget_clock_inner">
@@ -197,14 +227,30 @@ class widget_clock extends WP_Widget {
 						// 直接使用API格式化日期和时间
 						var formattedTime = new Intl.DateTimeFormat('zh-CN', timeOptions).format(now);
 						
-						// 分别获取年、月、日和星期
-						var year = now.toLocaleString('zh-CN', { year: 'numeric', timeZone: timezone });
-						var month = now.toLocaleString('zh-CN', { month: '2-digit', timeZone: timezone });
-						var day = now.toLocaleString('zh-CN', { day: '2-digit', timeZone: timezone });
+						// 使用 formatToParts 获取纯数字日期组件
+						var dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+							year: 'numeric',
+							month: 'numeric',
+							day: 'numeric',
+							timeZone: timezone
+						});
+						var parts = dateFormatter.formatToParts(now);
+						var year = '', month = '', day = '';
+						parts.forEach(function(part) {
+							if (part.type === 'year') year = part.value;
+							else if (part.type === 'month') month = part.value;
+							else if (part.type === 'day') day = part.value;
+						});
+						
+						// 获取星期
 						var weekday = now.toLocaleString('zh-CN', { weekday: 'long', timeZone: timezone });
 						
-						// 组合成所需格式：YYYY-MM-DD 星期X
-						var dateString = year + '-' + month + '-' + day + ' ' + weekday;
+						// 补零处理
+						month = month < 10 ? '0' + month : month;
+						day = day < 10 ? '0' + day : day;
+						
+						// 组合成所需格式：YYYY年MM月DD日 星期X
+						var dateString = year + '年' + month + '月' + day + '日 ' + weekday;
 						
 						// 更新显示
 						timeElement.innerHTML = formattedTime;

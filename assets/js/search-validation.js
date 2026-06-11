@@ -69,11 +69,14 @@
                 
                 // 表单提交时验证
                 form.addEventListener('submit', function(e) {
-                    if (searchInput.value.trim() === '') {
+                    var value = searchInput.value.trim();
+                    if (!value) {
                         e.preventDefault();
+                        e.stopPropagation();
                         showTooltip();
                         searchInput.classList.add('custom-error');
                         searchInput.focus();
+                        return false;
                     }
                 });
                 

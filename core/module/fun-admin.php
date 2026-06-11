@@ -4,6 +4,11 @@
  * @package lolimeow
  */
 
+// ◀️ 引入站点数据统计核心类
+require_once get_template_directory() . '/core/module/site-stats/class-site-stats.php';
+require_once get_template_directory() . '/core/module/site-stats/class-51la-api.php';
+require_once get_template_directory() . '/core/module/site-stats/fun-site-stats-dashboard.php';
+
 //boxmoe.com===后台登录页美化
 function boxmoe_admin_login_style() {
     // 删除不存在的CSS文件引用，避免加载错误
@@ -443,6 +448,19 @@ add_action('admin_footer', 'boxmoe_admin_error_modal_script'); // ⬅️ 注入�
 function boxmoe_admin_profile_enqueue($hook){
     if ($hook === 'profile.php' || $hook === 'user-edit.php') {
         wp_enqueue_media(); // ⬅️ 加载 WP 媒体库
+
+        // 🎨 加载个人资料页面自定义UI样式
+        wp_enqueue_style('admin-variables', get_template_directory_uri() . '/assets/css/admin/admin-variables.css', array(), THEME_VERSION);
+        wp_enqueue_style('shiroki-user-profile', get_template_directory_uri() . '/assets/css/admin/user-profile/user-profile.css', array('admin-variables'), THEME_VERSION);
+
+        // 📦 加载个人资料页面交互脚本
+        wp_enqueue_script('shiroki-user-profile', get_template_directory_uri() . '/assets/js/admin/user-profile/user-profile.js', array('jquery'), THEME_VERSION, true);
+
+        // 🎯 传递AJAX配置
+        wp_localize_script('shiroki-user-profile', 'shirokiProfileConfig', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('shiroki_profile_nonce')
+        ));
     }
 }
 add_action('admin_enqueue_scripts', 'boxmoe_admin_profile_enqueue');
@@ -454,6 +472,52 @@ function boxmoe_admin_post_enqueue($hook){
     }
 }
 add_action('admin_enqueue_scripts', 'boxmoe_admin_post_enqueue');
+
+// 📊 站点数据统计页面加载资源
+function boxmoe_admin_site_stats_enqueue($hook){
+    if ($hook === 'toplevel_page_shiroki-site-stats') {
+        // 🎨 加载变量文件和统计仪表盘样式
+        wp_enqueue_style('admin-variables', get_template_directory_uri() . '/assets/css/admin/admin-variables.css', array(), THEME_VERSION);
+        wp_enqueue_style('shiroki-site-stats', get_template_directory_uri() . '/assets/css/admin/site-stats/site-stats.css', array('admin-variables'), THEME_VERSION);
+
+        // 📦 加载 Chart.js 图表库
+        wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js', array(), '4.4.1', true);
+
+        // 📦 加载统计仪表盘交互脚本
+        wp_enqueue_script('shiroki-site-stats', get_template_directory_uri() . '/assets/js/admin/site-stats/site-stats.js', array('jquery', 'chart-js'), THEME_VERSION, true);
+
+        // 🎯 传递AJAX配置
+        wp_localize_script('shiroki-site-stats', 'shirokiStatsConfig', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('shiroki_stats_nonce')
+        ));
+    }
+}
+add_action('admin_enqueue_scripts', 'boxmoe_admin_site_stats_enqueue');
+
+// 🌐 51LA 统计页面加载资源
+function boxmoe_admin_51la_stats_enqueue($hook){
+    // 📝 同时检查主菜单和子菜单的 hook 名称
+    // 子菜单页面的 hook 通常是 '站点数据_page_页面slug'
+    if ($hook === 'toplevel_page_shiroki-51la-stats' || $hook === 'site-stats_page_shiroki-51la-stats' || strpos($hook, 'shiroki-51la-stats') !== false) {
+        // 🎨 加载变量文件和 51LA 样式
+        wp_enqueue_style('admin-variables', get_template_directory_uri() . '/assets/css/admin/admin-variables.css', array(), THEME_VERSION);
+        wp_enqueue_style('shiroki-51la-stats', get_template_directory_uri() . '/assets/css/admin/site-stats/51la-stats.css', array('admin-variables'), THEME_VERSION);
+
+        // 📦 加载 Chart.js 图表库
+        wp_enqueue_script('chart-js', 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js', array(), '4.4.1', true);
+
+        // 📦 加载 51LA 交互脚本
+        wp_enqueue_script('shiroki-51la-stats', get_template_directory_uri() . '/assets/js/admin/site-stats/51la-stats.js', array('jquery', 'chart-js'), THEME_VERSION, true);
+
+        // 🎯 传递AJAX配置
+        wp_localize_script('shiroki-51la-stats', 'shiroki51LAConfig', array(
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('shiroki_51la_nonce')
+        ));
+    }
+}
+add_action('admin_enqueue_scripts', 'boxmoe_admin_51la_stats_enqueue');
 
 // 🔗 添加媒体弹窗脚本
 function boxmoe_media_modal_fix() {
@@ -1051,3 +1115,287 @@ function boxmoe_add_tinymce_shiroki_divider_button($buttons) {
 add_filter('mce_buttons', 'boxmoe_add_tinymce_shiroki_divider_button');
 
 // 🌊 Quicktags按钮现在通过JavaScript动态添加，详见quicktags-shiroki-divider.js文件
+
+// 👤 个人资料页面自定义UI
+function boxmoe_profile_custom_ui() {
+    /* 🔍 确保 get_current_screen 函数存在 */
+    if (!function_exists('get_current_screen')) {
+        return;
+    }
+
+    $screen = get_current_screen();
+
+    /* 🎯 检查是否在个人资料页面 */
+    if (!$screen || ($screen->id !== 'profile' && $screen->id !== 'user-edit')) {
+        return;
+    }
+
+    /* 👤 获取当前用户 */
+    $user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : get_current_user_id();
+    $user = get_userdata($user_id);
+
+    if (!$user) {
+        return;
+    }
+
+    /* 📝 获取用户信息 */
+    $display_name = $user->display_name;
+    $user_login = $user->user_login;
+    $user_email = $user->user_email;
+    $user_url = $user->user_url;
+    $user_description = get_user_meta($user_id, 'description', true);
+
+    /* 🎭 获取用户角色 */
+    $roles = $user->roles;
+    $primary_role = !empty($roles) ? $roles[0] : 'subscriber';
+
+    /* 🎨 角色名称映射 */
+    $role_names = array(
+        'administrator' => array('name' => '管理员', 'class' => 'administrator', 'icon' => '🔴'),
+        'editor' => array('name' => '编辑', 'class' => 'editor', 'icon' => '🟢'),
+        'author' => array('name' => '作者', 'class' => 'author', 'icon' => '🔵'),
+        'contributor' => array('name' => '贡献者', 'class' => 'contributor', 'icon' => '🟣'),
+        'subscriber' => array('name' => '订阅者', 'class' => 'subscriber', 'icon' => '⚪')
+    );
+    $role_info = isset($role_names[$primary_role]) ? $role_names[$primary_role] : array('name' => $primary_role, 'class' => 'subscriber', 'icon' => '⚪');
+
+    /* 🖼️ 获取用户头像 */
+    $avatar = get_avatar($user_id, 120, '', '', array('class' => 'shiroki-profile-avatar-img'));
+
+    /* 🆔 获取自定义UID */
+    $custom_uid = get_user_meta($user_id, 'custom_uid', true);
+    $display_uid = !empty($custom_uid) ? $custom_uid : $user_id;
+
+    /* 🌐 获取语言选择 */
+    $user_locale = get_user_meta($user_id, 'locale', true);
+    if (empty($user_locale)) {
+        $user_locale = 'site-default';
+    }
+
+    /* 📝 判断是否为自己的资料页 */
+    $is_own_profile = ($user_id === get_current_user_id());
+    $page_title = $is_own_profile ? '👤 个人资料' : '👤 编辑用户';
+    $subtitle = $is_own_profile ? '管理您的个人信息和偏好设置' : '编辑用户信息和权限设置';
+    ?>
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+        /* 🔧 隐藏原版表单 */
+        $('#your-profile, #createuser').hide();
+        $('.wrap > h1, .wrap > p').hide();
+
+        /* 📦 插入自定义UI */
+        var customUI = `
+            <div class="shiroki-profile-wrapper">
+                <!-- 🎯 页面标题 -->
+                <div class="shiroki-profile-header">
+                    <h1 class="shiroki-profile-title"><?php echo $page_title; ?></h1>
+                    <p class="shiroki-profile-subtitle"><?php echo $subtitle; ?></p>
+                </div>
+
+                <!-- 👤 个人信息头部卡片 -->
+                <div class="shiroki-profile-header-card">
+                    <div class="shiroki-profile-avatar-large">
+                        <?php echo $avatar; ?>
+                    </div>
+                    <div class="shiroki-profile-header-info">
+                        <h2 class="shiroki-profile-display-name"><?php echo esc_html($display_name); ?></h2>
+                        <p class="shiroki-profile-username">@<?php echo esc_html($user_login); ?> · UID: <?php echo esc_html($display_uid); ?></p>
+                        <span class="shiroki-profile-role-badge shiroki-profile-role-<?php echo $role_info['class']; ?>">
+                            <?php echo $role_info['icon'] . ' ' . $role_info['name']; ?>
+                        </span>
+                    </div>
+                </div>
+
+                <form id="shiroki-profile-form" method="post">
+                    <?php wp_nonce_field('shiroki_profile_nonce', 'shiroki_profile_nonce'); ?>
+                    <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
+
+                    <!-- 📝 基本信息卡片 -->
+                    <div class="shiroki-profile-card">
+                        <div class="shiroki-profile-card-header">
+                            <span class="shiroki-profile-card-icon">📝</span>
+                            <span class="shiroki-profile-card-title">基本信息</span>
+                        </div>
+                        <div class="shiroki-profile-card-body">
+                            <div class="shiroki-profile-two-col">
+                                <div class="shiroki-profile-field required">
+                                    <label for="shiroki_profile_username">
+                                        <span class="shiroki-profile-label-text">用户名</span>
+                                    </label>
+                                    <div class="shiroki-profile-input-wrapper">
+                                        <span class="shiroki-profile-input-icon">👤</span>
+                                        <input type="text" id="shiroki_profile_username" value="<?php echo esc_attr($user_login); ?>" disabled>
+                                    </div>
+                                    <p class="shiroki-profile-description">用户名无法修改</p>
+                                </div>
+
+                                <div class="shiroki-profile-field required">
+                                    <label for="shiroki_profile_display_name">
+                                        <span class="shiroki-profile-label-text">显示名称</span>
+                                        <span class="shiroki-profile-required">*</span>
+                                    </label>
+                                    <div class="shiroki-profile-input-wrapper">
+                                        <span class="shiroki-profile-input-icon">🏷️</span>
+                                        <input type="text" name="display_name" id="shiroki_profile_display_name" value="<?php echo esc_attr($display_name); ?>" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="shiroki-profile-field required">
+                                <label for="shiroki_profile_email">
+                                    <span class="shiroki-profile-label-text">电子邮箱</span>
+                                    <span class="shiroki-profile-required">*</span>
+                                </label>
+                                <div class="shiroki-profile-input-wrapper">
+                                    <span class="shiroki-profile-input-icon">📧</span>
+                                    <input type="email" name="email" id="shiroki_profile_email" value="<?php echo esc_attr($user_email); ?>" required>
+                                </div>
+                            </div>
+
+                            <div class="shiroki-profile-field">
+                                <label for="shiroki_profile_url">
+                                    <span class="shiroki-profile-label-text">个人网站</span>
+                                </label>
+                                <div class="shiroki-profile-input-wrapper">
+                                    <span class="shiroki-profile-input-icon">🌐</span>
+                                    <input type="url" name="url" id="shiroki_profile_url" value="<?php echo esc_attr($user_url); ?>" placeholder="https://">
+                                </div>
+                            </div>
+
+                            <div class="shiroki-profile-field">
+                                <label for="shiroki_profile_description">
+                                    <span class="shiroki-profile-label-text">个人简介</span>
+                                </label>
+                                <div class="shiroki-profile-textarea-wrapper">
+                                    <textarea name="description" id="shiroki_profile_description" rows="4" placeholder="介绍一下自己..."><?php echo esc_textarea($user_description); ?></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🖼️ 头像设置卡片 -->
+                    <div class="shiroki-profile-card">
+                        <div class="shiroki-profile-card-header">
+                            <span class="shiroki-profile-card-icon">🖼️</span>
+                            <span class="shiroki-profile-card-title">头像设置</span>
+                        </div>
+                        <div class="shiroki-profile-card-body">
+                            <div class="shiroki-profile-avatar-section">
+                                <div class="shiroki-profile-current-avatar">
+                                    <img id="shiroki-profile-avatar-preview" src="<?php echo esc_url(get_avatar_url($user_id, array('size' => 150))); ?>" alt="头像">
+                                </div>
+                                <div class="shiroki-profile-avatar-actions">
+                                    <p class="shiroki-profile-avatar-hint">点击按钮上传自定义头像，或留空使用默认头像</p>
+                                    <button type="button" class="shiroki-profile-upload-btn" id="shiroki-profile-upload-avatar">
+                                        📤 上传头像
+                                    </button>
+                                </div>
+                            </div>
+                            <input type="hidden" name="shiroki_profile_avatar" id="shiroki_profile_avatar" value="">
+                        </div>
+                    </div>
+
+                    <!-- 🔐 密码设置卡片 -->
+                    <div class="shiroki-profile-card">
+                        <div class="shiroki-profile-card-header">
+                            <span class="shiroki-profile-card-icon">🔐</span>
+                            <span class="shiroki-profile-card-title">密码设置</span>
+                        </div>
+                        <div class="shiroki-profile-card-body">
+                            <div class="shiroki-profile-password-section">
+                                <button type="button" class="shiroki-profile-generate-pw" id="shiroki-profile-generate-pw">
+                                    🔑 生成新密码
+                                </button>
+
+                                <div class="shiroki-profile-pw-wrapper" id="shiroki-profile-pw-wrapper">
+                                    <div class="shiroki-profile-password-input-wrapper">
+                                        <input type="password" name="pass1" id="shiroki_profile_pass1" placeholder="输入新密码">
+                                        <button type="button" class="shiroki-profile-toggle-pw">
+                                            <span class="dashicons dashicons-visibility"></span>
+                                        </button>
+                                    </div>
+                                    <div class="shiroki-profile-pass-strength" id="shiroki-profile-pass-strength"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 🚀 操作按钮 -->
+                    <div class="shiroki-profile-actions">
+                        <button type="submit" class="shiroki-profile-submit">
+                            <span class="shiroki-profile-submit-icon">💾</span>
+                            <span>保存更改</span>
+                        </button>
+                        <a href="<?php echo admin_url('users.php'); ?>" class="shiroki-profile-cancel">
+                            ❌ 取消
+                        </a>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        /* 📦 插入到 .wrap 容器内 */
+        $('.wrap').prepend(customUI);
+    });
+    </script>
+    <?php
+}
+add_action('admin_footer', 'boxmoe_profile_custom_ui', 20);
+
+// 💾 处理个人资料保存（AJAX）
+function boxmoe_ajax_save_profile() {
+    /* 🔐 验证nonce */
+    if (!check_ajax_referer('shiroki_profile_nonce', 'shiroki_profile_nonce', false)) {
+        wp_send_json_error(array('message' => '安全验证失败'));
+    }
+
+    /* 🔐 检查权限 */
+    $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+    if (!current_user_can('edit_user', $user_id)) {
+        wp_send_json_error(array('message' => '权限不足'));
+    }
+
+    /* 📝 获取并验证数据 */
+    $display_name = isset($_POST['display_name']) ? sanitize_text_field($_POST['display_name']) : '';
+    $email = isset($_POST['email']) ? sanitize_email($_POST['email']) : '';
+    $url = isset($_POST['url']) ? esc_url_raw($_POST['url']) : '';
+    $description = isset($_POST['description']) ? sanitize_textarea_field($_POST['description']) : '';
+    $password = isset($_POST['pass1']) ? $_POST['pass1'] : '';
+    $avatar = isset($_POST['shiroki_profile_avatar']) ? esc_url_raw($_POST['shiroki_profile_avatar']) : '';
+
+    /* ✅ 验证必填字段 */
+    if (empty($display_name)) {
+        wp_send_json_error(array('message' => '显示名称不能为空'));
+    }
+    if (empty($email) || !is_email($email)) {
+        wp_send_json_error(array('message' => '请输入有效的电子邮箱'));
+    }
+
+    /* 📝 更新用户数据 */
+    $user_data = array(
+        'ID' => $user_id,
+        'display_name' => $display_name,
+        'user_email' => $email,
+        'user_url' => $url,
+        'description' => $description
+    );
+
+    /* 🔐 如果有密码则更新 */
+    if (!empty($password)) {
+        $user_data['user_pass'] = $password;
+    }
+
+    $result = wp_update_user($user_data);
+
+    if (is_wp_error($result)) {
+        wp_send_json_error(array('message' => $result->get_error_message()));
+    }
+
+    /* 🖼️ 保存自定义头像 */
+    if (!empty($avatar)) {
+        update_user_meta($user_id, 'user_avatar', $avatar);
+    }
+
+    wp_send_json_success(array('message' => '个人资料保存成功'));
+}
+add_action('wp_ajax_shiroki_save_profile', 'boxmoe_ajax_save_profile');

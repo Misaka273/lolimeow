@@ -1,0 +1,613 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* 📊 站点数据统计仪表盘样式 */
+/* 🎨 拟态拟物玻璃质感设计 */
+/* 🔗 变量定义在 admin-variables.css 中统一管理 */
+
+/* ============================================
+   🎯 仪表盘整体布局
+   ============================================ */
+
+/* 🪟 仪表盘页面背景 */
+.toplevel_page_shiroki-site-stats {
+  background: var(--shiroki-bg-gradient-light);
+}
+
+.toplevel_page_shiroki-site-stats.wp-dark-mode,
+.toplevel_page_shiroki-site-stats .wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark);
+}
+
+/* 📝 隐藏默认标题 */
+.toplevel_page_shiroki-site-stats .wrap > h1 {
+  display: none;
+}
+
+/* 📦 仪表盘容器 */
+.shiroki-stats-dashboard {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--admin-space-xl);
+}
+
+/* ============================================
+   🎯 页面标题区域
+   ============================================ */
+
+/* 🎯 标题区域 */
+.shiroki-stats-header {
+  text-align: center;
+  margin-bottom: var(--admin-space-2xl);
+  padding: var(--admin-space-xl) 0;
+}
+
+/* 📝 主标题 */
+.shiroki-stats-title {
+  font-size: 32px;
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-primary);
+  margin: 0 0 var(--admin-space-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-sm);
+}
+
+/* 📝 副标题 */
+.shiroki-stats-subtitle {
+  font-size: var(--admin-font-size-lg);
+  color: var(--admin-current-text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   🔘 时间筛选器
+   ============================================ */
+
+/* 📦 筛选器容器 */
+.shiroki-stats-filter {
+  display: flex;
+  justify-content: center;
+  gap: var(--admin-space-sm);
+  margin-bottom: var(--admin-space-2xl);
+  padding: var(--admin-space-md);
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  box-shadow: var(--admin-shadow-sm);
+  backdrop-filter: blur(10px);
+}
+
+/* 🔘 筛选按钮 */
+.shiroki-stats-filter-btn {
+  padding: var(--admin-space-sm) var(--admin-space-lg);
+  background: transparent;
+  border: none;
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-secondary);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-stats-filter-btn:hover {
+  background: var(--admin-current-glass-hover);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-stats-filter-btn.active {
+  background: var(--admin-primary-bg);
+  color: var(--admin-primary-text);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+/* ============================================
+   📈 核心指标卡片区域
+   ============================================ */
+
+/* 📦 概览区域 */
+.shiroki-stats-overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--admin-space-xl);
+  margin-bottom: var(--admin-space-2xl);
+}
+
+/* 🎴 统计卡片 */
+.shiroki-stats-card {
+  background: var(--admin-current-bg);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  box-shadow: var(--admin-shadow-md);
+  padding: var(--admin-space-xl);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: shiroki-stats-card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shiroki-stats-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--admin-shadow-hover);
+}
+
+/* 🌆 暗色模式悬停效果 */
+.wp-admin.wp-dark-mode .shiroki-stats-card:hover {
+  box-shadow: var(--admin-shadow-hover-dark);
+}
+
+/* 🎬 卡片入场动画 */
+@keyframes shiroki-stats-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 🌟 stagger 动画延迟 */
+.shiroki-stats-overview .shiroki-stats-card:nth-child(1) { animation-delay: 0.05s; }
+.shiroki-stats-overview .shiroki-stats-card:nth-child(2) { animation-delay: 0.1s; }
+.shiroki-stats-overview .shiroki-stats-card:nth-child(3) { animation-delay: 0.15s; }
+.shiroki-stats-overview .shiroki-stats-card:nth-child(4) { animation-delay: 0.2s; }
+
+/* 🎴 统计卡片内容 */
+.shiroki-stats-card-views {
+  background: linear-gradient(135deg, rgba(99, 179, 237, 0.15) 0%, rgba(183, 148, 244, 0.15) 100%);
+}
+
+.shiroki-stats-card-visits {
+  background: linear-gradient(135deg, rgba(72, 187, 120, 0.15) 0%, rgba(56, 178, 172, 0.15) 100%);
+}
+
+.shiroki-stats-card-downloads {
+  background: linear-gradient(135deg, rgba(246, 173, 85, 0.15) 0%, rgba(237, 137, 54, 0.15) 100%);
+}
+
+.shiroki-stats-card-users {
+  background: linear-gradient(135deg, rgba(237, 100, 166, 0.15) 0%, rgba(159, 122, 234, 0.15) 100%);
+}
+
+/* 🎨 卡片图标 */
+.shiroki-stats-card-icon {
+  font-size: 40px;
+  margin-bottom: var(--admin-space-md);
+}
+
+/* 📝 卡片标签 */
+.shiroki-stats-card-label {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-secondary);
+  margin-bottom: var(--admin-space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 🔢 卡片数值 */
+.shiroki-stats-card-value {
+  font-size: 36px;
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-primary);
+  margin-bottom: var(--admin-space-sm);
+  line-height: 1.2;
+}
+
+/* 📈 变化指示器 */
+.shiroki-stats-card-change {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  border-radius: var(--admin-radius-sm);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+}
+
+.shiroki-stats-card-change.up {
+  background: var(--admin-success-bg);
+  color: var(--admin-success-text);
+}
+
+.shiroki-stats-card-change.down {
+  background: var(--admin-danger-bg);
+  color: var(--admin-danger-text);
+}
+
+/* ============================================
+   📈 趋势图表区域
+   ============================================ */
+
+/* 📦 图表区域 */
+.shiroki-stats-chart-section {
+  margin-bottom: var(--admin-space-2xl);
+}
+
+/* 🎴 图表卡片 */
+.shiroki-stats-chart-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* 📋 卡片头部 */
+.shiroki-stats-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--admin-space-lg) var(--admin-space-xl);
+  background: var(--admin-current-glass);
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+/* 📝 卡片标题 */
+.shiroki-stats-card-title {
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+}
+
+/* 📝 卡片副标题 */
+.shiroki-stats-card-subtitle {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+  margin-left: auto;
+}
+
+/* 🎨 图表图例 */
+.shiroki-stats-chart-legend {
+  display: flex;
+  gap: var(--admin-space-lg);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-secondary);
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--admin-radius-full);
+}
+
+.legend-item.views .legend-dot {
+  background: #63b3ed;
+}
+
+.legend-item.visits .legend-dot {
+  background: #48bb78;
+}
+
+.legend-item.downloads .legend-dot {
+  background: #ed8936;
+}
+
+/* 📊 图表主体 */
+.shiroki-stats-chart-body {
+  padding: var(--admin-space-xl);
+  position: relative;
+  height: 350px;
+}
+
+#shiroki-stats-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ============================================
+   🔥 排行榜区域
+   ============================================ */
+
+/* 📦 排行榜区域 */
+.shiroki-stats-ranking-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--admin-space-xl);
+}
+
+/* 🎴 排行榜卡片 */
+.shiroki-stats-ranking-card {
+  padding: 0;
+  overflow: hidden;
+}
+
+/* 📋 排行榜列表 */
+.shiroki-stats-ranking-list {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: var(--admin-space-md);
+}
+
+/* 📋 排行榜列表滚动条 */
+.shiroki-stats-ranking-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.shiroki-stats-ranking-list::-webkit-scrollbar-track {
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-sm);
+}
+
+.shiroki-stats-ranking-list::-webkit-scrollbar-thumb {
+  background: var(--admin-current-border);
+  border-radius: var(--admin-radius-sm);
+}
+
+.shiroki-stats-ranking-list::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-primary-border);
+}
+
+/* 📋 排行榜项 */
+.shiroki-stats-ranking-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-md);
+  border-radius: var(--admin-radius-lg);
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-stats-ranking-item:hover {
+  background: var(--admin-current-glass);
+}
+
+/* 🏆 排名数字 */
+.ranking-number {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-muted);
+  background: var(--admin-current-glass);
+  flex-shrink: 0;
+}
+
+.ranking-number.top {
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+}
+
+.ranking-number.top:nth-child(2) {
+  background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+  box-shadow: 0 2px 8px rgba(192, 192, 192, 0.4);
+}
+
+.ranking-number.top:nth-child(3) {
+  background: linear-gradient(135deg, #cd7f32 0%, #b87333 100%);
+  box-shadow: 0 2px 8px rgba(205, 127, 50, 0.4);
+}
+
+/* 🖼️ 用户头像 */
+.ranking-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--admin-radius-full);
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+/* 📝 排行榜内容 */
+.ranking-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ranking-title {
+  display: block;
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+  margin-bottom: var(--admin-space-xs);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-decoration: none;
+}
+
+.ranking-title:hover {
+  color: var(--admin-primary-text);
+}
+
+.ranking-meta {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+}
+
+/* 👤 用户项特殊样式 */
+.shiroki-stats-ranking-item.user-item {
+  padding: var(--admin-space-sm) var(--admin-space-md);
+}
+
+/* 📭 空状态 */
+.shiroki-stats-empty {
+  text-align: center;
+  padding: var(--admin-space-2xl);
+  color: var(--admin-current-text-muted);
+  font-size: var(--admin-font-size-md);
+}
+
+/* ============================================
+   📱 响应式设计
+   ============================================ */
+
+@media screen and (max-width: 1200px) {
+  .shiroki-stats-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .shiroki-stats-ranking-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 782px) {
+  .shiroki-stats-dashboard {
+    padding: var(--admin-space-md);
+  }
+
+  .shiroki-stats-title {
+    font-size: 24px;
+  }
+
+  .shiroki-stats-filter {
+    flex-wrap: wrap;
+    gap: var(--admin-space-xs);
+  }
+
+  .shiroki-stats-filter-btn {
+    padding: var(--admin-space-xs) var(--admin-space-md);
+    font-size: var(--admin-font-size-sm);
+  }
+
+  .shiroki-stats-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .shiroki-stats-card-value {
+    font-size: 28px;
+  }
+
+  .shiroki-stats-card-header {
+    flex-direction: column;
+    gap: var(--admin-space-md);
+    align-items: flex-start;
+  }
+
+  .shiroki-stats-chart-legend {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .shiroki-stats-chart-body {
+    height: 250px;
+    padding: var(--admin-space-md);
+  }
+
+  .shiroki-stats-ranking-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .shiroki-stats-title {
+    font-size: 20px;
+  }
+
+  .shiroki-stats-card {
+    padding: var(--admin-space-lg);
+  }
+
+  .shiroki-stats-card-icon {
+    font-size: 32px;
+  }
+
+  .shiroki-stats-card-value {
+    font-size: 24px;
+  }
+
+  .shiroki-stats-filter {
+    padding: var(--admin-space-sm);
+  }
+
+  .shiroki-stats-filter-btn {
+    flex: 1;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  .ranking-number {
+    width: 28px;
+    height: 28px;
+    font-size: var(--admin-font-size-sm);
+  }
+
+  .ranking-avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ============================================
+   ✨ 动画效果
+   ============================================ */
+
+/* 🎬 数字变化动画 */
+@keyframes shiroki-stats-number-change {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.shiroki-stats-card-value.changing {
+  animation: shiroki-stats-number-change 0.3s ease;
+  color: var(--admin-primary-text);
+}
+
+/* 🌟 加载动画 */
+.shiroki-stats-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--admin-space-2xl);
+}
+
+.shiroki-stats-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--admin-current-border);
+  border-top-color: var(--admin-primary-border);
+  border-radius: var(--admin-radius-full);
+  animation: shiroki-stats-spin 1s linear infinite;
+}
+
+@keyframes shiroki-stats-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 🔔 提示消息 */
+.shiroki-stats-toast {
+  position: fixed;
+  top: 50px;
+  right: 20px;
+  padding: var(--admin-space-md) var(--admin-space-xl);
+  background: var(--admin-current-bg);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-lg);
+  z-index: 99999;
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+}
+
+.shiroki-stats-toast.show {
+  transform: translateX(0);
+}
+
+.shiroki-stats-toast.success {
+  border-left: 4px solid var(--admin-success-border);
+}
+
+.shiroki-stats-toast.error {
+  border-left: 4px solid var(--admin-danger-border);
+}

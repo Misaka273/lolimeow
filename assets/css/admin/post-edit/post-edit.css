@@ -64,17 +64,18 @@
    🎨 双栏布局容器 - 元框在左，编辑区在右
    ============================================ */
 
-/* 🎨 双栏布局主容器 */
+/* 🎨 三栏布局主容器 */
 .shiroki-editor-layout {
   display: grid;
-  grid-template-columns: 380px 1fr;
-  grid-template-areas: "sidebar main";
+  /* 工具栏区域 + 主内容区 + 右侧边栏 */
+  grid-template-columns: 340px 1fr 380px;
+  grid-template-areas: "toolbar main sidebar";
   gap: var(--admin-space-lg);
   max-width: 1600px;
   margin: 0 auto;
-  min-height: 0; /* ◀️ 强制自适应内容高度 */
-  height: auto; /* ◀️ 高度自适应内容 */
-  align-items: start; /* ◀️ 顶部对齐 */
+  /* 确保容器有足够高度让 sticky 生效 */
+  min-height: calc(100vh - 300px);
+  /* 移除 align-items: start，让子项可以拉伸 */
 }
 
 /* 📝 右侧编辑区域 - 移除白色描边 */
@@ -95,7 +96,7 @@
   height: auto; /* ◀️ 高度自适应内容 */
 }
 
-/* 📦 左侧元框区域 */
+/* 📦 右侧元框区域 */
 .shiroki-editor-sidebar {
   grid-area: sidebar;
   position: sticky;
@@ -120,17 +121,46 @@
 
 /* 🧰 工具栏容器样式 */
 .shiroki-editor-toolbar {
+  position: fixed;
+  top: 200px;
+  left: 180px;
+  width: 320px;
+  max-height: calc(100vh - 160px);
   background: var(--admin-current-glass);
   backdrop-filter: var(--admin-glass-blur);
   border: var(--admin-border-glass);
   border-radius: var(--admin-radius-lg);
   box-shadow: var(--admin-shadow-md);
-  margin-bottom: var(--admin-space-lg);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
 }
 
 .shiroki-editor-toolbar .toolbar-inner {
   padding: var(--admin-space-md);
+  overflow-y: auto; /* ◀️ 内容超出时可滚动 */
+  overflow-x: hidden;
+  flex: 1;
+  min-height: 0; /* ◀️ 重要：允许 flex 子项收缩 */
+}
+
+/* ◀️ 自定义滚动条样式 */
+.shiroki-editor-toolbar .toolbar-inner::-webkit-scrollbar {
+  width: 6px;
+}
+
+.shiroki-editor-toolbar .toolbar-inner::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.shiroki-editor-toolbar .toolbar-inner::-webkit-scrollbar-thumb {
+  background: var(--admin-current-border);
+  border-radius: var(--admin-radius-full);
+}
+
+.shiroki-editor-toolbar .toolbar-inner::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-current-text-muted);
 }
 
 .shiroki-editor-toolbar .toolbar-section {
@@ -780,6 +810,24 @@
   box-sizing: border-box !important; /* ◀️ 确保内边距不增加总宽度 */
   word-wrap: break-word !important; /* ◀️ 长文本自动换行 */
   white-space: pre-wrap !important; /* ◀️ 保留换行符并自动换行 */
+  background: var(--admin-current-bg) !important;
+  color: var(--admin-current-text-primary) !important;
+}
+
+/* 📝 编辑器文本域 - 暗色模式适配 */
+.post-new-php textarea#content,
+.post-php textarea#content {
+  background: var(--admin-current-bg) !important;
+  color: var(--admin-current-text-primary) !important;
+}
+
+/* 🌆 暗色模式下编辑器文本域 */
+.wp-admin.wp-dark-mode .post-new-php textarea#content,
+.wp-admin.wp-dark-mode .post-php textarea#content,
+.wp-admin.wp-dark-mode .post-new-php .wp-editor-area,
+.wp-admin.wp-dark-mode .post-php .wp-editor-area {
+  background: var(--admin-bg-dark-primary) !important;
+  color: #f7fafc !important;
 }
 
 /* 📝 编辑器工具栏 */
@@ -1589,20 +1637,16 @@
    📱 响应式设计 - 三栏布局
    ============================================ */
 
-/* 📱 中等屏幕 - 两栏布局（隐藏左侧工具栏） */
+/* 📱 中等屏幕 - 两栏布局（隐藏工具栏区域） */
 @media screen and (max-width: 1400px) {
   .shiroki-editor-layout {
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 300px;
     grid-template-areas: "main sidebar";
   }
 
+  /* ◀️ 隐藏工具栏区域 */
   .shiroki-editor-toolbar {
     display: none;
-  }
-
-  /* 📝 恢复工具栏到编辑器上方 */
-  .shiroki-editor-main .editor-inner {
-    position: relative;
   }
 }
 
@@ -1633,10 +1677,10 @@
   }
 
   /* 📝 📱 移动端编辑区域容器优化 */
-  .shiroki-editor-main {
-    max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
-    overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
-  }
+   .shiroki-editor-main {
+     max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
+     overflow-x: hidden !important; /* ◀️ 📱 防止内容溢出 */
+   }
 
   .shiroki-editor-main .editor-inner {
     max-width: 100% !important; /* ◀️ 📱 限制最大宽度 */
@@ -1929,7 +1973,18 @@
 
   /* ◀️ 隐藏原工具栏 */
   .shiroki-editor-toolbar {
-    display: none;
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* ◀️ 隐藏工具栏内部内容 */
+  .shiroki-editor-toolbar .toolbar-inner {
+    display: none !important;
   }
 
   /* ◀️ 隐藏侧边栏，释放空间 */

@@ -1,0 +1,1754 @@
+/* 🕊️白木 原创开发 🔗gl.baimu.live */
+/* 🌐 51LA 统计仪表盘样式 */
+/* 🎨 拟态拟物玻璃质感设计 */
+/* 🔗 变量定义在 admin-variables.css 中统一管理 */
+
+/* ============================================
+   🎯 51LA 仪表盘整体布局
+   ============================================ */
+
+/* 🪟 51LA 页面背景 */
+.toplevel_page_shiroki-51la-stats {
+  background: var(--shiroki-bg-gradient-light);
+}
+
+.toplevel_page_shiroki-51la-stats.wp-dark-mode,
+.toplevel_page_shiroki-51la-stats .wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark);
+}
+
+/* 📝 隐藏默认标题 */
+.toplevel_page_shiroki-51la-stats .wrap > h1 {
+  display: none;
+}
+
+/* 📦 仪表盘容器 */
+.shiroki-51la-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--admin-space-xl);
+}
+
+/* ============================================
+   🎯 页面标题区域
+   ============================================ */
+
+/* 🎯 标题区域 */
+.shiroki-51la-header {
+  text-align: center;
+  margin-bottom: var(--admin-space-2xl);
+  padding: var(--admin-space-xl) 0;
+}
+
+/* 📝 主标题 */
+.shiroki-51la-title {
+  font-size: 32px;
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-primary);
+  margin: 0 0 var(--admin-space-md) 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-sm);
+}
+
+/* 📝 副标题 */
+.shiroki-51la-subtitle {
+  font-size: var(--admin-font-size-lg);
+  color: var(--admin-current-text-secondary);
+  margin: 0;
+}
+
+/* ============================================
+   🔔 通知提示
+   ============================================ */
+
+/* 📦 通知容器 */
+.shiroki-51la-notice {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-lg) var(--admin-space-xl);
+  border-radius: var(--admin-radius-lg);
+  margin-bottom: var(--admin-space-xl);
+  animation: shiroki-51la-notice-enter 0.3s ease;
+}
+
+.shiroki-51la-notice.success {
+  background: var(--admin-success-bg);
+  border: 1px solid var(--admin-success-border);
+  color: var(--admin-success-text);
+}
+
+.shiroki-51la-notice.error {
+  background: var(--admin-danger-bg);
+  border: 1px solid var(--admin-danger-border);
+  color: var(--admin-danger-text);
+}
+
+/* 🎬 通知入场动画 */
+@keyframes shiroki-51la-notice-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   🎴 卡片组件
+   ============================================ */
+
+/* 🎴 卡片容器 */
+.shiroki-51la-card {
+  background: var(--admin-current-bg);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  box-shadow: var(--admin-shadow-md);
+  margin-bottom: var(--admin-space-xl);
+  overflow: hidden;
+  animation: shiroki-51la-card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.shiroki-51la-card:hover {
+  box-shadow: var(--admin-shadow-hover);
+}
+
+/* 🎬 卡片入场动画 */
+@keyframes shiroki-51la-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 📋 卡片头部 */
+.shiroki-51la-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-lg) var(--admin-space-xl);
+  background: var(--admin-current-glass);
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+/* 🎨 卡片图标 */
+.shiroki-51la-card-icon {
+  font-size: var(--admin-font-size-xl);
+}
+
+/* 📝 卡片标题 */
+.shiroki-51la-card-title {
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  flex: 1;
+}
+
+/* 📄 卡片主体 */
+.shiroki-51la-card-body {
+  padding: var(--admin-space-xl);
+}
+
+/* ============================================
+   🗂️ 标签切换菜单
+   ============================================ */
+
+/* 📦 标签容器 */
+.shiroki-51la-tabs {
+  display: flex;
+  gap: var(--admin-space-sm);
+  margin-bottom: var(--admin-space-xl);
+  padding: var(--admin-space-sm);
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-lg);
+  border: var(--admin-border-glass);
+}
+
+/* 🔘 标签按钮 */
+.shiroki-51la-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  border: none;
+  border-radius: var(--admin-radius-md);
+  background: transparent;
+  color: var(--admin-current-text-secondary);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  flex: 1;
+  justify-content: center;
+}
+
+.shiroki-51la-tab:hover {
+  background: var(--admin-current-bg);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-51la-tab.active {
+  background: var(--admin-primary-bg);
+  color: var(--admin-primary-text);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-51la-tab .tab-icon {
+  font-size: var(--admin-font-size-lg);
+}
+
+/* 📄 标签内容 */
+.shiroki-51la-tab-content {
+  display: none;
+  animation: shiroki-51la-tab-enter 0.3s ease;
+}
+
+.shiroki-51la-tab-content.active {
+  display: block;
+}
+
+/* 🎬 标签切换动画 */
+@keyframes shiroki-51la-tab-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   ⚙️ 配置区域
+   ============================================ */
+
+/* 📦 配置卡片特殊样式 */
+.shiroki-51la-config-card {
+  background: linear-gradient(135deg, rgba(99, 179, 237, 0.1) 0%, rgba(183, 148, 244, 0.1) 100%);
+}
+
+/* 🏷️ 配置状态标签 */
+.shiroki-51la-config-status {
+  padding: var(--admin-space-xs) var(--admin-space-md);
+  border-radius: var(--admin-radius-full);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+}
+
+.shiroki-51la-config-status.active {
+  background: var(--admin-success-bg);
+  border: 1px solid var(--admin-success-border);
+  color: var(--admin-success-text);
+}
+
+.shiroki-51la-config-status.inactive {
+  background: var(--admin-danger-bg);
+  border: 1px solid var(--admin-danger-border);
+  color: var(--admin-danger-text);
+}
+
+/* 📝 表单布局 */
+.shiroki-51la-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--admin-space-xl);
+  margin-bottom: var(--admin-space-lg);
+}
+
+.shiroki-51la-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-sm);
+}
+
+.shiroki-51la-form-field label {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+}
+
+.shiroki-51la-form-field .required {
+  color: var(--admin-danger-text);
+}
+
+.shiroki-51la-form-field input[type="text"],
+.shiroki-51la-form-field input[type="password"],
+.shiroki-51la-form-field select {
+  width: 100%;
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-primary);
+  transition: all var(--admin-transition-fast);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-51la-form-field input:focus,
+.shiroki-51la-form-field select:focus {
+  outline: none;
+  border-color: var(--admin-primary-border);
+  box-shadow: 0 0 0 3px var(--admin-primary-shadow);
+}
+
+.shiroki-51la-form-field .field-description {
+  margin: 0;
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+}
+
+.shiroki-51la-form-field .field-description a {
+  color: var(--admin-primary-text);
+  text-decoration: none;
+}
+
+.shiroki-51la-form-field .field-description a:hover {
+  text-decoration: underline;
+}
+
+/* 🔘 表单按钮 */
+.shiroki-51la-form-actions {
+  display: flex;
+  gap: var(--admin-space-md);
+  margin-top: var(--admin-space-xl);
+  padding-top: var(--admin-space-lg);
+  border-top: 1px solid var(--admin-current-border);
+}
+
+.shiroki-51la-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--admin-space-xs);
+  padding: var(--admin-space-md) var(--admin-space-xl);
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-medium);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  text-decoration: none;
+  border: none;
+}
+
+.shiroki-51la-btn-primary {
+  background: var(--admin-primary-bg);
+  color: var(--admin-primary-text);
+  box-shadow: var(--admin-shadow-sm);
+}
+
+.shiroki-51la-btn-primary:hover {
+  background: var(--admin-primary-bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+.shiroki-51la-btn-secondary {
+  background: var(--admin-current-glass);
+  border: var(--admin-border-glass);
+  color: var(--admin-current-text-secondary);
+}
+
+.shiroki-51la-btn-secondary:hover {
+  background: var(--admin-current-glass-hover);
+  color: var(--admin-current-text-primary);
+}
+
+/* ============================================
+   📊 数据概览
+   ============================================ */
+
+/* 📦 概览区域 */
+.shiroki-51la-overview {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--admin-space-xl);
+  margin-bottom: var(--admin-space-2xl);
+}
+
+/* 🎴 统计卡片 */
+.shiroki-51la-stat-card {
+  background: var(--admin-current-bg);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  box-shadow: var(--admin-shadow-md);
+  padding: var(--admin-space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-lg);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: shiroki-51la-card-enter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shiroki-51la-stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--admin-shadow-hover);
+}
+
+/* 🎨 统计图标 */
+.shiroki-51la-stat-card .stat-icon {
+  font-size: 40px;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-lg);
+}
+
+/* 📝 统计内容 */
+.shiroki-51la-stat-card .stat-content {
+  flex: 1;
+}
+
+.shiroki-51la-stat-card .stat-label {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-secondary);
+  margin-bottom: var(--admin-space-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.shiroki-51la-stat-card .stat-value {
+  font-size: 32px;
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-primary);
+  margin-bottom: var(--admin-space-xs);
+  line-height: 1.2;
+}
+
+.shiroki-51la-stat-card .stat-change {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+}
+
+/* ============================================
+   📈 趋势图表
+   ============================================ */
+
+/* 🎴 图表卡片 */
+.shiroki-51la-chart-card {
+  padding: 0;
+}
+
+/* 🎨 图表图例 */
+.shiroki-51la-chart-legend {
+  display: flex;
+  gap: var(--admin-space-lg);
+}
+
+.shiroki-51la-chart-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-secondary);
+}
+
+.shiroki-51la-chart-legend .legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--admin-radius-full);
+}
+
+.shiroki-51la-chart-legend .legend-item.pv .legend-dot {
+  background: #63b3ed;
+}
+
+.shiroki-51la-chart-legend .legend-item.uv .legend-dot {
+  background: #48bb78;
+}
+
+/* 📊 图表主体 */
+.shiroki-51la-chart-body {
+  padding: var(--admin-space-xl);
+  position: relative;
+  height: 350px;
+}
+
+#shiroki-51la-chart {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ============================================
+   📋 数据详情
+   ============================================ */
+
+/* 📦 详情区域 */
+.shiroki-51la-details {
+  margin-top: var(--admin-space-xl);
+}
+
+/* 📋 信息列表 */
+.shiroki-51la-info-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shiroki-51la-info-list li {
+  padding: var(--admin-space-md) 0;
+  border-bottom: 1px solid var(--admin-current-border);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-secondary);
+}
+
+.shiroki-51la-info-list li:last-child {
+  border-bottom: none;
+}
+
+.shiroki-51la-info-list li strong {
+  color: var(--admin-current-text-primary);
+}
+
+/* ============================================
+   💡 提示卡片
+   ============================================ */
+
+/* 🎴 提示卡片 */
+.shiroki-51la-hint-card {
+  background: linear-gradient(135deg, rgba(246, 173, 85, 0.1) 0%, rgba(237, 137, 54, 0.1) 100%);
+}
+
+.hint-content {
+  display: flex;
+  gap: var(--admin-space-xl);
+  align-items: flex-start;
+}
+
+.hint-icon {
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.hint-text h3 {
+  margin: 0 0 var(--admin-space-md) 0;
+  font-size: var(--admin-font-size-xl);
+  color: var(--admin-current-text-primary);
+}
+
+.hint-text p {
+  margin: 0 0 var(--admin-space-md) 0;
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-secondary);
+}
+
+.hint-text ol {
+  margin: 0;
+  padding-left: var(--admin-space-xl);
+  color: var(--admin-current-text-secondary);
+}
+
+.hint-text ol li {
+  margin-bottom: var(--admin-space-sm);
+}
+
+.hint-text a {
+  color: var(--admin-primary-text);
+  text-decoration: none;
+}
+
+.hint-text a:hover {
+  text-decoration: underline;
+}
+
+/* ============================================
+   🔗 来路分析
+   ============================================ */
+
+/* 📦 来路分析卡片 */
+.shiroki-51la-source-card {
+  margin-top: var(--admin-space-xl);
+}
+
+/* 📋 表格容器 */
+.shiroki-51la-source-table-wrapper {
+  overflow-x: auto;
+}
+
+/* 📋 来路分析表格 */
+.shiroki-51la-source-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--admin-font-size-md);
+}
+
+.shiroki-51la-source-table th,
+.shiroki-51la-source-table td {
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+.shiroki-51la-source-table th {
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-secondary);
+  background: var(--admin-current-glass);
+  text-transform: uppercase;
+  font-size: var(--admin-font-size-sm);
+  letter-spacing: 0.5px;
+}
+
+.shiroki-51la-source-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.shiroki-51la-source-table tbody tr:hover {
+  background: var(--admin-current-glass);
+}
+
+/* 🏷️ 排名列 */
+.shiroki-51la-source-table .col-rank {
+  width: 60px;
+  text-align: center;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-bold);
+  background: var(--admin-current-glass);
+  color: var(--admin-current-text-secondary);
+}
+
+.rank-badge.rank-1 {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4a 100%);
+  color: #8b6914;
+}
+
+.rank-badge.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+  color: #666;
+}
+
+.rank-badge.rank-3 {
+  background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);
+  color: #fff;
+}
+
+/* 📝 来源名列 */
+.shiroki-51la-source-table .col-source {
+  min-width: 150px;
+}
+
+.source-name {
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-primary);
+}
+
+/* 📊 数据列 */
+.shiroki-51la-source-table .col-pv,
+.shiroki-51la-source-table .col-uv {
+  width: 100px;
+  text-align: right;
+  font-family: 'SF Mono', Monaco, monospace;
+  color: var(--admin-current-text-primary);
+}
+
+/* 📈 占比列 */
+.shiroki-51la-source-table .col-ratio {
+  width: 80px;
+  text-align: right;
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-primary-text);
+}
+
+/* 📊 进度条列 */
+.shiroki-51la-source-table .col-bar {
+  width: 200px;
+  min-width: 150px;
+}
+
+.ratio-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-full);
+  overflow: hidden;
+}
+
+.ratio-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--admin-primary-border) 0%, #63b3ed 100%);
+  border-radius: var(--admin-radius-full);
+  transition: width 0.6s ease;
+}
+
+/* 📭 空状态 */
+.shiroki-51la-empty {
+  text-align: center;
+  padding: var(--admin-space-2xl);
+  color: var(--admin-current-text-muted);
+}
+
+/* ============================================
+   ⏳ 加载状态
+   ============================================ */
+
+/* 📦 加载容器 */
+.shiroki-51la-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--admin-space-3xl);
+  gap: var(--admin-space-lg);
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--admin-current-border);
+  border-top-color: var(--admin-primary-border);
+  border-radius: var(--admin-radius-full);
+  animation: shiroki-51la-spin 1s linear infinite;
+}
+
+@keyframes shiroki-51la-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.shiroki-51la-loading p {
+  margin: 0;
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-muted);
+}
+
+/* ============================================
+   📱 响应式设计
+   ============================================ */
+
+@media screen and (max-width: 1200px) {
+  .shiroki-51la-overview {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================
+   📖 使用说明
+   ============================================ */
+
+/* 📦 使用说明卡片 */
+.shiroki-51la-guide-card {
+  background: linear-gradient(135deg, rgba(246, 173, 85, 0.05) 0%, rgba(237, 137, 54, 0.05) 100%);
+}
+
+/* 📋 指南区块 */
+.guide-section {
+  margin-bottom: var(--admin-space-xl);
+  padding-bottom: var(--admin-space-xl);
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+.guide-section:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.guide-section h4 {
+  font-size: var(--admin-font-size-lg);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  margin: 0 0 var(--admin-space-md) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+}
+
+.guide-section p {
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* 📝 步骤列表 */
+ol.guide-steps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+ol.guide-steps li {
+  position: relative;
+  padding-left: 50px;
+  margin-bottom: var(--admin-space-lg);
+  counter-increment: step;
+}
+
+ol.guide-steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 32px;
+  height: 32px;
+  background: var(--admin-primary-bg);
+  color: var(--admin-primary-text);
+  border-radius: var(--admin-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--admin-font-weight-bold);
+  font-size: var(--admin-font-size-sm);
+}
+
+ol.guide-steps li strong {
+  display: block;
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  margin-bottom: var(--admin-space-xs);
+}
+
+ol.guide-steps li p {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-secondary);
+  margin: 0;
+}
+
+ol.guide-steps li a {
+  color: var(--admin-primary-text);
+  text-decoration: none;
+}
+
+ol.guide-steps li a:hover {
+  text-decoration: underline;
+}
+
+/* 📊 指标列表 */
+ul.guide-metrics,
+ul.guide-tips {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+ul.guide-metrics li,
+ul.guide-tips li {
+  padding: var(--admin-space-md) 0;
+  border-bottom: 1px solid var(--admin-current-border);
+  font-size: var(--admin-font-size-md);
+  color: var(--admin-current-text-secondary);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--admin-space-sm);
+}
+
+ul.guide-metrics li::before {
+  content: '📊';
+  flex-shrink: 0;
+}
+
+ul.guide-tips li::before {
+  content: '⚠️';
+  flex-shrink: 0;
+}
+
+ul.guide-metrics li:last-child,
+ul.guide-tips li:last-child {
+  border-bottom: none;
+}
+
+ul.guide-metrics li strong,
+ul.guide-tips li strong {
+  color: var(--admin-current-text-primary);
+}
+
+/* 💻 代码样式 */
+.guide-section code {
+  background: var(--admin-current-glass);
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  border-radius: var(--admin-radius-sm);
+  font-family: 'SF Mono', Monaco, monospace;
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-primary-text);
+}
+
+/* ============================================
+   🔗 外部链接统计
+   ============================================ */
+
+/* 📦 外部链接仪表盘 */
+.shiroki-51la-external-dashboard {
+  animation: shiroki-51la-tab-enter 0.3s ease;
+}
+
+/* 📊 外部链接统计卡片网格 */
+.shiroki-51la-external-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--admin-space-lg);
+  margin-bottom: var(--admin-space-xl);
+}
+
+/* 🔍 筛选栏 - 水平并排样式 */
+.shiroki-51la-filter-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--admin-space-xl);
+  padding: var(--admin-space-lg) var(--admin-space-xl);
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-lg);
+  border: var(--admin-border-glass);
+  margin-bottom: var(--admin-space-xl);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--admin-space-md);
+  background: var(--admin-current-bg);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  border-radius: var(--admin-radius-xl);
+  border: var(--admin-border-glass);
+  flex: 1;
+  min-width: fit-content;
+}
+
+.filter-group label {
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  color: var(--admin-current-text-secondary);
+  white-space: nowrap;
+  padding: var(--admin-space-xs) var(--admin-space-sm);
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-md);
+  flex-shrink: 0;
+}
+
+/* 🔘 筛选按钮组 - 胶囊样式 */
+.filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--admin-space-xs);
+}
+
+.filter-btn {
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  border: none;
+  border-radius: var(--admin-radius-xl);
+  background: transparent;
+  color: var(--admin-current-text-secondary);
+  font-size: var(--admin-font-size-sm);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  white-space: nowrap;
+}
+
+.filter-btn:hover {
+  background: var(--admin-current-glass);
+  color: var(--admin-primary-text);
+}
+
+.filter-btn.active {
+  background: var(--admin-primary-bg);
+  color: var(--admin-primary-text);
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+}
+
+/* 📅 自定义日期范围 - 并排样式 */
+.custom-date-range {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  margin-left: var(--admin-space-sm);
+  padding-left: var(--admin-space-sm);
+  border-left: 1px solid var(--admin-current-border);
+}
+
+.custom-date-range input[type="date"] {
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-xl);
+  background: var(--admin-current-bg);
+  color: var(--admin-current-text-primary);
+  font-size: var(--admin-font-size-sm);
+}
+
+.custom-date-range span {
+  color: var(--admin-current-text-secondary);
+  font-size: var(--admin-font-size-sm);
+}
+
+
+
+/* 📋 外部链接表格卡片 */
+.shiroki-51la-external-table-card {
+  margin-top: var(--admin-space-xl);
+}
+
+.shiroki-51la-external-table-card .table-actions {
+  margin-left: auto;
+}
+
+/* 📊 数据表格 */
+.shiroki-51la-table-wrapper {
+  overflow-x: auto;
+}
+
+.shiroki-51la-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--admin-font-size-sm);
+}
+
+.shiroki-51la-data-table th,
+.shiroki-51la-data-table td {
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--admin-current-border);
+}
+
+.shiroki-51la-data-table th {
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-secondary);
+  background: var(--admin-current-glass);
+  text-transform: uppercase;
+  font-size: var(--admin-font-size-xs);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.shiroki-51la-data-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.shiroki-51la-data-table tbody tr:hover {
+  background: var(--admin-current-glass);
+}
+
+/* 🔗 外部链接列 */
+.shiroki-51la-data-table .col-link {
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.external-link {
+  color: var(--admin-primary-text);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.external-link:hover {
+  text-decoration: underline;
+}
+
+/* 📊 数据列 */
+.shiroki-51la-data-table .col-ip,
+.shiroki-51la-data-table .col-pv,
+.shiroki-51la-data-table .col-uv,
+.shiroki-51la-data-table .col-new,
+.shiroki-51la-data-table .col-session {
+  text-align: right;
+  font-family: 'SF Mono', Monaco, monospace;
+  white-space: nowrap;
+}
+
+.shiroki-51la-data-table .col-bounce,
+.shiroki-51la-data-table .col-duration {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 📄 分页 */
+.shiroki-51la-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--admin-space-lg) 0;
+  margin-top: var(--admin-space-lg);
+  border-top: 1px solid var(--admin-current-border);
+}
+
+.pagination-info {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-secondary);
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: var(--admin-space-xs);
+}
+
+.page-btn {
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  border: 1px solid var(--admin-current-border);
+  border-radius: var(--admin-radius-md);
+  background: var(--admin-current-bg);
+  color: var(--admin-current-text-secondary);
+  font-size: var(--admin-font-size-sm);
+  cursor: pointer;
+  transition: all var(--admin-transition-fast);
+  min-width: 36px;
+}
+
+.page-btn:hover:not(:disabled) {
+  border-color: var(--admin-primary-border);
+  color: var(--admin-primary-text);
+}
+
+.page-btn.active {
+  background: var(--admin-primary-bg);
+  border-color: var(--admin-primary-border);
+  color: var(--admin-primary-text);
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   🔗 外部链接分析（数据概览页 TOP 10）
+   ============================================ */
+
+/* 📦 外部链接预览卡片 */
+.shiroki-51la-external-links-preview {
+  margin-top: var(--admin-space-xl);
+}
+
+.shiroki-51la-external-links-preview .view-more-link {
+  margin-left: auto;
+  color: var(--admin-primary-text);
+  text-decoration: none;
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-medium);
+  padding: var(--admin-space-xs) var(--admin-space-md);
+  background: var(--admin-primary-bg);
+  border-radius: var(--admin-radius-xl);
+  transition: all var(--admin-transition-fast);
+}
+
+.shiroki-51la-external-links-preview .view-more-link:hover {
+  background: var(--admin-primary-hover);
+  box-shadow: 0 2px 8px rgba(255, 107, 157, 0.3);
+}
+
+/* 📋 外部链接列表 */
+.shiroki-51la-external-links-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-sm);
+}
+
+/* 🔗 单个外部链接项 */
+.external-link-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  background: var(--admin-current-bg);
+  border-radius: var(--admin-radius-lg);
+  border: var(--admin-border-glass);
+  transition: all var(--admin-transition-fast);
+}
+
+.external-link-item:hover {
+  background: var(--admin-current-glass);
+  transform: translateX(4px);
+  border-color: var(--admin-primary-border);
+}
+
+/* 🏆 排名 */
+.external-link-item .link-rank {
+  flex-shrink: 0;
+}
+
+.external-link-item .rank-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-secondary);
+  background: var(--admin-current-glass);
+}
+
+.external-link-item .rank-badge.rank-1 {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #fff;
+}
+
+.external-link-item .rank-badge.rank-2 {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%);
+  color: #fff;
+}
+
+.external-link-item .rank-badge.rank-3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+  color: #fff;
+}
+
+/* 📄 链接信息 */
+.external-link-item .link-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-xs);
+}
+
+.external-link-item .link-url {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-primary-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.external-link-item .link-url:hover {
+  text-decoration: underline;
+}
+
+.external-link-item .link-full {
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 📊 统计数据 */
+.external-link-item .link-stats {
+  display: flex;
+  gap: var(--admin-space-xl);
+  flex-shrink: 0;
+}
+
+.external-link-item .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--admin-space-xs);
+}
+
+.external-link-item .stat-item .stat-label {
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-muted);
+}
+
+.external-link-item .stat-item .stat-value {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+/* 📈 趋势条 */
+.external-link-item .link-trend {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.external-link-item .trend-bar {
+  height: 6px;
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-xl);
+  overflow: hidden;
+}
+
+.external-link-item .trend-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--admin-primary) 0%, var(--admin-primary-light) 100%);
+  border-radius: var(--admin-radius-xl);
+  transition: width 0.6s ease;
+}
+
+/* ============================================
+   📄 受访页和入口页分析
+   ============================================ */
+
+/* 📦 页面分析卡片 */
+.shiroki-51la-visited-pages-preview,
+.shiroki-51la-entry-pages-preview {
+  margin-top: var(--admin-space-xl);
+}
+
+.shiroki-51la-visited-pages-preview .header-hint,
+.shiroki-51la-entry-pages-preview .header-hint {
+  margin-left: auto;
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-muted);
+  font-weight: var(--admin-font-weight-normal);
+}
+
+/* 📋 页面列表 */
+.shiroki-51la-pages-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-sm);
+}
+
+/* 📄 单个页面项 */
+.page-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-md);
+  padding: var(--admin-space-md) var(--admin-space-lg);
+  background: var(--admin-current-bg);
+  border-radius: var(--admin-radius-lg);
+  border: var(--admin-border-glass);
+  transition: all var(--admin-transition-fast);
+}
+
+.page-item:hover {
+  background: var(--admin-current-glass);
+  transform: translateX(4px);
+  border-color: var(--admin-primary-border);
+}
+
+/* 🏆 排名 */
+.page-item .page-rank {
+  flex-shrink: 0;
+}
+
+.page-item .rank-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--admin-radius-md);
+  font-size: var(--admin-font-size-sm);
+  font-weight: var(--admin-font-weight-bold);
+  color: var(--admin-current-text-secondary);
+  background: var(--admin-current-glass);
+}
+
+.page-item .rank-badge.rank-1 {
+  background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+  color: #fff;
+}
+
+.page-item .rank-badge.rank-2 {
+  background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%);
+  color: #fff;
+}
+
+.page-item .rank-badge.rank-3 {
+  background: linear-gradient(135deg, #CD7F32 0%, #B87333 100%);
+  color: #fff;
+}
+
+/* 📄 页面信息 */
+.page-item .page-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-xs);
+}
+
+.page-item .page-title {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page-item .page-url {
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+/* 📊 统计数据 */
+.page-item .page-stats {
+  display: flex;
+  gap: var(--admin-space-xl);
+  flex-shrink: 0;
+}
+
+.page-item .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--admin-space-xs);
+}
+
+.page-item .stat-item .stat-label {
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-muted);
+}
+
+.page-item .stat-item .stat-value {
+  font-size: var(--admin-font-size-md);
+  font-weight: var(--admin-font-weight-semibold);
+  color: var(--admin-current-text-primary);
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+/* 📈 跳出率颜色 */
+.page-item .stat-item .stat-value.high-bounce {
+  color: var(--admin-danger-text, #ff6b6b);
+}
+
+.page-item .stat-item .stat-value.low-bounce {
+  color: var(--admin-success-text, #51cf66);
+}
+
+/* 📈 趋势条 */
+.page-item .page-trend {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.page-item .trend-bar {
+  height: 6px;
+  background: var(--admin-current-glass);
+  border-radius: var(--admin-radius-xl);
+  overflow: hidden;
+}
+
+.page-item .trend-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--admin-primary) 0%, var(--admin-primary-light) 100%);
+  border-radius: var(--admin-radius-xl);
+  transition: width 0.6s ease;
+}
+
+.page-ellipsis {
+  padding: var(--admin-space-sm);
+  color: var(--admin-current-text-muted);
+}
+
+/* ============================================
+   ⚙️ API 配置卡片折叠/展开
+   ============================================ */
+
+/* 🔘 折叠/展开图标 */
+.shiroki-51la-toggle-icon {
+  margin-left: auto;
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-secondary);
+  transition: transform var(--admin-transition-fast);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--admin-radius-sm);
+  background: var(--admin-current-glass);
+}
+
+.shiroki-51la-config-card.is-collapsed .shiroki-51la-toggle-icon {
+  transform: rotate(-90deg);
+}
+
+.shiroki-51la-config-card.is-expanded .shiroki-51la-toggle-icon {
+  transform: rotate(0deg);
+}
+
+/* 📦 配置卡片主体 */
+.shiroki-51la-config-body {
+  transition: all var(--admin-transition-normal);
+  overflow: hidden;
+}
+
+/* 收起状态 */
+.shiroki-51la-config-card.is-collapsed .shiroki-51la-config-body {
+  max-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+}
+
+/* 展开状态 */
+.shiroki-51la-config-card.is-expanded .shiroki-51la-config-body {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+/* 🖱️ 头部悬停效果 */
+.shiroki-51la-config-header:hover {
+  background: var(--admin-current-glass);
+}
+
+.shiroki-51la-config-header:hover .shiroki-51la-toggle-icon {
+  background: var(--admin-primary-bg);
+  color: var(--admin-primary-text);
+}
+
+@media screen and (max-width: 782px) {
+  .shiroki-51la-dashboard {
+    padding: var(--admin-space-md);
+  }
+
+  .shiroki-51la-title {
+    font-size: 24px;
+  }
+
+  .shiroki-51la-form-row {
+    grid-template-columns: 1fr;
+    gap: var(--admin-space-lg);
+  }
+
+  .shiroki-51la-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .shiroki-51la-stat-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .shiroki-51la-stat-card .stat-value {
+    font-size: 28px;
+  }
+
+  .shiroki-51la-form-actions {
+    flex-direction: column;
+  }
+
+  .shiroki-51la-btn {
+    width: 100%;
+  }
+
+  .hint-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .shiroki-51la-chart-body {
+    height: 250px;
+    padding: var(--admin-space-md);
+  }
+
+  /* 🔗 筛选栏响应式 - 小屏幕垂直堆叠 */
+  .shiroki-51la-filter-bar {
+    flex-direction: column;
+    gap: var(--admin-space-md);
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .filter-buttons {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    flex: 1;
+    min-width: 60px;
+    text-align: center;
+  }
+
+  /* 🔗 来路分析响应式 */
+  .shiroki-51la-source-table .col-bar {
+    display: none;
+  }
+
+  .shiroki-51la-source-table .col-uv {
+    display: none;
+  }
+
+  /* 🔗 外部链接分析响应式 */
+  .external-link-item {
+    flex-wrap: wrap;
+    gap: var(--admin-space-sm);
+  }
+
+  .external-link-item .link-stats {
+    width: 100%;
+    justify-content: flex-start;
+    gap: var(--admin-space-lg);
+    margin-top: var(--admin-space-sm);
+    padding-top: var(--admin-space-sm);
+    border-top: 1px solid var(--admin-current-border);
+  }
+
+  .external-link-item .stat-item {
+    align-items: flex-start;
+  }
+
+  .external-link-item .link-trend {
+    width: 100%;
+    margin-top: var(--admin-space-sm);
+  }
+
+  /* 📄 受访页和入口页响应式 */
+  .page-item {
+    flex-wrap: wrap;
+    gap: var(--admin-space-sm);
+  }
+
+  .page-item .page-stats {
+    width: 100%;
+    justify-content: flex-start;
+    gap: var(--admin-space-lg);
+    margin-top: var(--admin-space-sm);
+    padding-top: var(--admin-space-sm);
+    border-top: 1px solid var(--admin-current-border);
+  }
+
+  .page-item .stat-item {
+    align-items: flex-start;
+  }
+
+  .page-item .page-trend {
+    width: 100%;
+    margin-top: var(--admin-space-sm);
+  }
+
+  .shiroki-51la-visited-pages-preview .header-hint,
+  .shiroki-51la-entry-pages-preview .header-hint {
+    width: 100%;
+    margin-left: 0;
+    margin-top: var(--admin-space-xs);
+  }
+
+  .shiroki-51la-source-table th,
+  .shiroki-51la-source-table td {
+    padding: var(--admin-space-sm) var(--admin-space-md);
+  }
+
+  .shiroki-51la-card-header {
+    flex-wrap: wrap;
+    gap: var(--admin-space-sm);
+  }
+
+  .shiroki-51la-chart-legend {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: var(--admin-space-sm);
+  }
+
+  /* 🔗 外部链接统计响应式 */
+  .shiroki-51la-external-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .shiroki-51la-filter-bar {
+    flex-direction: column;
+    gap: var(--admin-space-lg);
+  }
+
+  .filter-buttons {
+    width: 100%;
+  }
+
+  .filter-btn {
+    flex: 1;
+    min-width: 60px;
+    padding: var(--admin-space-sm);
+    font-size: var(--admin-font-size-xs);
+  }
+
+  .custom-date-range {
+    flex-wrap: wrap;
+  }
+
+  .shiroki-51la-data-table .col-link {
+    min-width: 200px;
+    max-width: 250px;
+  }
+
+  .shiroki-51la-data-table .col-new,
+  .shiroki-51la-data-table .col-session {
+    display: none;
+  }
+
+  .shiroki-51la-pagination {
+    flex-direction: column;
+    gap: var(--admin-space-md);
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .shiroki-51la-title {
+    font-size: 20px;
+  }
+
+  .shiroki-51la-card-body {
+    padding: var(--admin-space-lg);
+  }
+
+  .shiroki-51la-stat-card .stat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 28px;
+  }
+
+  .shiroki-51la-stat-card .stat-value {
+    font-size: 24px;
+  }
+
+  .shiroki-51la-form-field input,
+  .shiroki-51la-form-field select {
+    padding: var(--admin-space-sm) var(--admin-space-md);
+  }
+
+  /* 🔗 外部链接统计小屏幕 */
+  .shiroki-51la-external-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .shiroki-51la-data-table .col-bounce {
+    display: none;
+  }
+
+  .page-btn:not(.active):not(:first-child):not(:last-child) {
+    display: none;
+  }
+}
+
+/* ============================================
+   ✨ 动画效果
+   ============================================ */
+
+/* 🎬 数字变化动画 */
+@keyframes shiroki-51la-number-change {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.stat-value.changing {
+  animation: shiroki-51la-number-change 0.3s ease;
+  color: var(--admin-primary-text);
+}
