@@ -241,7 +241,7 @@ foreach ($roles as $role_key => $role_name) {
                        class="of-input boxmoe-role-name-input" 
                        style="flex-grow:1;"
                        data-role-slug="' . esc_attr($role_key) . '">
-                ' . ($is_system ? '' : '<button type="button" class="button boxmoe-delete-role-btn" data-slug="' . esc_attr($role_key) . '" style="border-color:#f44336;color:#f44336;">删除</button>') . '
+                ' . ($is_system ? '' : '<button type="button" class="button boxmoe-delete-role-btn" data-slug="' . esc_attr($role_key) . '">删除</button>') . '
             </div>
             <div class="explain" style="margin-top:8px;clear:both;display:block;">角色标识ID: <code style="margin:0 4px;background:rgba(0,0,0,0.05);padding:2px 5px;border-radius:3px;">' . esc_html($role_key) . '</code> <span style="color:#888;">您可以修改上面的显示名称。</span></div>
         </div>

@@ -47,7 +47,7 @@ jQuery(document).ready(function($){
 				// 更新按钮状态
 				var uploadButton = optionsframework_selector.find('.upload-button');
 				var removeButton = optionsframework_selector.find('.remove-file');
-				uploadButton.val('替换');
+				uploadButton.val('替换').addClass('of-btn-replace');
 				removeButton.show();
 			});
 
@@ -124,7 +124,10 @@ jQuery(document).ready(function($){
     	screenshot.empty().hide();
     	// 重置按钮状态
     	btn.hide();
-    	uploadButton.show().val('上传');
+    	uploadButton.show().val('上传').removeClass('of-btn-replace');
     });
+
+    // 页面加载时标记已有「替换」按钮
+    $('.upload-button[value="替换"]').addClass('of-btn-replace');
 
 });

@@ -22,7 +22,7 @@ class Shiroki_51LA_API {
     /**
      * 🎯 API 基础地址
      */
-    private $api_base = 'https://v6.51.la';
+    private $api_base = 'https://v6-open.51.la';
 
     /**
      * 📝 选项名称
@@ -86,7 +86,7 @@ class Shiroki_51LA_API {
             'access_key' => '',
             'secret_key' => '',
             'security_type' => '2', // 默认中等安全性
-            'site_id' => '',
+            'mask_id' => '',
             'enabled' => false
         );
 
@@ -119,7 +119,7 @@ class Shiroki_51LA_API {
             'access_key' => isset($_POST['shiroki_51la_access_key']) ? sanitize_text_field($_POST['shiroki_51la_access_key']) : '',
             'secret_key' => isset($_POST['shiroki_51la_secret_key']) ? sanitize_text_field($_POST['shiroki_51la_secret_key']) : '',
             'security_type' => isset($_POST['shiroki_51la_security_type']) ? sanitize_text_field($_POST['shiroki_51la_security_type']) : '2',
-            'site_id' => isset($_POST['shiroki_51la_site_id']) ? sanitize_text_field($_POST['shiroki_51la_site_id']) : ''
+            'mask_id' => isset($_POST['shiroki_51la_mask_id']) ? sanitize_text_field($_POST['shiroki_51la_mask_id']) : ''
         );
 
         $this->save_config($config);
@@ -146,7 +146,7 @@ class Shiroki_51LA_API {
             'access_key' => isset($_POST['access_key']) ? sanitize_text_field($_POST['access_key']) : '',
             'secret_key' => isset($_POST['secret_key']) ? sanitize_text_field($_POST['secret_key']) : '',
             'security_type' => isset($_POST['security_type']) ? sanitize_text_field($_POST['security_type']) : '2',
-            'site_id' => isset($_POST['site_id']) ? sanitize_text_field($_POST['site_id']) : ''
+            'mask_id' => isset($_POST['mask_id']) ? sanitize_text_field($_POST['mask_id']) : ''
         );
 
         $this->save_config($config);
@@ -185,6 +185,19 @@ class Shiroki_51LA_API {
     }
 
     /**
+     * 🔤 生成随机nonce字符串
+     */
+    private function generate_nonce($length = 4) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $nonce = '';
+        $max_index = strlen($characters) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $nonce .= $characters[wp_rand(0, $max_index)];
+        }
+        return $nonce;
+    }
+
+    /**
      * 📡 发送API请求
      */
     public function request($endpoint, $params = array()) {
@@ -198,11 +211,12 @@ class Shiroki_51LA_API {
         $access_key = $config['access_key'];
         $secret_key = $config['secret_key'];
         $security_type = $config['security_type'];
-        $nonce = wp_rand(1000, 9999);
+        // 🔤 nonce 是4位随机字符串（字母+数字），不是纯数字
+        $nonce = $this->generate_nonce(4);
         $timestamp = strval(round(microtime(true) * 1000));
 
         // 🔐 生成签名
-        if ($security_type === '1') {
+        if ($security_type == '1') {
             // 低安全性：sign = accessKey
             $sign = $access_key;
         } else {
@@ -218,12 +232,16 @@ class Shiroki_51LA_API {
             'sign' => $sign
         ));
 
-        // 📡 发送请求
-        $response = wp_remote_post($this->api_base . $endpoint, array(
+        // 📡 发送POST请求（51LA API使用POST + JSON body）
+        $url = $this->api_base . $endpoint;
+        $json_body = json_encode($body);
+
+        $response = wp_remote_post($url, array(
             'headers' => array(
-                'Content-Type' => 'application/json'
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
             ),
-            'body' => json_encode($body),
+            'body' => $json_body,
             'timeout' => 30,
             'sslverify' => true
         ));
@@ -232,21 +250,59 @@ class Shiroki_51LA_API {
             return $response;
         }
 
+        // 🔍 检查HTTP状态码
+        $response_code = wp_remote_retrieve_response_code($response);
+        if ($response_code !== 200) {
+            $body = wp_remote_retrieve_body($response);
+            error_log('51LA API HTTP错误: ' . $response_code . ', 响应: ' . substr($body, 0, 500));
+            // 尝试从响应体中提取具体错误信息
+            $api_msg = '';
+            if (!empty($body)) {
+                $err_data = json_decode($body, true);
+                if ($err_data && isset($err_data['message'])) {
+                    $api_msg = ' — ' . $err_data['message'];
+                }
+            }
+            return new WP_Error('http_error', 'API请求失败，HTTP状态码: ' . $response_code . $api_msg);
+        }
+
         $body = wp_remote_retrieve_body($response);
+
+        // 🔍 检查响应是否为空
+        if (empty($body)) {
+            return new WP_Error('empty_response', 'API返回空响应，请检查网络连接或API配置');
+        }
+
+        // 🔍 检查是否是HTML响应（API未正确配置）
+        if (is_string($body) && strpos($body, '<!DOCTYPE') !== false) {
+            return new WP_Error('html_response', 'API返回HTML页面而非JSON数据，请检查：1. API密钥是否正确 2. 是否已开通API权限 3. 接口地址是否正确');
+        }
+
         $data = json_decode($body, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            return new WP_Error('json_error', 'JSON解析失败');
+            // 🔍 记录原始响应用于调试
+            error_log('51LA API JSON解析错误: ' . json_last_error_msg());
+            error_log('51LA API 原始响应: ' . substr($body, 0, 500));
+            return new WP_Error('json_error', 'JSON解析失败: ' . json_last_error_msg() . '，原始响应: ' . substr($body, 0, 200));
         }
 
+        // 🔍 检查业务响应
         if (empty($data['success'])) {
+            // 🔍 记录失败响应用于调试
+            error_log('51LA API 业务错误: ' . json_encode($data));
             $message = isset($data['message']) ? $data['message'] : '请求失败';
-            return new WP_Error('api_error', $message);
+            return new WP_Error('api_error', $message . ' (code: ' . (isset($data['code']) ? $data['code'] : 'unknown') . ')');
         }
 
         // 🔓 高安全性：解密数据
-        if ($security_type === '3' && !empty($data['data'])) {
-            $data['data'] = $this->decrypt_data($data['data'], $secret_key);
+        if ($security_type == '3') {
+            if (!empty($data['data']) && is_string($data['data'])) {
+                $data['data'] = $this->decrypt_data($data['data'], $secret_key);
+            }
+            if (!empty($data['bean']) && is_string($data['bean'])) {
+                $data['bean'] = $this->decrypt_data($data['bean'], $secret_key);
+            }
         }
 
         return $data;
@@ -272,101 +328,98 @@ class Shiroki_51LA_API {
 
     /**
      * 📊 获取站点列表
+     * 接口：/open/site/list
      */
     public function get_site_list() {
-        return $this->request('/v6/sitegroup/list');
+        return $this->request('/open/site/list');
     }
 
     /**
      * 📊 获取概览数据
+     * 接口：/open/overview/get
      */
-    public function get_overview($site_id = '') {
+    public function get_overview($mask_id = '') {
         $params = array();
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
+        if (!empty($mask_id)) {
+            $params['maskId'] = $mask_id;
         }
-        return $this->request('/v6/report/overview', $params);
+        return $this->request('/open/overview/get', $params);
     }
 
     /**
-     * 📊 获取今日数据
+     * 📊 获取趋势数据（按小时）
+     * 接口：/open/trend/hour
+     * @param string $day 日期，格式 YYYY-MM-dd
+     * @param string $mask_id 掩码ID
      */
-    public function get_today_data($site_id = '') {
-        $params = array();
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
-        }
-        return $this->request('/v6/report/today', $params);
-    }
-
-    /**
-     * 📊 获取趋势数据
-     */
-    public function get_trend($start_date, $end_date, $site_id = '') {
+    public function get_trend($day, $mask_id = '') {
         $params = array(
-            'startDate' => $start_date,
-            'endDate' => $end_date
+            'day' => $day
         );
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
+        if (!empty($mask_id)) {
+            $params['maskId'] = $mask_id;
         }
-        return $this->request('/v6/report/trend', $params);
+        return $this->request('/open/trend/hour', $params);
     }
 
     /**
-     * 📊 获取来源分析
+     * 📊 获取实时数据
+     * 接口：/open/online/data
+     * @param string $type 查询类型 (ACTIVE_USER|TERMINAL|SRC|INTERVIEW|ENTRY|BROWSER|REGION)
+     * @param int $minute 分钟数 (5|15|30)
+     * @param string $mask_id 掩码ID
      */
-    public function get_source($start_date, $end_date, $site_id = '') {
+    public function get_realtime($type = 'ACTIVE_USER', $minute = 15, $mask_id = '') {
         $params = array(
-            'startDate' => $start_date,
-            'endDate' => $end_date
+            'type' => $type,
+            'minute' => $minute
         );
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
+        if (!empty($mask_id)) {
+            $params['maskId'] = $mask_id;
         }
-        return $this->request('/v6/report/source', $params);
+        return $this->request('/open/online/data', $params);
     }
 
     /**
-     * 📊 获取受访页面
+     * 📊 获取受访页面数据
+     * 接口：/open/content/listInterview
+     * @param string $start_day 起始日期 YYYY-MM-dd
+     * @param string $end_day 结束日期 YYYY-MM-dd
+     * @param string $mask_id 掩码ID
+     * @param int $page 页码
+     * @param int $size 每页条数
      */
-    public function get_pages($start_date, $end_date, $site_id = '') {
+    public function get_visited_pages($start_day, $end_day, $mask_id = '', $page = 1, $size = 15) {
         $params = array(
-            'startDate' => $start_date,
-            'endDate' => $end_date
+            'startDay' => $start_day,
+            'endDay' => $end_day,
+            'page' => $page,
+            'size' => $size
         );
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
+        if (!empty($mask_id)) {
+            $params['maskId'] = $mask_id;
         }
-        return $this->request('/v6/report/page', $params);
+        return $this->request('/open/content/listInterview', $params);
     }
 
     /**
-     * 📊 获取地域分布
+     * 📊 获取访问明细数据
+     * 接口：/open/visitor/detail/list
+     * @param string $day 日期 YYYY-MM-dd
+     * @param string $mask_id 掩码ID
+     * @param int $page 页码
+     * @param int $size 每页条数（只能为50或100）
      */
-    public function get_geo($start_date, $end_date, $site_id = '') {
+    public function get_visitor_detail($day, $mask_id = '', $page = 1, $size = 50) {
         $params = array(
-            'startDate' => $start_date,
-            'endDate' => $end_date
+            'day' => $day,
+            'page' => $page,
+            'size' => $size
         );
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
+        if (!empty($mask_id)) {
+            $params['maskId'] = $mask_id;
         }
-        return $this->request('/v6/report/geo', $params);
-    }
-
-    /**
-     * 📊 获取设备信息
-     */
-    public function get_device($start_date, $end_date, $site_id = '') {
-        $params = array(
-            'startDate' => $start_date,
-            'endDate' => $end_date
-        );
-        if (!empty($site_id)) {
-            $params['siteId'] = $site_id;
-        }
-        return $this->request('/v6/report/device', $params);
+        return $this->request('/open/visitor/detail/list', $params);
     }
 
     /**
@@ -374,7 +427,7 @@ class Shiroki_51LA_API {
      */
     public function is_configured() {
         $config = $this->get_config();
-        return !empty($config['access_key']) && !empty($config['secret_key']);
+        return !empty($config['access_key']) && !empty($config['secret_key']) && !empty($config['mask_id']);
     }
 }
 

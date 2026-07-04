@@ -95,7 +95,7 @@ function shiroki_menu_item_icon_field() {
     
     add_meta_box(
         'shiroki_menu_item_icon',
-        '🥳 菜单图标设置',
+        '🥳 导航图标设置',
         'shiroki_menu_item_icon_field_html',
         'nav-menus',
         'side',
@@ -110,7 +110,7 @@ function shiroki_menu_item_icon_field_html() {
     <div class="field-meta-box">
         <div class="description description-wide">
             <label for="shiroki_menu_icon">
-                <strong><?php _e( '自定义菜单图标' ); ?></strong><br />
+                <strong><?php _e( '自定义导航图标' ); ?></strong><br />
                 <span><?php _e( '上传或输入图片URL，支持PNG、SVG、JPG格式，尺寸建议1:1' ); ?></span>
             </label>
             <div class="shiroki-menu-icon-uploader">
@@ -130,7 +130,7 @@ function shiroki_menu_item_icon_field_html() {
             e.preventDefault();
             
             var mediaUploader = wp.media({
-                title: '<?php _e( '选择菜单图标' ); ?>',
+                title: '<?php _e( '选择导航图标' ); ?>',
                 button: {
                     text: '<?php _e( '选择图片' ); ?>'
                 },
@@ -158,25 +158,24 @@ function shiroki_menu_item_icon_field_html() {
             shiroki_update_icon_preview();
         });
         
-        // 菜单项展开时填充值
+        // 菜单项展开时填充值（仅绑定一次）
         function shiroki_init_menu_icon_field() {
-            // 监听菜单项展开事件
-            $(document).on('click', '.item-edit', function() {
-                var $this = $(this); // 保存当前点击的元素
-                setTimeout(function() {
-                    // 获取当前展开的菜单项ID
-                    var menu_item = $this.closest('.menu-item');
-                    var item_id = menu_item.attr('id').replace('menu-item-', '');
-                    
-                    // 填充当前菜单项的图标值到右侧元框
-                    var icon_value = $('#shiroki_menu_icon_' + item_id).val();
-                    $('#shiroki_menu_icon').val(icon_value);
-                    shiroki_update_icon_preview();
-                    
-                    // 保存当前选中的菜单项ID
-                    menu_item.addClass('shiroki-current-menu-item');
-                    menu_item.siblings().removeClass('shiroki-current-menu-item');
-                }, 100);
+            $(document).off('click.shirokiMenuIcon', '.item-edit');
+            $(document).on('click.shirokiMenuIcon', '.item-edit', function() {
+                var $this = $(this);
+                var menuItem = $this.closest('.menu-item');
+                var itemId = menuItem.attr('id');
+
+                if (!itemId) {
+                    return;
+                }
+
+                itemId = itemId.replace('menu-item-', '');
+                menuItem.addClass('shiroki-current-menu-item').siblings().removeClass('shiroki-current-menu-item');
+
+                var iconValue = $('#shiroki_menu_icon_' + itemId).val() || '';
+                $('#shiroki_menu_icon').val(iconValue);
+                shiroki_update_icon_preview();
             });
         }
         
@@ -229,7 +228,7 @@ function shiroki_add_menu_item_icon_fields($item_id, $item) {
     ?>
     <div class="field-shiroki-menu-icon description-wide" style="margin: 10px 0;">
         <label for="shiroki_menu_icon_<?php echo $item_id; ?>">
-            <span><?php _e( '菜单图标' ); ?></span><br />
+            <span><?php _e( '导航图标' ); ?></span><br />
             <input type="text" id="shiroki_menu_icon_<?php echo $item_id; ?>" name="menu_item_icon[<?php echo $item_id; ?>]" value="<?php echo esc_attr($icon_url); ?>" class="widefat" placeholder="<?php _e( '图片URL' ); ?>">
         </label>
     </div>

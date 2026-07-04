@@ -151,7 +151,11 @@ class Options_Framework_Admin {
 		if ( $this->options_screen != $hook )
 	        return;
 
-		wp_enqueue_style( 'optionsframework', OPTIONS_FRAMEWORK_DIRECTORY . 'css/optionsframework.css', array(),  Options_Framework::VERSION );
+		$of_css_path = get_template_directory() . '/core/panel/css/optionsframework.css';
+		$of_css_ver  = file_exists( $of_css_path ) ? (string) filemtime( $of_css_path ) : Options_Framework::VERSION;
+
+		wp_enqueue_style( 'admin-variables', get_template_directory_uri() . '/assets/css/admin/admin-variables.css', array(), Options_Framework::VERSION );
+		wp_enqueue_style( 'optionsframework', OPTIONS_FRAMEWORK_DIRECTORY . 'css/optionsframework.css', array( 'admin-variables', 'lolimeow-admin-flat-rounded' ), $of_css_ver );
 		wp_enqueue_style( 'wp-color-picker' );
 		// 引入主题主样式文件，包含.copy-banner的样式
 		wp_enqueue_style( 'boxmoe-style', get_template_directory_uri() . '/assets/css/style.css', array(),  Options_Framework::VERSION );
@@ -191,63 +195,80 @@ class Options_Framework_Admin {
 	 *
      * @since 1.7.0
      */
-	 function options_page() { 
-		?><?php $menu = $this->menu_settings(); ?>
-	  
+	 function options_page() {
+		?>
+
 	  <div id="optionsframework-wrap" class="wrap">
-	  <?php settings_errors( 'options-framework' ); ?> 
-		<div class="set-main-plane">
-			<div class="set-main-menu">
-			<div class="boxmoe-options-site-name">
-			<span class="dashicons dashicons-nametag"></span>
-			盒子萌主题
-			<p> - 纸鸢版🎉</p>
-			<svg width="24" height="24" viewBox="0 0 24 24">
-        <path d="M11.5,22C11.64,22 11.77,22 11.9,21.96C12.55,21.82 13.09,21.38 13.34,20.78C13.44,20.54 13.5,20.27 13.5,20H9.5A2,2 0 0,0 11.5,22M18,10.5C18,7.43 15.86,4.86 13,4.18V3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V4.18C7.13,4.86 5,7.43 5,10.5V16L3,18V19H20V18L18,16M19.97,10H21.97C21.82,6.79 20.24,3.97 17.85,2.15L16.42,3.58C18.46,5 19.82,7.35 19.97,10M6.58,3.58L5.15,2.15C2.76,3.97 1.18,6.79 1,10H3C3.18,7.35 4.54,5 6.58,3.58Z"></path>
-      </svg>
-    </div>
-				<div class="nav-tab-wrapper">
-				<?php echo Options_Framework_Interface::optionsframework_tabs(); ?>
+	  <?php settings_errors( 'options-framework' ); ?>
+
+			<!-- 顶部栏 -->
+			<div class="options-top-bar">
+				<div class="options-top-bar-logo">
+					<img src="<?php echo esc_url( get_template_directory_uri() . '/assets/images/logo.png' ); ?>" alt="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>" />
+				</div>
+				<div class="header-set-title">
+					<div class="of-search"><input type="search" id="of-search-input" placeholder="搜索设置名称" /></div>
+					<div class="el-button" style="padding: 8px 16px; line-height: 1.5; display: inline-block; text-align: center;">
+						<a href="https://www.boxmoe.com/706.html" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: none;">📃在线文档</a>
+						🚀V<?php echo THEME_VERSION; ?>
+						🎉更新日期：2026-07-04<br>
+						🥰本主题二次创作 <a href="https://gl.baimu.live/864" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: underline;">🕊️白木</a>
+					</div>
 				</div>
 			</div>
-	    
-			<div id="optionsframework-metabox" class="metabox-holder">
-		<div class="header-set-title">
-		<h2 class="themes-name "><i class="navon"></i><?php echo esc_html( $menu['page_title'] ); ?></h2>
-		<div class="of-search"><input type="search" id="of-search-input" placeholder="搜索设置名称" /></div>
-		<div class="el-button" style="padding: 8px 16px; line-height: 1.5; display: inline-block; text-align: center;">
-			<a href="https://www.boxmoe.com/706.html" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: none;">📃在线文档</a>  
-			🚀V<?php echo THEME_VERSION; ?>  
-			🎉更新日期：2026-06-12<br>
-			🥰本主题二次创作 <a href="https://gl.baimu.live/864" target="_blank" rel="external nofollow" style="color: inherit; text-decoration: underline;">🕊️白木</a>
-		</div>
-		</div>			
-				<div id="optionsframework" class="postbox">
-				<form action="options.php" method="post">
-				<?php settings_fields( 'optionsframework' ); ?>
-				<?php Options_Framework_Interface::optionsframework_fields(); /* Settings */ ?>
-				<?php do_action( 'optionsframework_after' ); ?>
-				
-				<div id="optionsframework-submit">
-				<input type="button" class="button-primary" id="super-fast-reset-button" value="🚀 重置后台所有设置" onclick="superFastResetFunction()" data-theme-uri="<?php echo get_template_directory_uri(); ?>" />
-				<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( '保存设置', 'textdomain' ); ?>" />
-				<div class="clear"></div>
-			</div>
-				
-				<div id="of-slogan-modal-mask" class="of-modal-mask" style="display:none">
-					<div id="of-slogan-modal" class="of-modal">
-						<div class="of-modal-header"><?php esc_html_e('重置页面标语','textdomain'); ?></div>
-						<div class="of-modal-body"><?php esc_html_e('仅重置“页面标语设置”，其他设置不受影响。是否继续？','textdomain'); ?></div>
-						<div class="of-modal-actions">
-							<button type="button" id="of-slogan-cancel" class="of-btn of-btn-secondary"><?php esc_html_e('取消','textdomain'); ?></button>
-							<button type="button" id="of-slogan-confirm" class="of-btn of-btn-primary"><?php esc_html_e('确定','textdomain'); ?></button>
+
+			<div class="options-nav-backdrop" aria-hidden="true"></div>
+
+			<!-- 主体双栏 -->
+			<div class="options-main-content">
+				<div class="options-sidebar">
+					<div class="boxmoe-options-site-name">
+						<span class="dashicons dashicons-nametag"></span>
+						盒子萌主题
+						<p> - 纸鸢版🎉</p>
+					</div>
+					<div class="options-mobile-nav">
+						<button type="button" class="options-nav-toggle" aria-expanded="false" aria-controls="options-nav-panel">
+							<span class="options-nav-toggle-icon dashicons dashicons-menu-alt3" aria-hidden="true"></span>
+							<span class="options-nav-toggle-label"><?php esc_html_e( '设置导航', 'textdomain' ); ?></span>
+							<span class="options-nav-toggle-chevron dashicons dashicons-arrow-down-alt2" aria-hidden="true"></span>
+						</button>
+						<div class="nav-tab-wrapper" id="options-nav-panel">
+							<?php echo Options_Framework_Interface::optionsframework_tabs(); ?>
 						</div>
 					</div>
 				</div>
-			</form>
-		</div> <!-- / .wrap -->
+
+				<div id="optionsframework-metabox" class="metabox-holder">
+					<div id="optionsframework" class="postbox">
+						<form action="options.php" method="post">
+							<?php settings_fields( 'optionsframework' ); ?>
+							<?php Options_Framework_Interface::optionsframework_fields(); /* Settings */ ?>
+							<?php do_action( 'optionsframework_after' ); ?>
+
+							<!-- 底部悬浮操作栏 -->
+							<div id="optionsframework-submit">
+								<input type="button" class="button-primary" id="super-fast-reset-button" value="🚀 重置后台所有设置" onclick="superFastResetFunction()" data-theme-uri="<?php echo get_template_directory_uri(); ?>" />
+								<input type="submit" class="button-primary" name="update" value="<?php esc_attr_e( '保存设置', 'textdomain' ); ?>" />
+								<div class="clear"></div>
+							</div>
+
+							<div id="of-slogan-modal-mask" class="of-modal-mask" style="display:none">
+								<div id="of-slogan-modal" class="of-modal">
+									<div class="of-modal-header"><?php esc_html_e('重置页面标语','textdomain'); ?></div>
+									<div class="of-modal-body"><?php esc_html_e('仅重置"页面标语设置"，其他设置不受影响。是否继续？','textdomain'); ?></div>
+									<div class="of-modal-actions">
+										<button type="button" id="of-slogan-cancel" class="of-btn of-btn-secondary"><?php esc_html_e('取消','textdomain'); ?></button>
+										<button type="button" id="of-slogan-confirm" class="of-btn of-btn-primary"><?php esc_html_e('确定','textdomain'); ?></button>
+									</div>
+								</div>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+
 	</div>
-</div> 
 <style id="of-slogan-modal-style">
 .of-modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.25);display:none;align-items:center;justify-content:center;z-index:100000}
 .of-modal{background:#fff;border-radius:12px;max-width:420px;width:90%;box-shadow:0 12px 24px rgba(0,0,0,.08);padding:20px;font-size:14px}
@@ -262,17 +283,17 @@ class Options_Framework_Admin {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
   var navon = document.querySelector('.navon');
-  var setMainPlane = document.querySelector('.set-main-plane');
+  var wrapPlane = document.querySelector('#optionsframework-wrap');
 
-  if (navon && setMainPlane) {
+  if (navon && wrapPlane) {
     navon.addEventListener('click', function(event) {
-      event.stopPropagation(); 
-      setMainPlane.classList.toggle('on');
+      event.stopPropagation();
+      wrapPlane.classList.toggle('on');
     });
 
 	document.addEventListener('click', function(event) {
       if (event.target !== navon) {
-        setMainPlane.classList.remove('on');
+        wrapPlane.classList.remove('on');
       }
     });
   }

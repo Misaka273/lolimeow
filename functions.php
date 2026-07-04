@@ -167,6 +167,7 @@ require_once  get_stylesheet_directory() . '/core/module/comment-grid/fun-commen
 require_once  get_stylesheet_directory() . '/core/module/user-grid/fun-user-grid.php'; // ⬅️ 👥 引入拟态玻璃质感用户列表网格UI
 require_once  get_stylesheet_directory() . '/core/module/user-add/fun-user-add.php'; // ⬅️ ➕ 引入拟态玻璃质感添加用户UI
 require_once  get_stylesheet_directory() . '/core/module/widget-manager/fun-widget-manager.php'; // ⬅️ 🧩 引入拟态玻璃质感小工具管理UI
+require_once  get_stylesheet_directory() . '/core/module/nav-menu/fun-nav-menu-admin.php'; // ⬅️ 🧭 引入导航栏设置页UI同步
 
 // ============================================
 // 验证码AJAX处理

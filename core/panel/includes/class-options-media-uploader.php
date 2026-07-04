@@ -65,7 +65,7 @@ class Options_Framework_Media_Uploader {
 				$output .= '<input id="upload-' . $id . '" class="upload-button button" type="button" value="' . __( '上传', 'textdomain' ) . '" />' . "\n";
 			} else {
 				if ($id == 'boxmoe_background_image' || $id == 'boxmoe_article_card_kanban_image') {
-					$output .= '<input id="upload-' . $id . '" class="upload-button button" type="button" value="' . __( '替换', 'textdomain' ) . '" />' . "\n";
+					$output .= '<input id="upload-' . $id . '" class="upload-button of-btn-replace button" type="button" value="' . __( '替换', 'textdomain' ) . '" />' . "\n";
 					$output .= '<input id="remove-' . $id . '" class="remove-file button" type="button" value="' . __( '删除', 'textdomain' ) . '" />' . "\n";
 				} else {
 					$output .= '<input id="remove-' . $id . '" class="remove-file button" type="button" value="' . __( '删除', 'textdomain' ) . '" />' . "\n";

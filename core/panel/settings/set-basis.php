@@ -119,6 +119,33 @@ $options[] = array(
 		'std' => false,
 		);
     $options[] = array(
+		'name' => __( '自定义背景装饰图', 'ui_boxmoe_com' ),
+		'desc' => __('设置全站背景装饰图，留空则不显示', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_background_image',
+		'std' => $image_path.'background.svg',
+		'type' => 'upload');
+    $options[] = array(
+		'name' => __('分类链接去除category标识', 'ui_boxmoe_com'),
+		'desc' => __('（需主机伪静态，开关都需要 后台导航的 设置>固定链接 点保存一次）', 'ui_boxmoe_com'),
+		'id' => 'boxmoe_no_categoty',
+		'type' => "checkbox",
+		'std' => false,
+		);       
+    $options[] = array(
+        'group' => 'start',
+		'group_title' => '网页右侧看板开关「点击可回到顶部」',
+		'id' => 'boxmoe_lolijump_switch',
+		'type' => "checkbox",
+		'std' => false,
+		);
+    $options[] = array(
+        'group' => 'end',
+        'id' => 'boxmoe_lolijump_switch_group_end',
+        'type' => 'info',
+        'class' => 'hide',
+        'desc' => '',
+        );
+    $options[] = array(
         'group' => 'start',
         'group_title' => '节日灯笼开关设置',
 		'id' => 'boxmoe_festival_lantern_switch',
@@ -149,38 +176,7 @@ $options[] = array(
 		'id' => 'boxmoe_lanternfont4',
 		'std' => '乐',
 		'class' => 'mini',
-		'type' => 'text');      
-    $options[] = array(
-		'name' => __( 'LOGO设置', 'ui_boxmoe_com' ),
-		'id' => 'boxmoe_logo_src',
-		'desc' => __(' ', 'ui_boxmoe_com'),
-		'std' => $image_path.'logo.png',
-		'type' => 'upload');      
-    $options[] = array(
-		'name' => __( 'Favicon地址', 'ui_boxmoe_com' ),
-		'id' => 'boxmoe_favicon_src',
-		'std' => $image_path.'favicon.ico',
-		'type' => 'upload'); 
-    $options[] = array(
-		'name' => __( '自定义背景装饰图', 'ui_boxmoe_com' ),
-		'desc' => __('设置全站背景装饰图，留空则不显示', 'ui_boxmoe_com'),
-		'id' => 'boxmoe_background_image',
-		'std' => $image_path.'background.svg',
-		'type' => 'upload');
-    $options[] = array(
-		'name' => __('分类链接去除category标识', 'ui_boxmoe_com'),
-		'desc' => __('（需主机伪静态，开关都需要 后台导航的 设置>固定链接 点保存一次）', 'ui_boxmoe_com'),
-		'id' => 'boxmoe_no_categoty',
-		'type' => "checkbox",
-		'std' => false,
-		);       
-    $options[] = array(
-        'group' => 'start',
-		'group_title' => '网页右侧看板开关「点击可回到顶部」',
-		'id' => 'boxmoe_lolijump_switch',
-		'type' => "checkbox",
-		'std' => false,
-		); 
+		'type' => 'text');
     $lolijump_custom_list = array();
     if(function_exists('get_boxmoe')){
         $lolijump_custom_list = get_boxmoe('boxmoe_lolijump_custom_list');
@@ -208,7 +204,6 @@ $options[] = array(
     }
 
 	$options[] = array(
-        'group' => 'end',
 		'name' => __('选择前端看板形象', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_lolijump_img',
 		'type' => "radio",
@@ -222,6 +217,18 @@ $options[] = array(
         'type' => 'custom_board_list',
         'std' => array()
     );
+
+    $options[] = array(
+		'name' => __( 'LOGO设置', 'ui_boxmoe_com' ),
+		'id' => 'boxmoe_logo_src',
+		'desc' => __(' ', 'ui_boxmoe_com'),
+		'std' => $image_path.'logo.png',
+		'type' => 'upload');
+    $options[] = array(
+		'name' => __( 'Favicon地址', 'ui_boxmoe_com' ),
+		'id' => 'boxmoe_favicon_src',
+		'std' => $image_path.'favicon.ico',
+		'type' => 'upload');
 
 	$options[] = array(
         'group' => 'start',

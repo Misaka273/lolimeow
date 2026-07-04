@@ -111,6 +111,12 @@ class Shiroki_Site_Stats {
         add_action('wp_ajax_shiroki_track_download', array($this, 'ajax_track_download'));
         add_action('wp_ajax_nopriv_shiroki_track_download', array($this, 'ajax_track_download'));
 
+        // 📥 注册下载按钮短码 [downloadbtn]
+        add_shortcode('downloadbtn', array($this, 'shortcode_downloadbtn'));
+
+        // 📥 前端下载点击追踪脚本
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_tracking'));
+
         // 🗑️ 清理旧数据（每月一次）
         add_action('shiroki_cleanup_stats', array($this, 'cleanup_old_data'));
         if (!wp_next_scheduled('shiroki_cleanup_stats')) {
@@ -402,11 +408,44 @@ class Shiroki_Site_Stats {
     public function ajax_track_download() {
         check_ajax_referer('shiroki_stats_nonce', 'nonce');
 
-        $file_id = isset($_POST['file_id']) ? intval($_POST['file_id']) : 0;
+        $file_id   = isset($_POST['file_id'])   ? intval($_POST['file_id'])          : 0;
+        $file_url  = isset($_POST['file_url'])  ? esc_url_raw($_POST['file_url'])    : '';
         $file_name = isset($_POST['file_name']) ? sanitize_text_field($_POST['file_name']) : '';
 
+        $object_id = 0;
+
+        // 📎 媒体库附件：直接用 attachment ID
         if ($file_id > 0) {
-            $this->record_download($file_id, $file_name);
+            $object_id = $file_id;
+            if (empty($file_name)) {
+                $attachment = get_post($file_id);
+                $file_name  = $attachment ? $attachment->post_title : '';
+            }
+        }
+        // 🔗 外部链接 / 无附件ID：用 URL 哈希作为标识
+        elseif (!empty($file_url)) {
+            $object_id = $this->url_to_download_id($file_url);
+            if (empty($file_name)) {
+                $file_name = basename(wp_parse_url($file_url, PHP_URL_PATH));
+            }
+            $this->save_download_url_mapping($object_id, $file_url, $file_name);
+        }
+
+        if ($object_id !== 0) {
+            // 💾 同时写入 transient 缓存（供批量刷新备份）
+            $this->record_download($object_id, $file_name);
+
+            // 🚀 直接写入数据库，不依赖 WP-Cron
+            global $wpdb;
+            $today = current_time('Y-m-d');
+            $wpdb->query($wpdb->prepare(
+                "INSERT INTO {$this->table_stats}
+                    (stat_type, object_id, object_type, stat_date, stat_count)
+                 VALUES ('download', %s, 'file', %s, 1)
+                 ON DUPLICATE KEY UPDATE stat_count = stat_count + 1",
+                $object_id,
+                $today
+            ));
         }
 
         wp_send_json_success(array('message' => '下载已记录'));
@@ -588,7 +627,43 @@ class Shiroki_Site_Stats {
             $limit
         ));
 
-        return $results;
+        $downloads = array();
+        foreach ($results as $row) {
+            $object_id = $row->object_id;
+            $name = '';
+            $url  = '';
+
+            // 📎 优先尝试作为媒体库附件（仅当确实是附件时）
+            if ($object_id > 0) {
+                $attachment = get_post($object_id);
+                if ($attachment && $attachment->post_type === 'attachment') {
+                    $name = $attachment->post_title;
+                    $url  = wp_get_attachment_url($object_id);
+                }
+            }
+
+            // 🔗 回退：查 URL 哈希映射（外部链接 / 直链媒体文件）
+            if (empty($name)) {
+                $mapping = $this->get_download_url_mapping($object_id);
+                if ($mapping) {
+                    $name = $mapping['name'];
+                    $url  = $mapping['url'];
+                }
+            }
+
+            if (empty($name)) {
+                $name = '文件 #' . $object_id;
+            }
+
+            $downloads[] = array(
+                'id'        => $object_id,
+                'name'      => $name,
+                'url'       => $url,
+                'downloads' => intval($row->total_downloads)
+            );
+        }
+
+        return $downloads;
     }
 
     /**
@@ -699,6 +774,100 @@ class Shiroki_Site_Stats {
             }
         }
         return '0.0.0.0';
+    }
+
+    /**
+     * 📥 [downloadbtn] 短码：渲染下载按钮
+     *
+     * 用法: [downloadbtn link='https://...']按钮文字[/downloadbtn]
+     */
+    public function shortcode_downloadbtn($atts, $content = '') {
+        $atts = shortcode_atts(array('link' => ''), $atts, 'downloadbtn');
+        $link = esc_url($atts['link']);
+        $text = esc_html($content ?: '下载');
+
+        if (empty($link)) return '';
+
+        return sprintf(
+            '<a href="%s" rel="noopener" target="_blank" class="download_btn" '
+            . 'data-bs-toggle="tooltip" data-bs-placement="top" '
+            . 'title="该资源来源于网络如有侵权,请联系删除.">%s</a>',
+            $link, $text
+        );
+    }
+
+    /**
+     * 📥 前端下载点击追踪脚本
+     */
+    public function enqueue_frontend_tracking() {
+        add_action('wp_footer', function() {
+            // 直接内联配置，不依赖 wp_localize_script 的 handle 绑定
+            $ajax_url = admin_url('admin-ajax.php');
+            $nonce    = wp_create_nonce('shiroki_stats_nonce');
+?>
+<script>
+(function() {
+    var AJAX_URL = '<?php echo $ajax_url; ?>';
+    var NONCE    = '<?php echo $nonce; ?>';
+
+    console.log('[shiroki-track] script loaded, ajax_url:', AJAX_URL);
+
+    document.addEventListener('click', function(e) {
+        var link = e.target.closest('a.download_btn');
+        if (!link) return; // 不是下载按钮，跳过
+
+        var href = link.getAttribute('href');
+        console.log('[shiroki-track] download_btn clicked, href:', href);
+        if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
+
+        var body = 'action=shiroki_track_download'
+                 + '&nonce='    + encodeURIComponent(NONCE)
+                 + '&file_url=' + encodeURIComponent(href)
+                 + '&file_name='+ encodeURIComponent((link.textContent || '').trim());
+
+        fetch(AJAX_URL, {
+            method:      'POST',
+            headers:     {'Content-Type': 'application/x-www-form-urlencoded'},
+            body:        body,
+            keepalive:   true,
+            credentials: 'same-origin'
+        }).then(function(r) { return r.json(); })
+          .then(function(d) { console.log('[shiroki-track] server response:', d); })
+          .catch(function(err) { console.error('[shiroki-track] fetch error:', err); });
+    });
+})();
+</script>
+<?php
+        });
+    }
+
+    /**
+     * 🔢 URL 转下载标识 ID（无符号 32 位，兼容 unsigned bigint 列）
+     */
+    private function url_to_download_id($url) {
+        return sprintf('%u', crc32($url));
+    }
+
+    /**
+     * 💾 保存下载链接 URL ↔ 哈希 ID 映射（用于排行榜展示）
+     */
+    private function save_download_url_mapping($hash_id, $url, $name = '') {
+        $mappings = get_option('shiroki_download_url_map', array());
+        if (!isset($mappings[$hash_id])) {
+            $mappings[$hash_id] = array(
+                'url'  => $url,
+                'name' => $name ?: basename(wp_parse_url($url, PHP_URL_PATH))
+            );
+            update_option('shiroki_download_url_map', $mappings, false);
+        }
+    }
+
+    /**
+     * 📖 查询下载链接 URL ↔ 哈希 ID 映射
+     */
+    private function get_download_url_mapping($hash_id) {
+        $mappings = get_option('shiroki_download_url_map', array());
+        return isset($mappings[$hash_id]) ? $mappings[$hash_id] : null;
     }
 
     /**

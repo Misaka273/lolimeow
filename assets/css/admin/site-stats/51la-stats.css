@@ -877,6 +877,200 @@ ul.guide-tips li strong {
   color: var(--admin-current-text-primary);
 }
 
+/* ============================================
+   ⏱️ 实时在线访客卡片
+   ============================================ */
+
+.shiroki-51la-realtime-card {
+  margin-bottom: var(--admin-space-lg);
+}
+
+.realtime-display {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-lg);
+  padding: var(--admin-space-md) 0;
+}
+
+.realtime-number {
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: var(--admin-current-text-primary);
+  line-height: 1;
+  text-align: center;
+  padding-bottom: 6px;
+  border-bottom: 3px solid var(--admin-accent-color, #3b82f6);
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.realtime-label {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-secondary);
+  white-space: nowrap;
+}
+
+.realtime-sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 40px;
+  margin-left: auto;
+}
+
+.spark-bar {
+  display: inline-block;
+  width: 8px;
+  background: var(--admin-accent-color, #3b82f6);
+  border-radius: 2px 2px 0 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.spark-bar:hover {
+  opacity: 1;
+}
+
+/* ============================================
+   📊 数据分析卡片组
+   ============================================ */
+
+.shiroki-51la-analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--admin-space-lg);
+  margin-bottom: var(--admin-space-lg);
+}
+
+.shiroki-51la-analysis-card .shiroki-51la-card-body {
+  padding: var(--admin-space-md) var(--admin-space-lg);
+}
+
+/* 📊 横向柱状列表 */
+.analysis-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--admin-space-sm);
+}
+
+.analysis-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bar-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bar-name {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 60%;
+}
+
+.bar-value {
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-secondary);
+  white-space: nowrap;
+}
+
+.bar-track {
+  height: 6px;
+  background: var(--admin-current-border, rgba(0,0,0,0.08));
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #60a5fa);
+  border-radius: 3px;
+  min-width: 2px;
+  transition: width 0.6s ease;
+}
+
+/* 🏆 排名列表 */
+.analysis-rank-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.analysis-rank-item {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-sm);
+  padding: var(--admin-space-xs) 0;
+  border-bottom: 1px solid var(--admin-current-border, rgba(0,0,0,0.05));
+}
+
+.analysis-rank-item:last-child {
+  border-bottom: none;
+}
+
+.rank-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--admin-current-border, rgba(0,0,0,0.06));
+  color: var(--admin-current-text-secondary);
+  flex-shrink: 0;
+}
+
+.rank-num.top {
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: #fff;
+}
+
+.rank-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.rank-name {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-current-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.rank-count {
+  font-size: var(--admin-font-size-sm);
+  font-weight: 600;
+  color: var(--admin-current-text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 📱 响应式 */
+@media (max-width: 782px) {
+  .shiroki-51la-analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .realtime-display {
+    flex-wrap: wrap;
+  }
+
+  .realtime-sparkline {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 /* 💻 代码样式 */
 .guide-section code {
   background: var(--admin-current-glass);
@@ -1732,6 +1926,115 @@ ul.guide-tips li strong {
 }
 
 /* ============================================
+   🥧 圆饼图表样式
+   ============================================ */
+
+.pie-chart-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-lg);
+  padding: var(--admin-space-sm) 0;
+}
+
+.pie-chart {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.pie-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--admin-font-size-sm);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  flex: 1;
+  color: var(--admin-current-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.legend-pct {
+  color: var(--admin-current-text-secondary);
+  font-weight: 600;
+  font-size: var(--admin-font-size-xs);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   ☁️ 词云样式
+   ============================================ */
+
+.shiroki-51la-keyword-card .shiroki-51la-card-body {
+  min-height: 120px;
+}
+
+.keyword-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 14px;
+  padding: var(--admin-space-md) var(--admin-space-sm);
+  line-height: 1.6;
+}
+
+.cloud-word {
+  cursor: default;
+  transition: opacity 0.2s, transform 0.2s;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.cloud-word:hover {
+  opacity: 1 !important;
+  transform: scale(1.08);
+}
+
+/* 📱 圆饼和词云响应式 */
+@media (max-width: 782px) {
+  .pie-chart-wrapper {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .pie-legend {
+    align-items: center;
+  }
+
+  .legend-row {
+    justify-content: center;
+  }
+
+  .keyword-cloud {
+    gap: 6px 10px;
+  }
+}
+
+/* ============================================
    ✨ 动画效果
    ============================================ */
 
@@ -1751,4 +2054,228 @@ ul.guide-tips li strong {
 .stat-value.changing {
   animation: shiroki-51la-number-change 0.3s ease;
   color: var(--admin-primary-text);
+}
+
+/* ============================================
+   📋 访客明细表格
+   ============================================ */
+
+.shiroki-51la-visitor-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--admin-font-size-sm);
+}
+
+.shiroki-51la-visitor-table th {
+  background: var(--admin-current-glass);
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  text-align: left;
+  font-weight: 600;
+  color: var(--admin-current-text-secondary);
+  font-size: var(--admin-font-size-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--admin-current-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.shiroki-51la-visitor-table td {
+  padding: var(--admin-space-sm) var(--admin-space-md);
+  border-bottom: 1px solid var(--admin-current-border, rgba(0,0,0,0.05));
+  color: var(--admin-current-text-primary);
+  vertical-align: middle;
+}
+
+.shiroki-51la-visitor-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.shiroki-51la-visitor-table tbody tr:hover {
+  background: var(--admin-current-glass, rgba(0,0,0,0.02));
+}
+
+.shiroki-51la-visitor-table code {
+  font-size: var(--admin-font-size-xs);
+  background: var(--admin-current-glass);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--admin-current-text-secondary);
+}
+
+.visitor-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.visitor-badge.new {
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+
+.visitor-badge.returning {
+  background: rgba(99, 102, 241, 0.12);
+  color: #6366f1;
+}
+
+.shiroki-51la-visitor-table .src-link {
+  color: var(--admin-primary-color, #3b82f6);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.shiroki-51la-visitor-table .src-link:hover {
+  text-decoration: underline;
+}
+
+.shiroki-51la-visitor-table .text-muted {
+  color: var(--admin-current-text-secondary);
+  font-style: italic;
+}
+
+.shiroki-51la-table-wrapper {
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.shiroki-51la-empty {
+  text-align: center;
+  padding: var(--admin-space-xl) var(--admin-space-lg);
+  color: var(--admin-current-text-secondary);
+}
+
+.shiroki-51la-empty p {
+  margin: 0;
+  font-size: var(--admin-font-size-md);
+}
+
+@media (max-width: 782px) {
+  .shiroki-51la-visitor-table .col-src,
+  .shiroki-51la-visitor-table .col-entry,
+  .shiroki-51la-visitor-table .col-browser {
+    display: none;
+  }
+}
+
+/* ============================================
+   🏠 站点列表卡片
+   ============================================ */
+
+.shiroki-51la-site-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: var(--admin-space-lg);
+}
+
+.shiroki-51la-site-card {
+  background: var(--admin-current-glass, rgba(255,255,255,0.6));
+  border: 1px solid var(--admin-current-border, rgba(0,0,0,0.08));
+  border-radius: 16px;
+  padding: var(--admin-space-lg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.shiroki-51la-site-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.shiroki-51la-site-card.is-active {
+  border-color: var(--admin-primary-color, #3b82f6);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.site-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.site-name {
+  font-size: var(--admin-font-size-lg);
+  font-weight: 700;
+  color: var(--admin-current-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-active-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--admin-primary-color, #3b82f6);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.site-domain {
+  font-size: var(--admin-font-size-sm);
+  color: var(--admin-primary-color, #3b82f6);
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-meta {
+  display: flex;
+  gap: var(--admin-space-md);
+  font-size: var(--admin-font-size-xs);
+  color: var(--admin-current-text-secondary);
+  margin-bottom: var(--admin-space-md);
+  padding-bottom: var(--admin-space-md);
+  border-bottom: 1px solid var(--admin-current-border, rgba(0,0,0,0.06));
+  flex-wrap: wrap;
+}
+
+.site-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--admin-space-sm);
+}
+
+.site-stat {
+  text-align: center;
+  padding: var(--admin-space-xs) 0;
+}
+
+.site-stat-label {
+  font-size: 11px;
+  color: var(--admin-current-text-secondary);
+  margin-bottom: 2px;
+}
+
+.site-stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--admin-current-text-primary);
+}
+
+.site-stat-value.sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--admin-current-text-secondary);
+}
+
+@media (max-width: 782px) {
+  .shiroki-51la-site-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .site-meta {
+    flex-direction: column;
+    gap: 2px;
+  }
 }

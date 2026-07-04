@@ -114,7 +114,17 @@ class Options_Framework_Interface {
                 }
 				if ( !isset( $value['type'] ) || $value['type'] != 'editor' ) {
 					$id_attr = isset($value['id']) ? 'id="'.$value['id'].'-controls"' : '';
-					$output .= '<div class="option">' . "\n" . '<div '.$id_attr.' class="controls">' . "\n";
+					$controls_class = 'controls';
+					if ( isset( $value['type'] ) ) {
+						if ( $value['type'] === 'radio' ) {
+							$controls_class .= ' controls-radio';
+						} elseif ( $value['type'] === 'multicheck' ) {
+							$controls_class .= ' controls-multicheck';
+						} elseif ( $value['type'] === 'custom_board_list' ) {
+							$controls_class .= ' controls-custom-board';
+						}
+					}
+					$output .= '<div class="option">' . "\n" . '<div '.$id_attr.' class="' . esc_attr( $controls_class ) . '">' . "\n";
 				}
 				else {
 					$output .= '<div class="option">' . "\n" . '<div>' . "\n";
@@ -166,7 +176,7 @@ class Options_Framework_Interface {
 					}
 					$output .= '<div style="margin-top: 10px; display: flex; gap: 10px;">';
 					if ( isset($value['id']) ) {
-						$output .= '<input id="upload-' . esc_attr( $value['id'] ) . '" class="upload-button button" type="button" value="' . __( '替换', 'textdomain' ) . '" />';
+						$output .= '<input id="upload-' . esc_attr( $value['id'] ) . '" class="upload-button of-btn-replace button" type="button" value="' . __( '替换', 'textdomain' ) . '" />';
 						$output .= '<input id="confirm-' . esc_attr( $value['id'] ) . '" class="confirm-button button button-primary" type="button" value="' . __( '确认', 'textdomain' ) . '" />';
 						$output .= '<input id="reset-' . esc_attr( $value['id'] ) . '" class="reset-button button" type="button" value="' . __( '重置', 'textdomain' ) . '" data-default="' . esc_attr( $default_image ) . '" />';
 					}
@@ -236,7 +246,10 @@ class Options_Framework_Interface {
 					$name = $option_name .'['. $value['id'] .']';
 					foreach ($value['options'] as $key => $option) {
 						$id = $option_name . '-' . $value['id'] .'-'. $key;
-						$output .= '<input class="of-input of-radio" type="radio" name="' . esc_attr( $name ) . '" id="' . esc_attr( $id ) . '" value="'. esc_attr( $key ) . '" '. checked( $val, $key, false) .' /><label for="' . esc_attr( $id ) . '">' . esc_html( $option ) . '</label>';
+						$output .= '<label class="of-radio-option" for="' . esc_attr( $id ) . '">';
+						$output .= '<input class="of-input of-radio" type="radio" name="' . esc_attr( $name ) . '" id="' . esc_attr( $id ) . '" value="'. esc_attr( $key ) . '" '. checked( $val, $key, false) .' />';
+						$output .= '<span class="of-radio-label-text">' . esc_html( $option ) . '</span>';
+						$output .= '</label>';
 					}
 				}
 				break;
@@ -439,7 +452,7 @@ class Options_Framework_Interface {
 			// Custom Board List
 			case 'custom_board_list':
 				$output .= '<div class="custom-board-list-wrap" id="custom-board-list-' . esc_attr( $value['id'] ) . '">';
-				$output .= '<div class="custom-board-items" style="display:flex;flex-wrap:wrap;gap:15px;margin-bottom:15px;">';
+				$output .= '<div class="custom-board-items">';
 				
 				$current_lolijump_img = get_boxmoe('boxmoe_lolijump_img');
 
@@ -453,29 +466,29 @@ class Options_Framework_Interface {
 						$btnText = $isActive ? __('已启动', 'ui_boxmoe_com') : __('启动', 'ui_boxmoe_com');
 						$btnClass = $isActive ? 'button-primary disabled' : 'button-secondary';
 						
-						$output .= '<div class="custom-board-item" style="width:150px;border:1px solid #ddd;padding:10px;border-radius:5px;background:#fff;text-align:center;">';
-						$output .= '<div class="custom-board-preview" style="margin-bottom:10px;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;">';
-						$output .= '<img src="' . esc_url( $url ) . '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+						$output .= '<div class="custom-board-item">';
+						$output .= '<div class="custom-board-preview">';
+						$output .= '<img src="' . esc_url( $url ) . '" alt="">';
 						$output .= '</div>';
 						$output .= '<input type="hidden" name="' . esc_attr( $option_name . '[' . $value['id'] . '][' . $k . '][url]' ) . '" value="' . esc_attr( $url ) . '" class="custom-board-url">';
 						$output .= '<div class="custom-board-input-group">';
 						$output .= '<input type="text" name="' . esc_attr( $option_name . '[' . $value['id'] . '][' . $k . '][name]' ) . '" value="' . esc_attr( $name ) . '" class="custom-board-name" placeholder=" ">';
 						$output .= '<span class="custom-board-floating-label" data-normal="' . __('请输入名称', 'ui_boxmoe_com') . '" data-active="' . __('名称', 'ui_boxmoe_com') . '"></span>';
 						$output .= '</div>';
-						$output .= '<div class="actions" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;">';
-						$output .= '<button type="button" class="button custom-board-enable ' . $btnClass . '" data-url="' . esc_attr($url) . '" style="width:100%;margin-bottom:5px;">' . $btnText . '</button>';
-						$output .= '<button type="button" class="button custom-board-replace" data-update="' . __('选择图片', 'ui_boxmoe_com') . '" data-choose="' . __('选择看板图片', 'ui_boxmoe_com') . '" style="flex:1;">' . __('替换', 'ui_boxmoe_com') . '</button>';
-						$output .= '<button type="button" class="button custom-board-delete" style="color:#b32d2e;border-color:#b32d2e;flex:1;">' . __('删除', 'ui_boxmoe_com') . '</button>';
+						$output .= '<div class="actions">';
+						$output .= '<button type="button" class="button custom-board-enable ' . $btnClass . '" data-url="' . esc_attr($url) . '">' . $btnText . '</button>';
+						$output .= '<button type="button" class="button custom-board-replace" data-update="' . __('选择图片', 'ui_boxmoe_com') . '" data-choose="' . __('选择看板图片', 'ui_boxmoe_com') . '">' . __('替换', 'ui_boxmoe_com') . '</button>';
+						$output .= '<button type="button" class="button custom-board-delete">' . __('删除', 'ui_boxmoe_com') . '</button>';
 						$output .= '</div>';
 						$output .= '</div>';
 					}
 				}
 				
 				$output .= '</div>';
-				$output .= '<div class="custom-board-add-section" style="display:flex;gap:10px;align-items:center;margin-top:15px;">';
+				$output .= '<div class="custom-board-add-section">';
 				$output .= '<button type="button" class="button button-primary custom-board-add" data-name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '">' . __('新增看板形象', 'ui_boxmoe_com') . '</button>';
-				$output .= '<div class="custom-board-url-input" style="display:flex;gap:5px;flex:1;">';
-				$output .= '<input type="text" id="custom-board-direct-url" placeholder="' . __('直接输入图片链接', 'ui_boxmoe_com') . '" style="flex:1;padding:4px 8px;border:1px solid #ddd;">';
+				$output .= '<div class="custom-board-url-input">';
+				$output .= '<input type="text" id="custom-board-direct-url" placeholder="' . __('直接输入图片链接', 'ui_boxmoe_com') . '">';
 				$output .= '<button type="button" class="button button-secondary custom-board-add-by-url" data-name="' . esc_attr( $option_name . '[' . $value['id'] . ']' ) . '">' . __('添加', 'ui_boxmoe_com') . '</button>';
 				$output .= '</div>';
 				$output .= '</div>';
@@ -573,6 +586,10 @@ class Options_Framework_Interface {
 				} else if (!$group_opened) {
 					$output .= '</div>'."\n";
 				}
+			} elseif ( isset( $value['type'] ) && $value['type'] === 'info' && isset( $value['group'] ) && $value['group'] === 'end' && $group_opened ) {
+				$output .= '</div>'."\n";
+				$output .= '</div>'."\n";
+				$group_opened = false;
 			}
 
 			echo $output;

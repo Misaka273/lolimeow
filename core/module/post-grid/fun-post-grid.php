@@ -62,8 +62,53 @@ class Shiroki_Post_Grid_UI {
         add_action('wp_ajax_shiroki_bulk_draft_posts', array($this, 'ajax_bulk_draft_posts'));
         add_action('wp_ajax_shiroki_bulk_delete_posts', array($this, 'ajax_bulk_delete_posts'));
 
-        // 在管理页脚添加自定义UI
-        add_action('admin_footer', array($this, 'add_custom_post_ui'));
+        add_filter('admin_body_class', array($this, 'admin_body_class'));
+        add_action('current_screen', array($this, 'disable_native_list_ui'));
+
+        // 在管理页脚添加自定义UI（较低优先级，确保脚本已加载）
+        add_action('admin_footer', array($this, 'add_custom_post_ui'), 20);
+    }
+
+    /**
+     * 🏷️ 为文章列表页添加 body class，便于 CSS 精确覆盖盒子萌原生样式
+     */
+    public function admin_body_class($classes) {
+        if ($this->is_post_grid_screen()) {
+            $classes .= ' shiroki-post-grid-active';
+        }
+        return $classes;
+    }
+
+    /**
+     * 🎯 判断当前是否为文章网格列表页
+     */
+    private function is_post_grid_screen($screen = null) {
+        if (!function_exists('get_current_screen')) {
+            return false;
+        }
+
+        if ($screen === null) {
+            $screen = get_current_screen();
+        }
+
+        if (!$screen || $screen->id !== 'edit-post') {
+            return false;
+        }
+
+        $post_type = isset($_GET['post_type']) ? sanitize_text_field(wp_unslash($_GET['post_type'])) : 'post';
+        return $post_type === 'post';
+    }
+
+    /**
+     * 🚫 禁用原生文章列表 UI（缩略图列等）
+     */
+    public function disable_native_list_ui($screen) {
+        if (!$this->is_post_grid_screen($screen)) {
+            return;
+        }
+
+        remove_filter('manage_posts_columns', 'boxmoe_admin_post_thumbnail_column');
+        remove_action('manage_posts_custom_column', 'boxmoe_admin_post_thumbnail_column_content', 10);
     }
     
     /**
@@ -120,38 +165,32 @@ class Shiroki_Post_Grid_UI {
                 'loadMore' => '加载更多'
             )
         ));
+
+        /* 🚫 首屏即隐藏原生列表，避免盒子萌 flat-rounded 表格样式闪现 */
+        wp_add_inline_style(
+            'shiroki-post-grid',
+            'body.post-type-post.edit-php .wp-list-table,' .
+            'body.post-type-post.edit-php .tablenav,' .
+            'body.post-type-post.edit-php #posts-filter,' .
+            'body.post-type-post.edit-php .subsubsub,' .
+            'body.post-type-post.edit-php .view-switch{display:none!important}'
+        );
     }
     
     /**
      * 🎨 添加自定义文章列表UI
      */
     public function add_custom_post_ui() {
+        if (!function_exists('get_current_screen')) {
+            return;
+        }
+
         $screen = get_current_screen();
-        
-        /* 🔍 调试信息 - 记录当前screen id */
-        if ($screen) {
-            error_log('Shiroki Post Grid - Current screen ID: ' . $screen->id);
-        }
-        
-        /* 🎯 检查是否在文章列表页面 */
-        if (!$screen) {
+
+        if (!$this->is_post_grid_screen($screen)) {
             return;
         }
-        
-        /* 📋 支持的页面ID列表 - 只支持文章列表页面 */
-        $allowed_screens = array('edit-post');
-        if (!in_array($screen->id, $allowed_screens)) {
-            return;
-        }
-        
-        /* 📝 获取当前post type */
-        $post_type = isset($_GET['post_type']) ? sanitize_text_field($_GET['post_type']) : 'post';
-        
-        /* 🎯 只在文章列表页面显示 */
-        if ($post_type !== 'post') {
-            return;
-        }
-        
+
         // 获取分类列表
         $categories = get_categories(array(
             'orderby' => 'name',
@@ -167,8 +206,8 @@ class Shiroki_Post_Grid_UI {
         ?>
         <script type="text/javascript">
         jQuery(document).ready(function($) {
-            // 隐藏原版列表表格和分页
-            $('.wp-list-table, .tablenav, .view-switch').hide();
+            /* 🚫 隐藏 WordPress / 盒子萌 原生文章列表 UI */
+            $('.wp-list-table, .tablenav, .view-switch, #posts-filter, .subsubsub, .search-box, .wp-filter, hr.wp-header-end').hide();
             
             // 获取新建文章按钮
             var $addButton = $('.page-title-action');

@@ -1101,7 +1101,6 @@ add_filter('date_i18n', 'boxmoe_fix_date_i18n', 10, 4);
 /* 🌊 注册shiroki分割线TinyMCE插件 */
 function boxmoe_register_tinymce_shiroki_divider_plugin($plugin_array) {
     $plugin_array['shiroki_divider'] = get_template_directory_uri() . '/assets/js/tinymce-shiroki-divider.js';
-    $plugin_array['shiroki_nbsp'] = get_template_directory_uri() . '/assets/js/tinymce-shiroki-divider.js';
     return $plugin_array;
 }
 add_filter('mce_external_plugins', 'boxmoe_register_tinymce_shiroki_divider_plugin');

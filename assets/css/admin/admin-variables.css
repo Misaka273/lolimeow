@@ -256,11 +256,17 @@
   --admin-warning-border: rgba(251, 191, 36, 0.6);
   --admin-warning-text: #92400e;
 
-  /* 🦈 删除/危险色 - 红色系 */
-  --admin-danger-bg: rgba(245, 101, 101, 0.35);
-  --admin-danger-bg-hover: rgba(245, 101, 101, 0.5);
-  --admin-danger-border: rgba(245, 101, 101, 0.6);
-  --admin-danger-text: #c53030;
+  /* 🦈 删除/危险色 - 浅红色系 */
+  --admin-danger-bg: rgba(254, 226, 226, 0.92);
+  --admin-danger-bg-hover: rgba(252, 165, 165, 0.88);
+  --admin-danger-border: rgba(248, 113, 113, 0.55);
+  --admin-danger-text: #b91c1c;
+
+  /* 🌸 替换按钮 - 浅粉红色系 */
+  --admin-replace-bg: rgba(252, 231, 243, 0.92);
+  --admin-replace-bg-hover: rgba(251, 207, 232, 0.88);
+  --admin-replace-border: rgba(249, 168, 212, 0.55);
+  --admin-replace-text: #9d174d;
 
   /* ❌ 错误状态 */
   --admin-error-text: #c53030;
@@ -571,4 +577,78 @@
   --mm-bg-light-1: var(--admin-light-blue-1);
   --mm-bg-light-2: var(--admin-light-blue-2);
   --mm-bg-light-3: var(--admin-light-blue-3);
+}
+
+/* ============================================
+   🗑️ 全局删除按钮 - 统一浅红背景
+   ============================================ */
+.custom-board-delete,
+.boxmoe-delete-role-btn,
+.boxmoe-font-delete-row,
+.btn-red,
+.remove-file,
+.shiroki-post-bulk-delete,
+.shiroki-post-bulk-delete-confirm,
+.shiroki-post-btn-trash,
+.shiroki-user-bulk-delete,
+.shiroki-user-btn-delete,
+.shiroki-comment-bulk-delete,
+.shiroki-comment-bulk-trash,
+.shiroki-comment-btn-delete,
+.shiroki-comment-btn-trash,
+.shiroki-media-bulk-delete,
+.shiroki-media-btn-delete,
+.shiroki-widget-modal-delete,
+.shiroki-widget-btn-remove,
+.shiroki-media-detail-btn-danger {
+  background: var(--admin-danger-bg) !important;
+  color: var(--admin-danger-text) !important;
+  border-color: var(--admin-danger-border) !important;
+}
+
+.custom-board-delete:hover,
+.boxmoe-delete-role-btn:hover,
+.boxmoe-font-delete-row:hover,
+.btn-red:hover,
+.remove-file:hover,
+.shiroki-post-bulk-delete:hover,
+.shiroki-post-bulk-delete-confirm:hover,
+.shiroki-post-btn-trash:hover,
+.shiroki-user-bulk-delete:hover,
+.shiroki-user-btn-delete:hover,
+.shiroki-comment-bulk-delete:hover,
+.shiroki-comment-bulk-trash:hover,
+.shiroki-comment-btn-delete:hover,
+.shiroki-comment-btn-trash:hover,
+.shiroki-media-bulk-delete:hover,
+.shiroki-media-btn-delete:hover,
+.shiroki-widget-modal-delete:hover,
+.shiroki-widget-btn-remove:hover,
+.shiroki-media-detail-btn-danger:hover {
+  background: var(--admin-danger-bg-hover) !important;
+  color: var(--admin-danger-text) !important;
+  border-color: var(--admin-danger-border) !important;
+}
+
+/* ============================================
+   🌸 全局替换按钮 - 统一浅粉红背景
+   ============================================ */
+.custom-board-replace,
+.of-btn-replace,
+input.upload-button.of-btn-replace,
+input.upload-button[value="替换"],
+button.upload-button[value="替换"] {
+  background: var(--admin-replace-bg) !important;
+  color: var(--admin-replace-text) !important;
+  border-color: var(--admin-replace-border) !important;
+}
+
+.custom-board-replace:hover,
+.of-btn-replace:hover,
+input.upload-button.of-btn-replace:hover,
+input.upload-button[value="替换"]:hover,
+button.upload-button[value="替换"]:hover {
+  background: var(--admin-replace-bg-hover) !important;
+  color: var(--admin-replace-text) !important;
+  border-color: var(--admin-replace-border) !important;
 }

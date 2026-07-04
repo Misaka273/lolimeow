@@ -75,10 +75,7 @@ class widget_clock extends WP_Widget {
 								position: relative !important;
 								z-index: 1 !important;
 								white-space: nowrap !important;
-								overflow: hidden !important;
-								text-overflow: ellipsis !important;
-								word-break: keep-all !important;
-								max-width: 100% !important;
+								transform-origin: center top !important;
 							}
 							
 							/* 亮色模式：蓝色渐变 */
@@ -111,9 +108,8 @@ class widget_clock extends WP_Widget {
 							margin: 0 !important;
 							line-height: 1.2 !important;
 							white-space: nowrap !important;
-							overflow: hidden !important;
-							text-overflow: ellipsis !important;
 							max-width: 100% !important;
+							transform-origin: center top !important;
 						}
 			
 			/* 响应式设计：适配不同屏幕尺寸 */
@@ -211,11 +207,44 @@ class widget_clock extends WP_Widget {
 						return;
 					}
 					
+					// 自适应缩放：文本始终完整显示在容器内，不会出现省略号
+					var _lastScaleTime = 1;
+					var _lastScaleDate = 1;
+
+					function scaleSingleElement(el, containerW, lastScale) {
+						el.style.transform = 'scale(1)';
+						var textW = el.scrollWidth;
+						if (textW <= containerW) {
+							if (lastScale !== 1) {
+								el.style.transform = 'scale(1)';
+								return 1;
+							}
+							return lastScale;
+						}
+						var scale = Math.floor((containerW / textW) * 98) / 100;
+						if (scale < 0.3) scale = 0.3;
+						if (scale !== lastScale) {
+							el.style.transform = 'scale(' + scale + ')';
+						}
+						return scale;
+					}
+
+					function scaleTextToFit() {
+						var container = document.getElementById('clock-' + clockId);
+						if (!container) return;
+						var containerW = container.clientWidth;
+						if (!containerW) return;
+						if (timeElement) {
+							_lastScaleTime = scaleSingleElement(timeElement, containerW, _lastScaleTime);
+						}
+						if (dateElement) {
+							_lastScaleDate = scaleSingleElement(dateElement, containerW, _lastScaleDate);
+						}
+					}
+
 					function updateClock() {
-						// 使用Intl.DateTimeFormat API处理时区，自动支持夏令时
 						var now = new Date();
-						
-						// 时间格式化选项
+
 						var timeOptions = {
 							hour: '2-digit',
 							minute: '2-digit',
@@ -223,11 +252,9 @@ class widget_clock extends WP_Widget {
 							hour12: false,
 							timeZone: timezone
 						};
-						
-						// 直接使用API格式化日期和时间
+
 						var formattedTime = new Intl.DateTimeFormat('zh-CN', timeOptions).format(now);
-						
-						// 使用 formatToParts 获取纯数字日期组件
+
 						var dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 							year: 'numeric',
 							month: 'numeric',
@@ -241,27 +268,30 @@ class widget_clock extends WP_Widget {
 							else if (part.type === 'month') month = part.value;
 							else if (part.type === 'day') day = part.value;
 						});
-						
-						// 获取星期
+
 						var weekday = now.toLocaleString('zh-CN', { weekday: 'long', timeZone: timezone });
-						
-						// 补零处理
+
 						month = month < 10 ? '0' + month : month;
 						day = day < 10 ? '0' + day : day;
-						
-						// 组合成所需格式：YYYY年MM月DD日 星期X
+
 						var dateString = year + '年' + month + '月' + day + '日 ' + weekday;
-						
-						// 更新显示
+
 						timeElement.innerHTML = formattedTime;
 						dateElement.innerHTML = dateString;
+
+						scaleTextToFit();
 					}
-					
+
 					// 立即更新一次
 					updateClock();
-					
+
 					// 每秒更新一次
 					setInterval(updateClock, 1000);
+
+					// 容器尺寸变化时重新计算缩放（如侧边栏折叠/展开、响应式断点切换）
+					if (typeof ResizeObserver !== 'undefined') {
+						new ResizeObserver(scaleTextToFit).observe(document.getElementById('clock-' + clockId));
+					}
 				})();
 			</script>
 		</div>

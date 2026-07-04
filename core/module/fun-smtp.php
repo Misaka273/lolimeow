@@ -12,6 +12,52 @@ if(!defined('ABSPATH')){
 // 添加管理菜单
 // 菜单放置位置
 add_action('admin_menu', 'boxmoe_smtp_menu', 99);
+add_action('admin_enqueue_scripts', 'boxmoe_smtp_enqueue_assets', 20);
+add_filter('admin_body_class', 'boxmoe_smtp_admin_body_class');
+
+function boxmoe_smtp_is_settings_screen() {
+    return is_admin() && isset($_GET['page']) && sanitize_key(wp_unslash($_GET['page'])) === 'boxmoe-smtp-settings';
+}
+
+function boxmoe_smtp_admin_body_class($classes) {
+    if (boxmoe_smtp_is_settings_screen()) {
+        $classes .= ' boxmoe-smtp-settings-screen';
+    }
+    return $classes;
+}
+
+function boxmoe_smtp_enqueue_assets() {
+    if (!boxmoe_smtp_is_settings_screen()) {
+        return;
+    }
+
+    $css_path = get_template_directory() . '/core/panel/css/optionsframework.css';
+    $version = file_exists($css_path) ? (string) filemtime($css_path) : (defined('THEME_VERSION') ? THEME_VERSION : '1.0');
+
+    wp_enqueue_style('admin-variables', get_template_directory_uri() . '/assets/css/admin/admin-variables.css', array(), $version);
+    wp_enqueue_style('lolimeow-admin-flat-rounded', get_template_directory_uri() . '/assets/css/admin-flat-rounded.css', array('admin-variables'), $version);
+    wp_enqueue_style(
+        'optionsframework',
+        OPTIONS_FRAMEWORK_DIRECTORY . 'css/optionsframework.css',
+        array('admin-variables', 'lolimeow-admin-flat-rounded'),
+        $version
+    );
+}
+
+function boxmoe_smtp_render_field($label, $content, $desc = '', $type = 'text', $icon = 'dashicons-admin-generic') {
+    $section_class = 'section section-' . esc_attr($type) . ' col';
+    ?>
+    <div class="<?php echo $section_class; ?>">
+        <div class="heading"><span class="dashicons <?php echo esc_attr($icon); ?>"></span><?php echo esc_html($label); ?></div>
+        <div class="option">
+            <div class="controls"><?php echo $content; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div>
+            <?php if ($desc !== '') : ?>
+                <div class="explain"><?php echo esc_html($desc); ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+}
 
 // 添加SMTP设置菜单
 function boxmoe_smtp_menu() {
@@ -29,120 +75,201 @@ function boxmoe_smtp_menu() {
 
 // SMTP设置页面内容
 function boxmoe_smtp_settings_page() {
-    if(isset($_POST['boxmoe_smtp_save'])) {
-        update_option('boxmoe_smtp_host', sanitize_text_field($_POST['smtp_host']));
-        update_option('boxmoe_smtp_port', sanitize_text_field($_POST['smtp_port']));
-        update_option('boxmoe_smtp_user', sanitize_text_field($_POST['smtp_user']));
-        update_option('boxmoe_smtp_pass', sanitize_text_field($_POST['smtp_pass']));
-        update_option('boxmoe_smtp_from', sanitize_text_field($_POST['smtp_from']));
-        update_option('boxmoe_smtp_name', sanitize_text_field($_POST['smtp_name']));
-        update_option('boxmoe_smtp_secure', sanitize_text_field($_POST['smtp_secure']));
-        // 保存消息接受邮箱设置
-        update_option('boxmoe_smtp_receive_email', sanitize_text_field($_POST['smtp_receive_email']));
-        echo '<div class="updated"><p>设置已保存！</p></div>';
+    $notices = array();
+
+    if (isset($_POST['boxmoe_smtp_save'])) {
+        update_option('boxmoe_smtp_host', sanitize_text_field(wp_unslash($_POST['smtp_host'])));
+        update_option('boxmoe_smtp_port', sanitize_text_field(wp_unslash($_POST['smtp_port'])));
+        update_option('boxmoe_smtp_user', sanitize_text_field(wp_unslash($_POST['smtp_user'])));
+        update_option('boxmoe_smtp_pass', sanitize_text_field(wp_unslash($_POST['smtp_pass'])));
+        update_option('boxmoe_smtp_from', sanitize_text_field(wp_unslash($_POST['smtp_from'])));
+        update_option('boxmoe_smtp_name', sanitize_text_field(wp_unslash($_POST['smtp_name'])));
+        update_option('boxmoe_smtp_secure', sanitize_text_field(wp_unslash($_POST['smtp_secure'])));
+        update_option('boxmoe_smtp_receive_email', sanitize_text_field(wp_unslash($_POST['smtp_receive_email'])));
+        $notices[] = array('type' => 'success', 'message' => '设置已保存！');
     }
 
-    // 添加测试邮件发送功能
-    if(isset($_POST['boxmoe_smtp_test'])) {
-        // 检查SMTP开关状态
+    if (isset($_POST['boxmoe_smtp_test'])) {
         $smtp_switch = get_boxmoe('boxmoe_smtp_mail_switch');
-        
+
         if (!$smtp_switch) {
-            echo '<div class="error"><p>测试邮件发送失败！SMTP发件系统开关未启用，请先在通知设置中启用。</p></div>';
-            echo '<p><a href="admin.php?page=boxmoe-settings&tab=notice" class="button">前往启用SMTP开关</a></p>';
-            return;
-        }
-        
-        // 获取SMTP配置
-        $from = get_option('boxmoe_smtp_from');
-        $name = get_option('boxmoe_smtp_name');
-        
-        $to = sanitize_email($_POST['test_email']);
-        $subject = '测试邮件 - ' . get_bloginfo('name');
-        $message = '这是一封测试邮件，如果您收到这封邮件，说明SMTP配置正确。';
-        // 确保使用配置的发件人地址
-        $headers = array(
-            'Content-Type: text/html; charset=UTF-8',
-            'From: ' . $name . ' <' . $from . '>',
-            'Reply-To: ' . $name . ' <' . $from . '>'
-        );
-        
-        $result = wp_mail($to, $subject, $message, $headers);
-        
-        if($result) {
-            echo '<div class="updated"><p>测试邮件发送成功！请检查收件箱和垃圾邮件文件夹。</p></div>';
+            $notices[] = array(
+                'type' => 'error',
+                'message' => '测试邮件发送失败！SMTP发件系统开关未启用，请先在通知设置中启用。',
+                'action' => admin_url('admin.php?page=boxmoe_options'),
+                'action_label' => '前往通知设置',
+            );
         } else {
-            echo '<div class="error"><p>测试邮件发送失败，请检查SMTP配置。</p></div>';
+            $from = get_option('boxmoe_smtp_from');
+            $name = get_option('boxmoe_smtp_name');
+            $to = sanitize_email(wp_unslash($_POST['test_email']));
+            $subject = '测试邮件 - ' . get_bloginfo('name');
+            $message = '这是一封测试邮件，如果您收到这封邮件，说明SMTP配置正确。';
+            $headers = array(
+                'Content-Type: text/html; charset=UTF-8',
+                'From: ' . $name . ' <' . $from . '>',
+                'Reply-To: ' . $name . ' <' . $from . '>',
+            );
+
+            $result = wp_mail($to, $subject, $message, $headers);
+
+            if ($result) {
+                $notices[] = array('type' => 'success', 'message' => '测试邮件发送成功！请检查收件箱和垃圾邮件文件夹。');
+            } else {
+                $notices[] = array('type' => 'error', 'message' => '测试邮件发送失败，请检查SMTP配置。');
+            }
         }
     }
+
+    $secure = get_option('boxmoe_smtp_secure');
+    $secure_select = '<select name="smtp_secure" class="of-input">'
+        . '<option value=""' . selected($secure, '', false) . '>无加密</option>'
+        . '<option value="ssl"' . selected($secure, 'ssl', false) . '>SSL</option>'
+        . '<option value="tls"' . selected($secure, 'tls', false) . '>TLS</option>'
+        . '</select>';
     ?>
-    <div class="wrap">
-        <h2>SMTP邮局设置</h2>
-        <form method="post">
-            <table class="form-table">
-                <tr>
-                    <th>SMTP服务器</th>
-                    <td><input type="text" name="smtp_host" value="<?php echo esc_attr(get_option('boxmoe_smtp_host')); ?>" class="regular-text" placeholder="例如: smtp.qq.com"></td>
-                </tr>
-                <tr>
-                    <th>SMTP端口</th>
-                    <td><input type="text" name="smtp_port" value="<?php echo esc_attr(get_option('boxmoe_smtp_port')); ?>" class="regular-text" placeholder="例如: 465 (SSL) 或 587 (TLS)"></td>
-                </tr>
-                <tr>
-                    <th>加密方式</th>
-                    <td>
-                        <select name="smtp_secure" class="regular-text">
-                            <option value="" <?php selected(get_option('boxmoe_smtp_secure'), ''); ?>>无加密</option>
-                            <option value="ssl" <?php selected(get_option('boxmoe_smtp_secure'), 'ssl'); ?>>SSL</option>
-                            <option value="tls" <?php selected(get_option('boxmoe_smtp_secure'), 'tls'); ?>>TLS</option>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <th>邮箱账号</th>
-                    <td><input type="text" name="smtp_user" value="<?php echo esc_attr(get_option('boxmoe_smtp_user')); ?>" class="regular-text" placeholder="您的邮箱地址"></td>
-                </tr>
-                <tr>
-                    <th>邮箱密码</th>
-                    <td><input type="password" name="smtp_pass" value="<?php echo esc_attr(get_option('boxmoe_smtp_pass')); ?>" class="regular-text" placeholder="SMTP授权码或密码"></td>
-                </tr>
-                <tr>
-                    <th>发件人邮箱</th>
-                    <td><input type="text" name="smtp_from" value="<?php echo esc_attr(get_option('boxmoe_smtp_from')); ?>" class="regular-text" placeholder="发件人邮箱地址"></td>
-                </tr>
-                <tr>
-                    <th>发件人名称</th>
-                    <td><input type="text" name="smtp_name" value="<?php echo esc_attr(get_option('boxmoe_smtp_name')); ?>" class="regular-text" placeholder="发件人显示名称"></td>
-                </tr>
-                <tr>
-                    <th>消息接受邮箱</th>
-                    <td><input type="text" name="smtp_receive_email" value="<?php echo esc_attr(get_option('boxmoe_smtp_receive_email')); ?>" class="regular-text" placeholder="用于接收通知的邮箱地址，留空则使用默认设置"></td>
-                </tr>
-        
-            </table>
-            <p class="submit">
-                <input type="submit" name="boxmoe_smtp_save" class="button-primary" value="保存设置">
-            </p>
-        </form>
+    <div id="optionsframework-wrap" class="wrap boxmoe-smtp-wrap">
+        <div class="options-top-bar">
+            <div class="header-set-title">
+                <div class="themes-name"><span class="dashicons dashicons-email-alt"></span> SMTP邮局设置</div>
+                <a class="el-button" href="<?php echo esc_url(admin_url('admin.php?page=boxmoe_options')); ?>">返回主题设置</a>
+            </div>
+        </div>
 
-        
+        <div class="options-main-content">
+            <div class="options-sidebar">
+                <div class="boxmoe-options-site-name">
+                    <span class="dashicons dashicons-nametag"></span>
+                    盒子萌主题
+                    <p> - 纸鸢版🎉</p>
+                </div>
+                <div class="nav-tab-wrapper boxmoe-smtp-sidebar-nav">
+                    <ul>
+                        <li class="active">
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=boxmoe-smtp-settings')); ?>" class="nav-tab-active">
+                                <span class="dashicons dashicons-email-alt"></span>
+                                SMTP邮局设置
+                            </a>
+                        </li>
+                        <li>
+                            <a href="<?php echo esc_url(admin_url('admin.php?page=boxmoe_options')); ?>">
+                                <span class="dashicons dashicons-admin-generic"></span>
+                                主题设置
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-        <!-- 添加测试邮件表单 -->
-        <h3>测试邮件发送</h3>
-        <form method="post">
-            <table class="form-table">
-                <tr>
-                    <th>测试收件邮箱</th>
-                    <td>
-                        <input type="email" name="test_email" class="regular-text" required placeholder="请输入用于测试的收件邮箱">
-                        <p class="description">请输入用于测试的收件邮箱地址</p>
-                    </td>
-                </tr>
-            </table>
-            <p class="submit">
-                <input type="submit" name="boxmoe_smtp_test" class="button-secondary" value="发送测试邮件">
-            </p>
-        </form>
+            <div id="optionsframework-metabox" class="metabox-holder">
+                <div id="optionsframework" class="postbox">
+                    <?php if (!empty($notices)) : ?>
+                        <div class="group smtp-notices-group">
+                            <?php foreach ($notices as $notice) : ?>
+                                <div class="boxmoe-smtp-notice is-<?php echo esc_attr($notice['type']); ?>">
+                                    <span class="dashicons dashicons-<?php echo $notice['type'] === 'success' ? 'yes-alt' : 'warning'; ?>"></span>
+                                    <span class="boxmoe-smtp-notice-text"><?php echo esc_html($notice['message']); ?></span>
+                                    <?php if (!empty($notice['action'])) : ?>
+                                        <a class="el-button boxmoe-smtp-notice-action" href="<?php echo esc_url($notice['action']); ?>"><?php echo esc_html($notice['action_label']); ?></a>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="post" id="boxmoe-smtp-settings-form">
+                        <div class="group smtp-settings-group">
+                            <div class="boxmoe_tab_header"><span class="dashicons dashicons-admin-network"></span> SMTP服务器配置</div>
+
+                            <?php
+                            boxmoe_smtp_render_field(
+                                'SMTP服务器',
+                                '<input type="text" name="smtp_host" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_host')) . '" placeholder="例如: smtp.qq.com">',
+                                '请输入 SMTP 服务器地址',
+                                'text',
+                                'dashicons-cloud'
+                            );
+                            boxmoe_smtp_render_field(
+                                'SMTP端口',
+                                '<input type="text" name="smtp_port" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_port')) . '" placeholder="例如: 465 (SSL) 或 587 (TLS)">',
+                                '常用端口：465 (SSL)、587 (TLS)',
+                                'text',
+                                'dashicons-networking'
+                            );
+                            boxmoe_smtp_render_field(
+                                '加密方式',
+                                $secure_select,
+                                '请选择与端口匹配的加密方式',
+                                'select',
+                                'dashicons-lock'
+                            );
+                            ?>
+
+                            <div class="boxmoe_tab_header"><span class="dashicons dashicons-id"></span> 发件人信息</div>
+
+                            <?php
+                            boxmoe_smtp_render_field(
+                                '邮箱账号',
+                                '<input type="text" name="smtp_user" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_user')) . '" placeholder="您的邮箱地址">',
+                                'SMTP 登录账号，通常为完整邮箱地址',
+                                'text',
+                                'dashicons-admin-users'
+                            );
+                            boxmoe_smtp_render_field(
+                                '邮箱密码',
+                                '<input type="password" name="smtp_pass" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_pass')) . '" placeholder="SMTP授权码或密码" autocomplete="new-password">',
+                                'QQ/163 等邮箱请使用 SMTP 授权码',
+                                'text',
+                                'dashicons-privacy'
+                            );
+                            boxmoe_smtp_render_field(
+                                '发件人邮箱',
+                                '<input type="email" name="smtp_from" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_from')) . '" placeholder="发件人邮箱地址">',
+                                '邮件 From 地址，需与邮箱账号一致或已授权',
+                                'text',
+                                'dashicons-email'
+                            );
+                            boxmoe_smtp_render_field(
+                                '发件人名称',
+                                '<input type="text" name="smtp_name" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_name')) . '" placeholder="发件人显示名称">',
+                                '收件人看到的发件人昵称',
+                                'text',
+                                'dashicons-nametag'
+                            );
+                            boxmoe_smtp_render_field(
+                                '消息接受邮箱',
+                                '<input type="email" name="smtp_receive_email" class="of-input" value="' . esc_attr(get_option('boxmoe_smtp_receive_email')) . '" placeholder="用于接收通知的邮箱地址">',
+                                '用于接收新评论、新会员注册等通知，留空则使用系统默认',
+                                'text',
+                                'dashicons-bell'
+                            );
+                            ?>
+                        </div>
+
+                        <div id="optionsframework-submit">
+                            <input type="submit" name="boxmoe_smtp_save" class="button-primary" value="保存设置">
+                            <div class="clear"></div>
+                        </div>
+                    </form>
+
+                    <form method="post" class="boxmoe-smtp-test-form">
+                        <div class="group smtp-test-group">
+                            <div class="boxmoe_tab_header"><span class="dashicons dashicons-email-alt"></span> 测试邮件发送</div>
+                            <div class="section section-text col section-smtp-test">
+                                <div class="heading"><span class="dashicons dashicons-controls-play"></span>测试收件邮箱</div>
+                                <div class="option">
+                                    <div class="controls boxmoe-smtp-test-controls">
+                                        <input type="email" name="test_email" class="of-input" required placeholder="请输入用于测试的收件邮箱">
+                                        <input type="submit" name="boxmoe_smtp_test" class="button button-secondary" value="发送测试邮件">
+                                    </div>
+                                    <div class="explain">发送前请确认已在「通知设置」中开启 SMTP 发件系统开关，并已保存上方配置。</div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     <?php
 }

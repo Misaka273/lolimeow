@@ -32,6 +32,7 @@
             this.initChart();
             this.bindEvents();
             this.animateNumbers();
+            this.startAutoRefresh();
         },
 
         /**
@@ -213,8 +214,8 @@
                     }, 100);
                 }
 
-                // 🔗 如果切换到外部链接标签，触发动画
-                if (tabId === 'external-links') {
+                // 📋 如果切换到访客明细标签，触发动画
+                if (tabId === 'visitor-detail') {
                     self.animateExternalStats();
                 }
             });
@@ -332,6 +333,31 @@
                     // 收起
                     $card.removeClass('is-expanded').addClass('is-collapsed');
                     $icon.text('▼');
+                }
+            });
+
+            /* 📋 访客明细时间筛选 */
+            $(document).on('click', '#vd-time-filter .filter-btn', function() {
+                var $btn = $(this);
+                var period = $btn.data('vd-period');
+
+                $('#vd-time-filter .filter-btn').removeClass('active');
+                $btn.addClass('active');
+
+                if (period === 'custom') {
+                    $('#vd-custom-date').slideDown(200);
+                } else {
+                    $('#vd-custom-date').slideUp(200);
+                    self.loadVisitorDetail(period);
+                }
+            });
+
+            /* 📋 自定义日期查询 */
+            $(document).on('click', '#vd-apply-custom', function() {
+                var start = $('#vd-date-start').val();
+                var end = $('#vd-date-end').val();
+                if (start && end) {
+                    self.loadVisitorDetail('custom', start, end);
                 }
             });
         },
@@ -471,6 +497,154 @@
             }
 
             requestAnimationFrame(animate);
+        },
+
+        /**
+         * ⏱️ 启动自动刷新（每5分钟）
+         */
+        startAutoRefresh: function() {
+            var self = this;
+            setInterval(function() {
+                self.refreshOverviewData();
+            }, 5 * 60 * 1000);
+        },
+
+        /**
+         * 🔄 刷新概览 + 实时数据
+         */
+        refreshOverviewData: function() {
+            if (typeof shiroki51LAConfig === 'undefined') return;
+
+            $.ajax({
+                url: shiroki51LAConfig.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'shiroki_51la_refresh',
+                    nonce: shiroki51LAConfig.nonce
+                },
+                success: function(resp) {
+                    if (!resp.success || !resp.data) return;
+                    var d = resp.data;
+
+                    // 更新概览数据
+                    if (d.overview) {
+                        var fields = {
+                            '#51la-today-pv':  d.overview.curPv,
+                            '#51la-today-uv':  d.overview.curUv,
+                            '#51la-month-pv':  d.overview.monthPv,
+                            '#51la-total-pv':  d.overview.totalPv
+                        };
+                        $.each(fields, function(sel, val) {
+                            if (val !== undefined && val !== null) {
+                                $(sel).text(Number(val).toLocaleString());
+                            }
+                        });
+                    }
+
+                    // 更新实时访客数（向上渐显/渐隐动画）
+                    if (d.realtime && d.realtime.totalCount !== undefined) {
+                        var newVal = Number(d.realtime.totalCount).toLocaleString();
+                        var $el = $('.realtime-number');
+                        if ($el.length && $el.text().trim() !== newVal) {
+                            var h = $el.outerHeight();
+                            $el.css({ position: 'relative', overflow: 'hidden', height: h + 'px' });
+                            var $old = $('<span>').css({
+                                position: 'absolute', left: 0, right: 0, top: 0,
+                                textAlign: 'center', lineHeight: h + 'px'
+                            }).text($el.text().trim());
+                            var $new = $('<span>').css({
+                                position: 'absolute', left: 0, right: 0,
+                                top: h + 'px', textAlign: 'center', lineHeight: h + 'px'
+                            }).text(newVal);
+                            $el.empty().append($old).append($new);
+                            $old.animate({ top: -h + 'px', opacity: 0 }, 500, function() { $(this).remove(); });
+                            $new.animate({ top: '0px', opacity: 1 }, 500, function() {
+                                $el.text(newVal).css({ position: '', overflow: '', height: '' });
+                            });
+                        }
+                    }
+                }
+            });
+        },
+
+        /**
+         * 📋 加载访客明细
+         */
+        loadVisitorDetail: function(period, startDate, endDate) {
+            if (typeof shiroki51LAConfig === 'undefined') return;
+
+            var $wrapper = $('#vd-table-wrapper');
+            var $label = $('#vd-period-label');
+            $wrapper.css('opacity', 0.5);
+
+            var labels = { today: '今日', yesterday: '昨日', '7days': '最近7日', month: '本月', custom: '自定义' };
+            $label.text((labels[period] || '') + '访问记录');
+
+            var postData = {
+                action: 'shiroki_51la_visitor_detail',
+                nonce: shiroki51LAConfig.nonce,
+                period: period
+            };
+            if (period === 'custom' && startDate && endDate) {
+                postData.start_date = startDate;
+                postData.end_date = endDate;
+            }
+
+            $.ajax({
+                url: shiroki51LAConfig.ajaxUrl,
+                type: 'POST',
+                data: postData,
+                success: function(resp) {
+                    $wrapper.css('opacity', 1);
+                    if (!resp.success || !resp.data) {
+                        $wrapper.html('<div class="shiroki-51la-empty"><p>暂无访客数据</p></div>');
+                        return;
+                    }
+                    var records = resp.data.records || [];
+                    if (records.length === 0) {
+                        $wrapper.html('<div class="shiroki-51la-empty"><p>暂无访客数据</p></div>');
+                        return;
+                    }
+
+                    var html = '<table class="shiroki-51la-data-table shiroki-51la-visitor-table">';
+                    html += '<thead><tr><th class="col-time">时间</th><th class="col-region">地区</th>';
+                    html += '<th class="col-type">访客类型</th><th class="col-ip">IP</th>';
+                    html += '<th class="col-src">来路</th><th class="col-entry">入口页</th>';
+                    html += '<th class="col-browser">浏览器</th><th class="col-pv">PV</th></tr></thead><tbody>';
+
+                    for (var i = 0; i < records.length; i++) {
+                        var v = records[i];
+                        var time = v.time || v.dateTime || '--';
+                        var region = v.region || '--';
+                        var vtype = v.visitorType || '--';
+                        var ip = v.ip || '--';
+                        var src = v.srcUrl || '';
+                        var entry = v.entryPage || '--';
+                        var browser = v.browser || '--';
+                        var pv = v.pv || 0;
+                        var badgeClass = vtype === '新访客' ? 'new' : 'returning';
+                        var srcHtml = src ? '<a href="' + src + '" target="_blank" class="src-link" title="' + src + '">' + (src.length > 40 ? src.substring(0, 40) + '...' : src) + '</a>' : '<span class="text-muted">直接访问</span>';
+
+                        html += '<tr>';
+                        html += '<td class="col-time">' + time + '</td>';
+                        html += '<td class="col-region">' + region + '</td>';
+                        html += '<td class="col-type"><span class="visitor-badge ' + badgeClass + '">' + vtype + '</span></td>';
+                        html += '<td class="col-ip"><code>' + ip + '</code></td>';
+                        html += '<td class="col-src">' + srcHtml + '</td>';
+                        html += '<td class="col-entry">' + (entry.length > 35 ? entry.substring(0, 35) + '...' : entry) + '</td>';
+                        html += '<td class="col-browser">' + browser + '</td>';
+                        html += '<td class="col-pv">' + pv + '</td>';
+                        html += '</tr>';
+                    }
+
+                    html += '</tbody></table>';
+                    html += '<div class="shiroki-51la-pagination"><div class="pagination-info">共 ' + resp.data.total + ' 条记录</div></div>';
+                    $wrapper.html(html);
+                },
+                error: function() {
+                    $wrapper.css('opacity', 1);
+                }
+            });
         },
 
         /**

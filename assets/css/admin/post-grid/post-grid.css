@@ -7,28 +7,76 @@
    🎯 文章/页面列表页面背景重置
    ============================================ */
 
-/* 🪟 文章列表页面背景 - 仅文章列表页面，不包括分类/标签管理页面 */
-.edit-php {
+/* 🪟 文章/页面列表页面背景 - 仅列表页，不包括分类/标签管理页面 */
+body.post-type-post.edit-php,
+body.post-type-page.edit-php {
   background: var(--shiroki-bg-gradient-light);
 }
 
-.edit-php.wp-dark-mode,
-.edit-php .wp-dark-mode {
+body.post-type-post.edit-php.wp-dark-mode,
+body.post-type-page.edit-php.wp-dark-mode,
+body.post-type-post.edit-php .wp-dark-mode,
+body.post-type-page.edit-php .wp-dark-mode {
   background: var(--shiroki-bg-gradient-dark);
 }
 
 /* 📝 隐藏原版列表视图 - 但保留我们的自定义内容 */
-.edit-php .wp-list-table:not(.shiroki-post-grid),
-.edit-php .tablenav:not(.shiroki-post-toolbar):not(.shiroki-post-pagination),
-.edit-php .view-switch {
+body.post-type-post.edit-php .wp-list-table:not(.shiroki-post-grid),
+body.post-type-page.edit-php .wp-list-table:not(.shiroki-post-grid),
+body.post-type-post.edit-php .tablenav:not(.shiroki-post-toolbar):not(.shiroki-post-pagination),
+body.post-type-page.edit-php .tablenav:not(.shiroki-post-toolbar):not(.shiroki-post-pagination),
+body.post-type-post.edit-php .view-switch,
+body.post-type-page.edit-php .view-switch {
   display: none !important;
 }
 
 /* 📝 隐藏WordPress原生筛选和搜索 */
-.edit-php .subsubsub,
-.edit-php .search-box,
-.edit-php .wp-filter {
+body.post-type-post.edit-php .subsubsub,
+body.post-type-page.edit-php .subsubsub,
+body.post-type-post.edit-php .search-box,
+body.post-type-page.edit-php .search-box,
+body.post-type-post.edit-php .wp-filter,
+body.post-type-page.edit-php .wp-filter,
+body.post-type-post.edit-php #posts-filter,
+body.post-type-post.edit-php hr.wp-header-end {
   display: none !important;
+}
+
+/* ============================================
+   🎯 文章网格页：覆盖盒子萌 admin-flat-rounded 原生列表样式
+   ============================================ */
+
+body.post-type-post.edit-php.shiroki-post-grid-active #wpbody-content > .wrap {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+body.post-type-post.edit-php.shiroki-post-grid-active #wpbody-content > .wrap > h1 {
+  font-size: var(--admin-font-size-2xl, 1.75rem);
+  font-weight: var(--admin-font-weight-bold, 700);
+  color: var(--admin-current-text-primary, #1d2327);
+  margin-bottom: var(--admin-space-md, 12px);
+  padding: 0 var(--admin-space-2xl, 24px);
+}
+
+body.post-type-post.edit-php.shiroki-post-grid-active .wrap .page-title-action {
+  background: var(--admin-primary-bg) !important;
+  border: 1px solid var(--admin-primary-border) !important;
+  color: var(--admin-primary-text) !important;
+  border-radius: var(--admin-radius-full, 999px) !important;
+  box-shadow: var(--admin-shadow-sm) !important;
+}
+
+body.post-type-post.edit-php.shiroki-post-grid-active .wrap .page-title-action:hover {
+  background: var(--admin-primary-bg-hover) !important;
+  border-color: var(--admin-primary-border) !important;
+  color: var(--admin-primary-text) !important;
+}
+
+body.post-type-post.edit-php.shiroki-post-grid-active .wp-list-table.widefat {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 /* 📄 页面列表空状态图标样式 */

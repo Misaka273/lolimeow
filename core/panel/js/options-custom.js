@@ -5,7 +5,8 @@
 
 jQuery(document).ready(function($) {
 
-	// 后台主题设置的卡片边框样式  🔗 gl.baimu.live 
+	// 拟态网格布局下不再注入彩色边框（由 optionsframework.css 统一管理）
+	/*
 	var colors = [
 		{border: '#d56ec7', top: '#50aaee'},
 		{border: '#d56ec7', top: '#d56ec7'},
@@ -31,6 +32,7 @@ jQuery(document).ready(function($) {
 			'border-top': '4px solid ' + color.top
 		});
 	});
+	*/
 
 	// Loads the color pickers
 	$('.of-color').wpColorPicker();
@@ -93,8 +95,94 @@ jQuery(document).ready(function($) {
 			$group.hide();
 			$(selected).fadeIn();
 
+			updateMobileNavToggleLabel();
+			closeMobileNav();
+
 		});
 	}
+
+	function updateMobileNavToggleLabel() {
+		var $label = $('.options-nav-toggle-label');
+		if (!$label.length) return;
+		var $active = $('.nav-tab-wrapper li.active a');
+		if (!$active.length) {
+			$active = $('.nav-tab-wrapper li a').first();
+		}
+		var text = $.trim($active.text());
+		if (text) {
+			$label.text(text);
+		}
+	}
+
+	function closeMobileNav() {
+		var $wrap = $('#optionsframework-wrap');
+		var $mobileNav = $('.options-mobile-nav');
+		if (!$mobileNav.length) return;
+		$mobileNav.removeClass('is-nav-open');
+		$wrap.removeClass('is-mobile-nav-open');
+		$mobileNav.find('.nav-tab-wrapper').css({ top: '', left: '', width: '', maxHeight: '' });
+		$('.options-nav-toggle').attr('aria-expanded', 'false');
+	}
+
+	function syncMobileNavPanel() {
+		var $mobileNav = $('.options-mobile-nav');
+		var $panel = $mobileNav.find('.nav-tab-wrapper');
+		var $toggle = $mobileNav.find('.options-nav-toggle');
+		if (!$mobileNav.hasClass('is-nav-open') || !$toggle.length || !$panel.length) {
+			$panel.css({ top: '', left: '', width: '', maxHeight: '' });
+			return;
+		}
+		var rect = $toggle[0].getBoundingClientRect();
+		var maxHeight = Math.max(160, window.innerHeight - rect.bottom - 20);
+		$panel.css({
+			top: (rect.bottom + 6) + 'px',
+			left: rect.left + 'px',
+			width: rect.width + 'px',
+			maxHeight: maxHeight + 'px'
+		});
+	}
+
+	function initMobileNavToggle() {
+		var $wrap = $('#optionsframework-wrap');
+		var $toggle = $('.options-nav-toggle');
+		var $mobileNav = $('.options-mobile-nav');
+		var $backdrop = $wrap.find('> .options-nav-backdrop');
+		if (!$toggle.length || !$mobileNav.length) return;
+
+		updateMobileNavToggleLabel();
+
+		$toggle.on('click', function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			var isOpen = !$mobileNav.hasClass('is-nav-open');
+			$mobileNav.toggleClass('is-nav-open', isOpen);
+			$wrap.toggleClass('is-mobile-nav-open', isOpen);
+			$toggle.attr('aria-expanded', isOpen ? 'true' : 'false');
+			if (isOpen) {
+				syncMobileNavPanel();
+			} else {
+				$mobileNav.find('.nav-tab-wrapper').css({ top: '', left: '', width: '', maxHeight: '' });
+			}
+		});
+
+		$backdrop.on('click', closeMobileNav);
+
+		$(document).on('click', function(e) {
+			if (!$mobileNav.hasClass('is-nav-open')) return;
+			if ($(e.target).closest('.options-mobile-nav').length) return;
+			closeMobileNav();
+		});
+
+		$(window).on('resize scroll', function() {
+			if (window.innerWidth > 960) {
+				closeMobileNav();
+				return;
+			}
+			syncMobileNavPanel();
+		});
+	}
+
+	initMobileNavToggle();
 
 	var $search = $('#of-search-input');
 	if ($search.length) {
@@ -151,6 +239,26 @@ jQuery(document).ready(function($) {
 	}
 
 	// Custom Board List Logic
+	function buildCustomBoardItemHtml(namePrefix, timestamp, url, name, isActive) {
+		var itemUrlName = namePrefix + '[' + timestamp + '][url]';
+		var itemNameName = namePrefix + '[' + timestamp + '][name]';
+		var btnClass = isActive ? 'button-primary disabled' : 'button-secondary';
+		var btnText = isActive ? '已启动' : '启动';
+		var html = '<div class="custom-board-item">';
+		html += '<div class="custom-board-preview"><img src="' + url + '" alt=""></div>';
+		html += '<input type="hidden" name="' + itemUrlName + '" value="' + url + '" class="custom-board-url">';
+		html += '<div class="custom-board-input-group">';
+		html += '<input type="text" name="' + itemNameName + '" value="' + (name || '') + '" class="custom-board-name" placeholder=" ">';
+		html += '<span class="custom-board-floating-label" data-normal="请输入名称" data-active="名称"></span>';
+		html += '</div>';
+		html += '<div class="actions">';
+		html += '<button type="button" class="button custom-board-enable ' + btnClass + '" data-url="' + url + '">' + btnText + '</button>';
+		html += '<button type="button" class="button custom-board-replace" data-update="选择图片" data-choose="选择看板图片">替换</button>';
+		html += '<button type="button" class="button custom-board-delete">删除</button>';
+		html += '</div></div>';
+		return html;
+	}
+
 	$(document).on('click', '.custom-board-add', function(e) {
 		e.preventDefault();
 		var $btn = $(this);
@@ -168,25 +276,7 @@ jQuery(document).ready(function($) {
 		frame.on('select', function() {
 			var attachment = frame.state().get('selection').first().toJSON();
 			var timestamp = new Date().getTime();
-			var itemUrlName = namePrefix + '[' + timestamp + '][url]';
-			var itemNameName = namePrefix + '[' + timestamp + '][name]';
-			
-			var html = '<div class="custom-board-item" style="width:150px;border:1px solid #ddd;padding:10px;border-radius:5px;background:#fff;text-align:center;">';
-			html += '<div class="custom-board-preview" style="margin-bottom:10px;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;">';
-			html += '<img src="' + attachment.url + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
-			html += '</div>';
-			html += '<input type="hidden" name="' + itemUrlName + '" value="' + attachment.url + '" class="custom-board-url">';
-			html += '<div class="custom-board-input-group">';
-			html += '<input type="text" name="' + itemNameName + '" value="" class="custom-board-name" placeholder=" ">';
-			html += '<span class="custom-board-floating-label" data-normal="请输入名称" data-active="名称"></span>';
-			html += '</div>';
-			html += '<div class="actions" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;">';
-			html += '<button type="button" class="button button-secondary custom-board-enable" data-url="' + attachment.url + '" style="width:100%;margin-bottom:5px;">启动</button>';
-			html += '<button type="button" class="button custom-board-replace" data-update="选择图片" data-choose="选择看板图片" style="flex:1;">替换</button>';
-			html += '<button type="button" class="button custom-board-delete" style="color:#b32d2e;border-color:#b32d2e;flex:1;">删除</button>';
-			html += '</div></div>';
-			
-			$items.append(html);
+			$items.append(buildCustomBoardItemHtml(namePrefix, timestamp, attachment.url, '', false));
 		});
 		
 		frame.open();
@@ -254,25 +344,7 @@ jQuery(document).ready(function($) {
 		}
 		
 		var timestamp = new Date().getTime();
-		var itemUrlName = namePrefix + '[' + timestamp + '][url]';
-		var itemNameName = namePrefix + '[' + timestamp + '][name]';
-		
-		var html = '<div class="custom-board-item" style="width:150px;border:1px solid #ddd;padding:10px;border-radius:5px;background:#fff;text-align:center;">';
-		html += '<div class="custom-board-preview" style="margin-bottom:10px;height:150px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#f5f5f5;">';
-		html += '<img src="' + url + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
-		html += '</div>';
-		html += '<input type="hidden" name="' + itemUrlName + '" value="' + url + '" class="custom-board-url">';
-		html += '<div class="custom-board-input-group">';
-		html += '<input type="text" name="' + itemNameName + '" value="" class="custom-board-name" placeholder=" ">';
-		html += '<span class="custom-board-floating-label" data-normal="请输入名称" data-active="名称"></span>';
-		html += '</div>';
-		html += '<div class="actions" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;">';
-		html += '<button type="button" class="button button-secondary custom-board-enable" data-url="' + url + '" style="width:100%;margin-bottom:5px;">启动</button>';
-		html += '<button type="button" class="button custom-board-replace" data-update="选择图片" data-choose="选择看板图片" style="flex:1;">替换</button>';
-		html += '<button type="button" class="button custom-board-delete" style="color:#b32d2e;border-color:#b32d2e;flex:1;">删除</button>';
-		html += '</div></div>';
-		
-		$items.append(html);
+		$items.append(buildCustomBoardItemHtml(namePrefix, timestamp, url, '', false));
 		$urlInput.val(''); // Clear input
 	});
 	

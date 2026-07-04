@@ -1,0 +1,672 @@
+/**
+ * 导航栏设置页 UI — 同步主题设置页视觉，保留 WordPress 原生双栏布局
+ */
+
+/* 页面背景 — 与文章列表网格页一致，沿用全局 admin-flat-rounded（含底部 admin bar） */
+body.nav-menus-php.shiroki-nav-menu-active,
+body.boxmoe-nav-menus-ui {
+  background: var(--shiroki-bg-gradient-light);
+}
+
+body.nav-menus-php.shiroki-nav-menu-active.wp-dark-mode,
+body.nav-menus-php.shiroki-nav-menu-active .wp-dark-mode,
+body.boxmoe-nav-menus-ui.wp-dark-mode,
+body.boxmoe-nav-menus-ui .wp-dark-mode {
+  background: var(--shiroki-bg-gradient-dark);
+}
+
+body.nav-menus-php.shiroki-nav-menu-active #wpwrap,
+body.nav-menus-php.shiroki-nav-menu-active #wpcontent,
+body.nav-menus-php.shiroki-nav-menu-active #wpbody,
+body.nav-menus-php.shiroki-nav-menu-active #wpbody-content,
+body.nav-menus-php.shiroki-nav-menu-active #wpfooter,
+body.boxmoe-nav-menus-ui #wpwrap,
+body.boxmoe-nav-menus-ui #wpcontent,
+body.boxmoe-nav-menus-ui #wpbody,
+body.boxmoe-nav-menus-ui #wpbody-content,
+body.boxmoe-nav-menus-ui #wpfooter {
+  background: transparent !important;
+}
+
+body.nav-menus-php.shiroki-nav-menu-active #wpbody-content,
+body.boxmoe-nav-menus-ui #wpbody-content {
+  min-height: calc(100vh - 32px);
+  box-sizing: border-box;
+}
+
+@media screen and (max-width: 782px) {
+  body.nav-menus-php.shiroki-nav-menu-active #wpbody-content,
+  body.boxmoe-nav-menus-ui #wpbody-content {
+    min-height: calc(100vh - 46px);
+  }
+}
+
+body.boxmoe-nav-menus-ui #wpbody-content > .wrap.boxmoe-nav-menus-page {
+  margin: 16px auto 48px !important;
+  width: calc(100% - 32px);
+  max-width: 1600px;
+  padding: 16px;
+  box-sizing: border-box;
+  background: #e4e7ec;
+  border-radius: 20px;
+}
+
+/* 顶部栏 — 不用 backdrop-filter，避免拖拽菜单项时整页重绘卡顿 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top.options-top-bar {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 14px 20px;
+  min-height: 64px;
+  margin-bottom: 16px;
+  gap: 16px;
+  background: #f8f9fb;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .header-set-title {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 12px;
+  padding: 0 !important;
+  background: transparent !important;
+  color: #1d2327 !important;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .themes-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #1d2327 !important;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .themes-name .dashicons {
+  color: #2271b1;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .el-button {
+  display: inline-block;
+  white-space: nowrap;
+  cursor: pointer;
+  background: #f0f0f1;
+  color: #1d2327;
+  border: none;
+  outline: 0;
+  margin: 0;
+  font-weight: 500;
+  padding: 8px 14px;
+  font-size: 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  line-height: 1.4;
+  box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.07), -3px -3px 7px rgba(255, 255, 255, 0.8);
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .el-button:hover {
+  color: #2271b1;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .boxmoe-nav-menus-live-preview {
+  background: rgba(255, 77, 79, 0.12) !important;
+  color: #cf1322 !important;
+}
+
+/* 工作区容器 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace {
+  background: #f8f9fb;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 18px 20px 20px;
+  box-sizing: border-box;
+  overflow: hidden;
+  contain: layout style;
+}
+
+/* WordPress 二级 Tab：编辑菜单 / 管理位置 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace > .nav-tab-wrapper {
+  margin: 0 0 16px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace > .nav-tab-wrapper .nav-tab {
+  float: none;
+  margin: 0;
+  padding: 0 16px;
+  height: 40px;
+  line-height: 40px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  color: #50575e;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace > .nav-tab-wrapper .nav-tab:hover,
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace > .nav-tab-wrapper .nav-tab:focus {
+  background: rgba(255, 255, 255, 0.95);
+  color: #2271b1;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace > .nav-tab-wrapper .nav-tab-active {
+  background: rgba(99, 179, 237, 0.28) !important;
+  color: #1a5a96 !important;
+  font-weight: 600;
+}
+
+/* 恢复 WordPress 原生双栏浮动布局（勿用 flex 覆盖） */
+body.boxmoe-nav-menus-ui #nav-menus-frame {
+  display: block;
+  margin-left: 300px;
+  margin-top: 0;
+  clear: both;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column {
+  display: inline;
+  width: 281px;
+  margin-left: -300px;
+  clear: both;
+  float: left;
+  padding-top: 0;
+  background: #f0f0f1;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+body.boxmoe-nav-menus-ui #menu-management-liquid {
+  float: left;
+  min-width: 100%;
+  margin-top: 0;
+}
+
+body.boxmoe-nav-menus-ui #menu-management {
+  margin-right: 0;
+  margin-top: 0;
+  width: 100%;
+}
+
+/* 菜单结构整体容器 */
+body.boxmoe-nav-menus-ui #menu-management .menu-edit {
+  margin-bottom: 20px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f0f0f1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 菜单结构面板 */
+body.boxmoe-nav-menus-ui .nav-menus-php #post-body {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+
+body.boxmoe-nav-menus-ui #nav-menu-header,
+body.boxmoe-nav-menus-ui #nav-menu-footer {
+  padding: 12px 16px;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.72);
+  border: none;
+}
+
+body.boxmoe-nav-menus-ui #nav-menu-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 16px 16px 0 0;
+}
+
+body.boxmoe-nav-menus-ui #nav-menu-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 0 0 16px 16px;
+}
+
+body.boxmoe-nav-menus-ui .nav-menus-php #post-body-content {
+  padding: 16px;
+  background: transparent;
+}
+
+/* 手风琴 */
+body.boxmoe-nav-menus-ui #menu-settings-column .accordion-container,
+body.boxmoe-nav-menus-ui #menu-settings-column .postbox {
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .accordion-section {
+  border: none;
+  margin-bottom: 8px;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .accordion-section-title {
+  border: none;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 600;
+  color: #1d2327;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .accordion-section-content {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 0 0 10px 10px;
+}
+
+/* 菜单项 */
+body.boxmoe-nav-menus-ui .menu-item-handle {
+  border-radius: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body.boxmoe-nav-menus-ui .menu-item-settings {
+  border-radius: 0 0 10px 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* 表单控件 — 覆盖工作区与左右栏全部原生输入 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="text"],
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="search"],
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="url"],
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="email"],
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="number"],
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace select,
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace textarea,
+body.boxmoe-nav-menus-ui #menu-settings-column input[type="text"],
+body.boxmoe-nav-menus-ui #menu-settings-column input[type="search"],
+body.boxmoe-nav-menus-ui #menu-settings-column select,
+body.boxmoe-nav-menus-ui #nav-menus-frame input[type="text"],
+body.boxmoe-nav-menus-ui #nav-menus-frame input[type="search"],
+body.boxmoe-nav-menus-ui #nav-menus-frame select,
+body.boxmoe-nav-menus-ui #nav-menu-header select,
+body.boxmoe-nav-menus-ui #nav-menu-footer select,
+body.boxmoe-nav-menus-ui .manage-menus select,
+body.boxmoe-nav-menus-ui .quick-search {
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.04) !important;
+  min-height: 32px;
+  box-sizing: border-box;
+}
+
+/* 复选框 / 批量选择 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="checkbox"],
+body.boxmoe-nav-menus-ui #menu-settings-column input[type="checkbox"],
+body.boxmoe-nav-menus-ui #nav-menus-frame input[type="checkbox"],
+body.boxmoe-nav-menus-ui .categorychecklist input[type="checkbox"],
+body.boxmoe-nav-menus-ui .bulk-select input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px !important;
+  min-height: 16px !important;
+  margin: 0 6px 0 0 !important;
+  border-radius: 4px !important;
+  border: 1px solid #8c8f94 !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+body.boxmoe-nav-menus-ui .bulk-select,
+body.boxmoe-nav-menus-ui #menu-items-select-all-top,
+body.boxmoe-nav-menus-ui #menu-items-select-all-bottom {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  margin: 0 0 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.boxmoe-nav-menus-ui .bulk-select label,
+body.boxmoe-nav-menus-ui #menu-items-select-all-top label,
+body.boxmoe-nav-menus-ui #menu-items-select-all-bottom label {
+  margin: 0;
+  font-size: 13px;
+  color: #50575e;
+}
+
+body.boxmoe-nav-menus-ui #nav-menu-header .bulk-actions,
+body.boxmoe-nav-menus-ui #nav-menu-footer .bulk-actions,
+body.boxmoe-nav-menus-ui .menu-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 选择菜单栏 */
+body.boxmoe-nav-menus-ui .manage-menus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 12px 14px;
+  margin: 0 0 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+body.boxmoe-nav-menus-ui .manage-menus .selected-menu,
+body.boxmoe-nav-menus-ui .manage-menus .add-new-menu-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+body.boxmoe-nav-menus-ui .manage-menus .add-new-menu-action input.regular-text {
+  border-radius: 10px !important;
+}
+
+/* 添加菜单项 — 子 Tab 与面板 */
+body.boxmoe-nav-menus-ui #menu-settings-column .add-menu-item-tabs,
+body.boxmoe-nav-menus-ui #menu-settings-column .category-tabs {
+  margin: 0 0 10px;
+  padding: 0;
+  border: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .add-menu-item-tabs li,
+body.boxmoe-nav-menus-ui #menu-settings-column .category-tabs li {
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .add-menu-item-tabs a,
+body.boxmoe-nav-menus-ui #menu-settings-column .category-tabs a {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.85);
+  color: #50575e;
+  text-decoration: none;
+  font-size: 12px;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .add-menu-item-tabs a:hover,
+body.boxmoe-nav-menus-ui #menu-settings-column .category-tabs a:hover,
+body.boxmoe-nav-menus-ui #menu-settings-column .add-menu-item-tabs .tabs a:focus,
+body.boxmoe-nav-menus-ui #menu-settings-column .category-tabs .tabs a:focus {
+  color: #2271b1;
+  background: rgba(255, 255, 255, 0.98);
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .add-menu-item-tabs li.tabs a,
+body.boxmoe-nav-menus-ui #menu-settings-column .category-tabs li.tabs a {
+  background: rgba(99, 179, 237, 0.22) !important;
+  color: #1a5a96 !important;
+  border-color: rgba(99, 179, 237, 0.45) !important;
+  font-weight: 600;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .tabs-panel,
+body.boxmoe-nav-menus-ui #menu-settings-column .tabs-panel-active,
+body.boxmoe-nav-menus-ui .tabs-panel,
+body.boxmoe-nav-menus-ui .tabs-panel-active {
+  margin: 0 0 12px;
+  padding: 12px;
+  max-height: 200px;
+  overflow: auto;
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.03);
+}
+
+body.boxmoe-nav-menus-ui .categorychecklist,
+body.boxmoe-nav-menus-ui .customlinkdiv,
+body.boxmoe-nav-menus-ui .customlinkdiv p {
+  margin: 0 0 8px;
+}
+
+body.boxmoe-nav-menus-ui .categorychecklist li,
+body.boxmoe-nav-menus-ui .categorychecklist label {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 0 0 6px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  line-height: 1.45;
+  font-size: 13px;
+}
+
+body.boxmoe-nav-menus-ui .categorychecklist li:hover {
+  background: rgba(255, 255, 255, 0.65);
+}
+
+body.boxmoe-nav-menus-ui .quick-search-wrap {
+  margin: 0 0 10px;
+}
+
+body.boxmoe-nav-menus-ui .quick-search-wrap .spinner {
+  float: none;
+  vertical-align: middle;
+}
+
+/* 菜单项展开表单内控件 */
+body.boxmoe-nav-menus-ui .menu-item-settings input[type="text"],
+body.boxmoe-nav-menus-ui .menu-item-settings input[type="url"],
+body.boxmoe-nav-menus-ui .menu-item-settings textarea,
+body.boxmoe-nav-menus-ui .menu-item-settings select {
+  border-radius: 10px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+}
+
+body.boxmoe-nav-menus-ui .menu-item-settings input[type="checkbox"] {
+  border-radius: 4px !important;
+}
+
+/* 链接框、自定义链接 */
+body.boxmoe-nav-menus-ui .accordion-section-content .howto,
+body.boxmoe-nav-menus-ui .accordion-section-content p.description {
+  margin: 8px 0;
+  font-size: 12px;
+  color: #646970;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column .button-link {
+  border-radius: 8px;
+  padding: 2px 6px;
+}
+
+/* 按钮：覆盖 admin-flat-rounded 的粉色，保持与主题设置一致 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .button:not(.submit-add-to-menu),
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .button-secondary,
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace input[type="submit"].button:not(.submit-add-to-menu),
+body.boxmoe-nav-menus-ui #menu-settings-column .button:not(.submit-add-to-menu),
+body.boxmoe-nav-menus-ui #menu-settings-column input[type="submit"].button:not(.submit-add-to-menu),
+body.boxmoe-nav-menus-ui #nav-menus-frame .button:not(.submit-add-to-menu),
+body.boxmoe-nav-menus-ui #nav-menu-footer input[type="submit"].button,
+body.boxmoe-nav-menus-ui #nav-menu-header input[type="submit"].button,
+body.boxmoe-nav-menus-ui #nav-menu-footer .button,
+body.boxmoe-nav-menus-ui #nav-menu-header .button {
+  border-radius: 10px !important;
+  border: none !important;
+  background: #f0f0f1 !important;
+  color: #1d2327 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 保存菜单 — 浅橙 */
+body.boxmoe-nav-menus-ui #save_menu_footer,
+body.boxmoe-nav-menus-ui #save_menu_header,
+body.boxmoe-nav-menus-ui #nav-menu-footer #save_menu_footer,
+body.boxmoe-nav-menus-ui #nav-menu-header #save_menu_header {
+  border-radius: 10px !important;
+  background: var(--sc-btn-orange-bg) !important;
+  color: var(--sc-btn-orange-text) !important;
+  border: 1px solid var(--sc-btn-orange-border) !important;
+  box-shadow: 0 1px 4px var(--sc-btn-orange-shadow) !important;
+}
+
+body.boxmoe-nav-menus-ui #save_menu_footer:hover,
+body.boxmoe-nav-menus-ui #save_menu_header:hover {
+  background: var(--sc-btn-orange-bg-hover) !important;
+  color: var(--sc-btn-orange-text) !important;
+  border-color: var(--sc-btn-orange-border-hover) !important;
+}
+
+/* 添加至导航 — 浅粉（提高优先级，避免被通用 .button 覆盖） */
+body.boxmoe-nav-menus-ui #menu-settings-column input[type="submit"].button.submit-add-to-menu,
+body.boxmoe-nav-menus-ui #menu-settings-column input.submit-add-to-menu.button,
+body.boxmoe-nav-menus-ui input[type="submit"].button.submit-add-to-menu,
+body.boxmoe-nav-menus-ui input.submit-add-to-menu,
+body.boxmoe-nav-menus-ui .submit-add-to-menu,
+body.boxmoe-nav-menus-ui [id^="submit-posttype-"].submit-add-to-menu {
+  border-radius: 10px !important;
+  background: var(--admin-replace-bg, rgba(252, 231, 243, 0.92)) !important;
+  color: var(--admin-replace-text, #9d174d) !important;
+  border: 1px solid var(--admin-replace-border, rgba(249, 168, 212, 0.55)) !important;
+  box-shadow: 0 1px 4px rgba(249, 168, 212, 0.35) !important;
+}
+
+body.boxmoe-nav-menus-ui #menu-settings-column input[type="submit"].button.submit-add-to-menu:hover,
+body.boxmoe-nav-menus-ui #menu-settings-column input.submit-add-to-menu.button:hover,
+body.boxmoe-nav-menus-ui input[type="submit"].button.submit-add-to-menu:hover,
+body.boxmoe-nav-menus-ui input.submit-add-to-menu:hover,
+body.boxmoe-nav-menus-ui .submit-add-to-menu:hover,
+body.boxmoe-nav-menus-ui [id^="submit-posttype-"].submit-add-to-menu:hover {
+  background: var(--admin-replace-bg-hover, rgba(251, 207, 232, 0.88)) !important;
+  color: var(--admin-replace-text, #9d174d) !important;
+  border-color: var(--admin-replace-border, rgba(249, 168, 212, 0.55)) !important;
+}
+
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .button:hover,
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .button-secondary:hover,
+body.boxmoe-nav-menus-ui #menu-settings-column .button:not(.submit-add-to-menu):hover,
+body.boxmoe-nav-menus-ui #nav-menus-frame .button:not(.submit-add-to-menu):hover,
+body.boxmoe-nav-menus-ui #nav-menu-footer .button:hover,
+body.boxmoe-nav-menus-ui #nav-menu-header .button:hover {
+  background: #e8e8e9 !important;
+  color: #2271b1 !important;
+  border-color: transparent !important;
+}
+
+/* 管理位置页 */
+body.boxmoe-nav-menus-ui #menu-locations-wrap {
+  margin-top: 0;
+}
+
+body.boxmoe-nav-menus-ui #menu-locations-table {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+body.boxmoe-nav-menus-ui #menu-locations-table th,
+body.boxmoe-nav-menus-ui #menu-locations-table td {
+  background: rgba(255, 255, 255, 0.72);
+}
+
+/* 菜单图标 meta box */
+body.boxmoe-nav-menus-ui #shiroki_menu_item_icon {
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+body.boxmoe-nav-menus-ui #shiroki_menu_item_icon .postbox-header,
+body.boxmoe-nav-menus-ui #shiroki_menu_item_icon > .hndle {
+  border: none;
+  background: transparent;
+  font-weight: 600;
+}
+
+/* 提示信息 */
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .notice,
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .updated,
+body.boxmoe-nav-menus-ui .boxmoe-nav-menus-workspace .error {
+  margin: 0 0 14px;
+  border-radius: 12px;
+}
+
+/* 拖拽排序时关闭高开销绘制，减轻卡顿 */
+body.boxmoe-nav-menus-ui.is-menu-dragging .boxmoe-nav-menus-top,
+body.boxmoe-nav-menus-ui.is-menu-dragging .boxmoe-nav-menus-workspace,
+body.boxmoe-nav-menus-ui.is-menu-dragging #menu-management .menu-edit {
+  box-shadow: none !important;
+}
+
+body.boxmoe-nav-menus-ui.is-menu-dragging .menu-item,
+body.boxmoe-nav-menus-ui.is-menu-dragging .menu-item-handle {
+  transition: none !important;
+}
+
+body.boxmoe-nav-menus-ui .ui-sortable-helper {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+  will-change: transform;
+}
+
+/* 响应式：小屏恢复 WordPress 默认堆叠 */
+@media screen and (max-width: 782px) {
+  body.boxmoe-nav-menus-ui #wpbody-content > .wrap.boxmoe-nav-menus-page {
+    width: calc(100% - 16px);
+    padding: 12px;
+  }
+
+  body.boxmoe-nav-menus-ui #nav-menus-frame {
+    margin-left: 0;
+  }
+
+  body.boxmoe-nav-menus-ui #wpbody-content #menu-settings-column {
+    margin-left: 0;
+    float: none;
+    width: 100%;
+    display: block;
+    margin-bottom: 16px;
+  }
+
+  body.boxmoe-nav-menus-ui #menu-management-liquid {
+    float: none;
+    width: 100%;
+  }
+
+  body.boxmoe-nav-menus-ui .boxmoe-nav-menus-top .header-set-title {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
