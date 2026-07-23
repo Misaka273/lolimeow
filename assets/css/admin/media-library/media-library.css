@@ -29,6 +29,7 @@
 /* ◀️ 只隐藏主页面.wrap内的媒体框架元素，不隐藏.media-modal弹窗内的元素 */
 .upload-php > .wrap > .media-frame,
 .upload-php > .wrap > .media-frame-content,
+.upload-php .wrap .media-frame-toolbar,
 .upload-php > .wrap > .media-frame-toolbar,
 .upload-php > .wrap > .media-frame-menu,
 .upload-php > .wrap > .media-frame-router,
@@ -1227,8 +1228,8 @@
   font-weight: var(--ml-font-weight-semibold) !important;
 }
 
-/* 🪟 工具栏 */
-.media-frame-toolbar {
+/* 🪟 工具栏（仅媒体弹窗，主页面 toolbar 已隐藏） */
+.media-modal .media-frame-toolbar {
   background: #ffffff !important;
   border-top: 1px solid #e2e8f0 !important;
   padding: var(--ml-space-md) var(--ml-space-xl) !important;
@@ -1236,13 +1237,13 @@
 
 /* 🌆 暗色模式下的工具栏 */
 @media (prefers-color-scheme: dark) {
-  .media-frame-toolbar {
+  .media-modal .media-frame-toolbar {
     background: #2d3748 !important;
     border-top-color: #4a5568 !important;
   }
 }
 
-.wp-admin.wp-dark-mode .media-frame-toolbar {
+.wp-admin.wp-dark-mode .media-modal .media-frame-toolbar {
   background: #2d3748 !important;
   border-top-color: #4a5568 !important;
 }

@@ -382,22 +382,17 @@
     border: 1px solid rgba(135, 206, 250, 0.3);
 }
 
-/* 📄 分页链接区域玻璃效果 */
-.page-links {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border-radius: 12px;
-    border: 1px solid rgba(135, 206, 250, 0.3);
-    padding: 15px;
-    margin: 20px 0;
+/* 📄 分页链接区域玻璃效果（由 style.css 统一管理，此处保留按钮玻璃增强） */
+.blog-glass .page-links-btn,
+.blog-glass .page-links-jump-btn {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
-[data-bs-theme="dark"] .page-links {
-    background: rgba(30, 30, 40, 0.3);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    border: 1px solid rgba(135, 206, 250, 0.3);
+[data-bs-theme="dark"] .blog-glass .page-links-btn,
+[data-bs-theme="dark"] .blog-glass .page-links-jump-btn {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 /* 📄 评论按钮玻璃效果 */
@@ -544,7 +539,6 @@
 [data-bs-theme="dark"] .single-content a,
 [data-bs-theme="dark"] .toc-list a,
 [data-bs-theme="dark"] .comment-text p a,
-[data-bs-theme="dark"] .page-links a,
 [data-bs-theme="dark"] .post-navigation a,
 [data-bs-theme="dark"] .footer-widgets .widget ul li a,
 [data-bs-theme="dark"] .comments-pagination a,
@@ -559,7 +553,6 @@
 [data-bs-theme="dark"] .toc-list a:hover,
 [data-bs-theme="dark"] .toc-list a.active,
 [data-bs-theme="dark"] .comment-text p a:hover,
-[data-bs-theme="dark"] .page-links a:hover,
 [data-bs-theme="dark"] .post-navigation a:hover,
 [data-bs-theme="dark"] .footer-widgets .widget ul li a:hover,
 [data-bs-theme="dark"] .comments-pagination a:hover,

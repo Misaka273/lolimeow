@@ -11,6 +11,7 @@ var theme = {
 	menu: () => {
 		document.querySelectorAll(".dropdown-menu a.dropdown-toggle")
 			.forEach((function(e) {
+				if (e.closest(".offcanvas-nav")) return;
 				e.addEventListener("click", (function(e) {
 					if (!this.nextElementSibling.classList.contains("show")) {
 						this.closest(".dropdown-menu")
@@ -90,6 +91,293 @@ navOffCanvas && (navOffCanvas.addEventListener('show.bs.offcanvas', function () 
 }), navOffCanvas.addEventListener('hide.bs.offcanvas', function () {
     navOffCanvasBtn.forEach(btn => btn.classList.remove("active"));
 }));
+
+// 移动端导航：子菜单 ≤3 内联手风琴，>3 底部选择窗口
+(function () {
+    const MOBILE_MQ = window.matchMedia("(max-width: 991px)");
+    const CHILD_THRESHOLD = 3;
+    const offcanvasNav = document.querySelector(".offcanvas-nav");
+    const panelEl = document.getElementById("mobileNavPanel");
+    let delegationBound = false;
+
+    function isMobile() {
+        return MOBILE_MQ.matches;
+    }
+
+    function countDirectChildren(menuUl) {
+        return menuUl ? menuUl.querySelectorAll(":scope > li").length : 0;
+    }
+
+    function getLinkInfo(link) {
+        if (!link) return { title: "", href: null, target: "", html: "" };
+        const href = link.getAttribute("href") || "#";
+        const hasRealHref = href && href !== "#";
+        return {
+            title: link.textContent.trim(),
+            href: hasRealHref ? href : null,
+            target: link.getAttribute("target") || "",
+            html: link.innerHTML
+        };
+    }
+
+    function escapeAttr(str) {
+        return String(str).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function renderPanelTree(menuUl, depth) {
+        if (!menuUl) return "";
+        let html = "";
+        menuUl.querySelectorAll(":scope > li").forEach(function (li) {
+            const link = li.querySelector(":scope > a");
+            const childMenu = li.querySelector(":scope > ul.dropdown-menu");
+            const info = getLinkInfo(link);
+            const targetAttr = info.target ? ' target="' + escapeAttr(info.target) + '"' : "";
+
+            if (childMenu) {
+                const header = info.href
+                    ? '<a href="' + escapeAttr(info.href) + '" class="mobile-nav-panel-link"' + targetAttr + ">" + info.html + "</a>"
+                    : '<span class="mobile-nav-panel-label">' + info.html + "</span>";
+                html += '<div class="mobile-nav-panel-group depth-' + depth + '">' + header + "</div>";
+                html += renderPanelTree(childMenu, depth + 1);
+            } else if (info.href) {
+                html += '<a href="' + escapeAttr(info.href) + '" class="mobile-nav-panel-item depth-' + depth + '"' + targetAttr + ">" + info.html + "</a>";
+            } else if (info.html) {
+                html += '<div class="mobile-nav-panel-item depth-' + depth + ' mobile-nav-panel-label">' + info.html + "</div>";
+            }
+        });
+        return html;
+    }
+
+    function openPanel(title, menuUl) {
+        if (!panelEl) return;
+        const titleEl = panelEl.querySelector(".mobile-nav-panel-title");
+        const bodyEl = panelEl.querySelector(".mobile-nav-panel-body");
+        if (titleEl) titleEl.textContent = title;
+        if (bodyEl) bodyEl.innerHTML = renderPanelTree(menuUl, 0);
+
+        const alreadyOpen = panelEl.classList.contains("show") && panelEl.classList.contains("active");
+        if (alreadyOpen) return;
+
+        panelEl.classList.remove("active");
+        panelEl.classList.add("show");
+        panelEl.removeAttribute("hidden");
+        panelEl.setAttribute("aria-hidden", "false");
+        document.body.classList.add("mobile-nav-panel-open");
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                panelEl.classList.add("active");
+            });
+        });
+    }
+
+    function finishPanelClose() {
+        if (!panelEl) return;
+        panelEl.classList.remove("show", "active");
+        panelEl.setAttribute("hidden", "");
+        panelEl.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("mobile-nav-panel-open");
+    }
+
+    function closePanel() {
+        if (!panelEl || !panelEl.classList.contains("show")) return;
+        const wasActive = panelEl.classList.contains("active");
+        panelEl.classList.remove("active");
+        if (!wasActive) {
+            finishPanelClose();
+            return;
+        }
+        const sheet = panelEl.querySelector(".mobile-nav-panel-sheet");
+        if (!sheet) {
+            finishPanelClose();
+            return;
+        }
+        let closed = false;
+        const onCloseEnd = function (e) {
+            if (closed || e.target !== sheet || e.propertyName !== "transform") return;
+            closed = true;
+            sheet.removeEventListener("transitionend", onCloseEnd);
+            finishPanelClose();
+        };
+        sheet.addEventListener("transitionend", onCloseEnd);
+        setTimeout(function () {
+            if (!closed && panelEl.classList.contains("show")) {
+                closed = true;
+                sheet.removeEventListener("transitionend", onCloseEnd);
+                finishPanelClose();
+            }
+        }, 400);
+    }
+
+    function resetNavClasses(navList) {
+        navList.querySelectorAll("li").forEach(function (li) {
+            li.classList.remove("mobile-nav-accordion", "mobile-nav-panel-trigger", "mobile-nav-nested-accordion", "mobile-nav-open");
+        });
+        navList.querySelectorAll(".dropdown-menu").forEach(function (ul) {
+            ul.classList.remove("mobile-nav-accordion-menu", "mobile-nav-nested-menu");
+            ul.querySelectorAll(".show").forEach(function (el) { el.classList.remove("show"); });
+        });
+    }
+
+    function processNavItem(li, isNested) {
+        const menuUl = li.querySelector(":scope > ul.dropdown-menu");
+        if (!menuUl) return;
+
+        const toggle = li.querySelector(":scope > a");
+        if (!toggle) return;
+
+        const count = countDirectChildren(menuUl);
+
+        if (count > CHILD_THRESHOLD) {
+            li.classList.add("mobile-nav-panel-trigger");
+            toggle.removeAttribute("data-bs-toggle");
+            toggle.setAttribute("href", "#");
+            toggle.setAttribute("role", "button");
+            toggle.setAttribute("aria-expanded", "false");
+            return;
+        }
+
+        if (isNested) {
+            li.classList.add("mobile-nav-nested-accordion");
+            menuUl.classList.add("mobile-nav-accordion-menu", "mobile-nav-nested-menu");
+        } else {
+            li.classList.add("mobile-nav-accordion");
+            menuUl.classList.add("mobile-nav-accordion-menu");
+        }
+
+        toggle.removeAttribute("data-bs-toggle");
+        if (!getLinkInfo(toggle).href) {
+            toggle.setAttribute("href", "#");
+        }
+        toggle.setAttribute("role", "button");
+        toggle.setAttribute("aria-expanded", "false");
+
+        menuUl.querySelectorAll(":scope > li").forEach(function (childLi) {
+            processNavItem(childLi, true);
+        });
+    }
+
+    function classifyNavItems() {
+        if (!offcanvasNav || !isMobile()) return;
+        const navList = offcanvasNav.querySelector(".navbar-nav");
+        if (!navList) return;
+
+        resetNavClasses(navList);
+        navList.querySelectorAll(":scope > li").forEach(function (li) {
+            processNavItem(li, false);
+        });
+    }
+
+    function closeSiblingAccordions(li) {
+        const parent = li.parentElement;
+        if (!parent) return;
+        parent.querySelectorAll(":scope > li.mobile-nav-open").forEach(function (sibling) {
+            if (sibling !== li) {
+                sibling.classList.remove("mobile-nav-open");
+                const sibToggle = sibling.querySelector(":scope > a");
+                if (sibToggle) sibToggle.setAttribute("aria-expanded", "false");
+            }
+        });
+    }
+
+    function restoreToggleAttributes(navList) {
+        if (!navList) return;
+        navList.querySelectorAll("li.dropdown > a, li.dropdown-submenu > a").forEach(function (toggle) {
+            const li = toggle.closest("li");
+            if (li && li.querySelector(":scope > ul.dropdown-menu") && !toggle.hasAttribute("data-bs-toggle")) {
+                toggle.setAttribute("data-bs-toggle", "dropdown");
+            }
+        });
+    }
+
+    function handleNavClick(e) {
+        if (!isMobile()) return;
+
+        const panelToggle = e.target.closest(".offcanvas-nav .mobile-nav-panel-trigger > a");
+        if (panelToggle) {
+            const panelLi = panelToggle.closest(".mobile-nav-panel-trigger");
+            const menuUl = panelLi?.querySelector(":scope > ul.dropdown-menu");
+            if (menuUl) {
+                e.preventDefault();
+                e.stopPropagation();
+                openPanel(getLinkInfo(panelToggle).title, menuUl);
+            }
+            return;
+        }
+
+        const accToggle = e.target.closest(".offcanvas-nav .mobile-nav-accordion > a");
+        if (accToggle) {
+            const accLi = accToggle.closest(".mobile-nav-accordion");
+            if (accLi) {
+                e.preventDefault();
+                e.stopPropagation();
+                const isOpen = accLi.classList.toggle("mobile-nav-open");
+                accToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+                if (isOpen) closeSiblingAccordions(accLi);
+            }
+            return;
+        }
+
+        const nestedToggle = e.target.closest(".offcanvas-nav .mobile-nav-nested-accordion > a");
+        if (nestedToggle) {
+            const nestedLi = nestedToggle.closest(".mobile-nav-nested-accordion");
+            const menuUl = nestedLi?.querySelector(":scope > ul.dropdown-menu");
+            if (nestedLi && menuUl) {
+                e.preventDefault();
+                e.stopPropagation();
+                const isOpen = nestedLi.classList.toggle("mobile-nav-open");
+                nestedToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            }
+        }
+    }
+
+    function initMobileNav() {
+        if (!offcanvasNav || !panelEl) return;
+
+        if (panelEl.parentElement !== document.body) {
+            document.body.appendChild(panelEl);
+        }
+
+        if (!delegationBound) {
+            offcanvasNav.addEventListener("click", handleNavClick);
+            panelEl.querySelector(".mobile-nav-panel-back")?.addEventListener("click", closePanel);
+            panelEl.querySelector(".mobile-nav-panel-backdrop")?.addEventListener("click", closePanel);
+            panelEl.querySelector(".mobile-nav-panel-body")?.addEventListener("click", function (e) {
+                const link = e.target.closest("a.mobile-nav-panel-item, a.mobile-nav-panel-link");
+                if (link && link.getAttribute("href") && link.getAttribute("href") !== "#") {
+                    closePanel();
+                    if (typeof bsOffCanvas !== "undefined" && bsOffCanvas) bsOffCanvas.hide();
+                }
+            });
+            offcanvasNav.addEventListener("hide.bs.offcanvas", closePanel);
+            MOBILE_MQ.addEventListener("change", function () {
+                const navList = offcanvasNav.querySelector(".navbar-nav");
+                if (!isMobile()) {
+                    closePanel();
+                    resetNavClasses(navList || offcanvasNav);
+                    restoreToggleAttributes(navList);
+                } else {
+                    classifyNavItems();
+                }
+            });
+            delegationBound = true;
+        }
+
+        if (isMobile()) {
+            classifyNavItems();
+        } else {
+            closePanel();
+            const navList = offcanvasNav.querySelector(".navbar-nav");
+            resetNavClasses(navList || offcanvasNav);
+            restoreToggleAttributes(navList);
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initMobileNav);
+    } else {
+        initMobileNav();
+    }
+})();
 function showToast(message, isSuccess = true) {
     const toastId = 'toast-' + Date.now();
     // 动态读取当前网站设置的Favicon地址

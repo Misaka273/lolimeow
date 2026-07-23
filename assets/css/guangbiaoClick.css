@@ -1,0 +1,45 @@
+/**
+ * ✨ 鼠标点击线条特效样式
+ * 白木 🔗gl.baimu.live 开发
+ */
+
+/* 🎯 点击特效容器 */
+#guangbiao-click-container {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* 💥 单次点击爆发点 */
+#guangbiao-click-container .click-burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+#guangbiao-click-container .click-particle {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+/* 📏 圆角胶囊线条（起点、终点均为圆角） */
+#guangbiao-click-container .click-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  transform-origin: 0 50%;
+  will-change: width, height, border-radius, transform, opacity;
+  opacity: 0;
+}
+
+#guangbiao-click-container .click-line--firework {
+  color: inherit;
+  box-shadow: 0 0 5px currentColor;
+}

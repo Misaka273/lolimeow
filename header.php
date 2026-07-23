@@ -62,8 +62,6 @@ $search_style_file = $search_style === 'glass' ? 'search-glass.css' :
                      ($search_style === 'neon' ? 'search-neon.css' : 'search-glass.css'))));
 ?>
     <link rel="stylesheet" href="<?php echo get_template_directory_uri(); ?>/assets/css/search-styles/<?php echo $search_style_file; ?>?v=2">
-    <!-- 🔎 搜索框表单验证JS -->
-    <script src="<?php echo get_template_directory_uri(); ?>/assets/js/search-validation.js?v=1"></script>
 </head>
   <body <?php if(is_singular()) echo 'data-post-id="' . get_the_ID() . '"'; ?> >
   <?php
@@ -375,6 +373,19 @@ $search_style_file = $search_style === 'glass' ? 'search-glass.css' :
         </div>
       </nav>
     </header>
+    <div class="mobile-nav-panel" id="mobileNavPanel" hidden aria-hidden="true">
+      <div class="mobile-nav-panel-backdrop"></div>
+      <div class="mobile-nav-panel-sheet">
+        <div class="mobile-nav-panel-header">
+          <button type="button" class="mobile-nav-panel-back" aria-label="返回">
+            <i class="fa fa-chevron-left"></i>
+            <span>返回</span>
+          </button>
+          <span class="mobile-nav-panel-title"></span>
+        </div>
+        <div class="mobile-nav-panel-body"></div>
+      </div>
+    </div>
     <section class="boxmoe_header_banner">
       <div class="boxmoe_header_banner_img">
         <img src="<?php  boxmoe_banner_image(); ?>" alt="boxmoe_header_banner_img">

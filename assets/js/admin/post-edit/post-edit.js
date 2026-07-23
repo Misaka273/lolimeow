@@ -14,9 +14,45 @@ const ShirokiPostEdit = {
      */
     init() {
         this.cacheElements();
+        this.moveSidebarMetaboxes(); /* ◀️ 将侧栏元框移入自定义三栏 */
         this.moveToolbarElements(); /* ◀️ 将工具栏元素移动到对应容器 */
+        this.initToolbarSticky(); /* ◀️ 工具栏滚动时固定在可视区域 */
         this.bindEvents();
         this.enhanceUI();
+    },
+
+    /**
+     * 📦 将 WP 侧栏元框移入自定义右侧栏，避免与原生 columns-2 双侧重叠挤窄编辑区
+     */
+    moveSidebarMetaboxes() {
+        const sidebar = document.getElementById('shiroki-editor-sidebar');
+        const sideSortables = document.getElementById('side-sortables');
+        if (!sidebar || !sideSortables) {
+            return;
+        }
+
+        if (!sidebar.contains(sideSortables)) {
+            sidebar.appendChild(sideSortables);
+        }
+
+        /* 🧹 隐藏已腾空的原生侧栏容器，并解除 columns-2 预留边距 */
+        const postBody = document.getElementById('post-body');
+        const container1 = document.getElementById('postbox-container-1');
+        if (postBody) {
+            postBody.classList.remove('columns-2');
+            postBody.classList.add('columns-1');
+        }
+        if (container1) {
+            container1.style.display = 'none';
+        }
+
+        const postBodyContent = document.getElementById('post-body-content');
+        if (postBodyContent) {
+            postBodyContent.style.marginRight = '0';
+            postBodyContent.style.width = '100%';
+        }
+
+        document.body.classList.add('shiroki-post-edit-layout-ready');
     },
 
     /**
@@ -100,6 +136,98 @@ const ShirokiPostEdit = {
                 editorTools.remove();
             }
         }
+    },
+
+    /**
+     * 📌 工具栏滚动固定：保持在可视区域，且不超出 #shiroki-editor-layout
+     */
+    initToolbarSticky() {
+        const layout = document.getElementById('shiroki-editor-layout');
+        const toolbar = document.getElementById('shiroki-editor-toolbar');
+        const column = toolbar ? toolbar.closest('.shiroki-editor-toolbar-column') : null;
+
+        if (!layout || !toolbar || !column) {
+            return;
+        }
+
+        const desktopQuery = window.matchMedia('(min-width: 1401px)');
+        let frameId = 0;
+        let isFixed = false;
+
+        const getStickyTop = () => {
+            if (!document.body.classList.contains('admin-bar')) {
+                return 0;
+            }
+            return window.innerWidth <= 782 ? 46 : 32;
+        };
+
+        const clearFixed = () => {
+            if (!isFixed) {
+                column.style.minHeight = '';
+                return;
+            }
+
+            isFixed = false;
+            toolbar.classList.remove('is-sticky-fixed');
+            toolbar.style.position = '';
+            toolbar.style.top = '';
+            toolbar.style.left = '';
+            toolbar.style.width = '';
+            column.style.minHeight = '';
+        };
+
+        const applyFixed = (top, left, width, toolbarHeight) => {
+            column.style.minHeight = `${toolbarHeight}px`;
+            toolbar.classList.add('is-sticky-fixed');
+            toolbar.style.position = 'fixed';
+            toolbar.style.top = `${top}px`;
+            toolbar.style.left = `${left}px`;
+            toolbar.style.width = `${width}px`;
+            isFixed = true;
+        };
+
+        const updateToolbarSticky = () => {
+            if (!desktopQuery.matches || getComputedStyle(toolbar).display === 'none') {
+                clearFixed();
+                return;
+            }
+
+            const stickyTop = getStickyTop();
+            const layoutRect = layout.getBoundingClientRect();
+            const columnRect = column.getBoundingClientRect();
+            const toolbarHeight = toolbar.offsetHeight;
+
+            /* 用列占位元素判断，避免 fixed 后 offsetParent 为 null 导致反复切换 */
+            const shouldStick = columnRect.top < stickyTop && layoutRect.bottom > stickyTop;
+
+            if (!shouldStick) {
+                clearFixed();
+                return;
+            }
+
+            const top = Math.min(stickyTop, layoutRect.bottom - toolbarHeight);
+            applyFixed(top, columnRect.left, columnRect.width, toolbarHeight);
+        };
+
+        const scheduleUpdate = () => {
+            if (frameId) {
+                cancelAnimationFrame(frameId);
+            }
+            frameId = requestAnimationFrame(updateToolbarSticky);
+        };
+
+        window.addEventListener('scroll', scheduleUpdate, { passive: true });
+        window.addEventListener('resize', scheduleUpdate, { passive: true });
+
+        /* 仅监听 layout，避免改 toolbar/column 尺寸时 ResizeObserver 自触发抖动 */
+        if (typeof ResizeObserver !== 'undefined') {
+            const observer = new ResizeObserver(scheduleUpdate);
+            observer.observe(layout);
+        }
+
+        scheduleUpdate();
+        setTimeout(scheduleUpdate, 500);
+        setTimeout(scheduleUpdate, 1500);
     },
 
     /**

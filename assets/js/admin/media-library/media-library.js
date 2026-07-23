@@ -195,6 +195,9 @@
         hideOriginalUI: function() {
             // ◀️ 完全隐藏原版UI元素
             $('.view-switch, .wp-list-table, .tablenav, .media-toolbar, .attachments-wrapper, .attachments-browser, .wp-media-grid, .media-frame-content .attachments').hide();
+
+            // ◀️ 移除主页面多余的空 media-frame-toolbar
+            $('.wrap .media-frame-toolbar').remove();
             
             // ◀️ 显示自定义网格
             this.$grid.show();

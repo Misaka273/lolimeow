@@ -44,7 +44,19 @@
   padding: var(--admin-space-lg);
   padding-bottom: var(--admin-space-sm); /* ◀️ 减小底部内边距，避免空白 */
   box-sizing: border-box; /* ◀️ 确保内边距不增加总宽度 */
-  overflow-x: hidden; /* ◀️ 防止水平溢出 */
+  /* clip 不建立滚动容器，避免阻断子级 sticky / fixed 侧栏 */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* 📝 解除中间层 overflow，保证侧栏 sticky 相对视口生效 */
+.post-new-php #post-body,
+.post-php #post-body,
+.post-new-php #post-body-content,
+.post-php #post-body-content,
+.post-new-php #post,
+.post-php #post {
+  overflow: visible;
 }
 
 /* 📦 文章编辑表单容器 - PHP直接控制布局 */
@@ -61,31 +73,88 @@
 }
 
 /* ============================================
-   🎨 双栏布局容器 - 元框在左，编辑区在右
+   🎨 三栏布局容器 - 工具栏 | 编辑区 | 元框
    ============================================ */
+
+/* 📦 覆盖 WP 原生 columns-2，把侧栏交给自定义三栏 */
+.post-new-php #post-body.columns-2 #post-body-content,
+.post-php #post-body.columns-2 #post-body-content {
+  margin-right: 0;
+  width: 100%;
+  float: none;
+}
+
+.post-new-php #post-body,
+.post-php #post-body {
+  margin-right: 0 !important;
+}
+
+/* 元框迁入自定义侧栏后再隐藏原生容器，避免 JS 失败时元框消失 */
+body.shiroki-post-edit-layout-ready #postbox-container-1 {
+  display: none !important;
+  float: none !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
 /* 🎨 三栏布局主容器 */
 .shiroki-editor-layout {
   display: grid;
-  /* 工具栏区域 + 主内容区 + 右侧边栏 */
-  grid-template-columns: 340px 1fr 380px;
+  /* 侧栏可收缩，中间栏保底宽度并吃掉剩余空间 */
+  grid-template-columns: minmax(260px, 320px) minmax(420px, 1fr) minmax(280px, 340px);
   grid-template-areas: "toolbar main sidebar";
   gap: var(--admin-space-lg);
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  box-sizing: border-box;
+  position: relative;
   /* 确保容器有足够高度让 sticky 生效 */
   min-height: calc(100vh - 300px);
-  /* 移除 align-items: start，让子项可以拉伸 */
 }
 
-/* 📝 右侧编辑区域 - 移除白色描边 */
+/* 🧰 工具栏列占位 - 固定定位时保留 grid 列宽 */
+.shiroki-editor-toolbar-column {
+  grid-area: toolbar;
+  align-self: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* 🧰 工具栏 - 背景随内容高度；JS 滚动时 fixed 固定在可视区，且不超出 layout */
+.shiroki-editor-toolbar {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: fit-content;
+  max-height: calc(100vh - 80px);
+  background: var(--admin-current-glass);
+  backdrop-filter: var(--admin-glass-blur);
+  border: var(--admin-border-glass);
+  border-radius: var(--admin-radius-lg);
+  box-shadow: var(--admin-shadow-md);
+  overflow: visible;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.shiroki-editor-toolbar.is-sticky-fixed {
+  position: fixed;
+  z-index: 100;
+}
+
+/* 📝 中间编辑区域 */
 .shiroki-editor-main {
   grid-area: main;
   background: transparent;
   border: none;
   box-shadow: none;
-  min-height: auto; /* ◀️ 自适应高度，避免底部空白 */
-  align-self: start; /* ◀️ 顶部对齐，避免拉伸 */
+  min-width: 0; /* ◀️ grid 子项可正确收缩，避免撑破布局 */
+  width: 100%;
+  min-height: auto;
+  align-self: start;
 }
 
 /* 📝 编辑区域内部 */
@@ -93,7 +162,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--admin-space-lg);
-  height: auto; /* ◀️ 高度自适应内容 */
+  height: auto;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* 📦 右侧元框区域 */
@@ -101,48 +173,45 @@
   grid-area: sidebar;
   position: sticky;
   top: 32px;
+  align-self: start;
   height: calc(100vh - 80px);
   overflow-y: auto;
   overflow-x: hidden;
-  max-width: 100%; /* ◀️ 防止溢出 */
-  box-sizing: border-box; /* ◀️ 确保内边距不增加总宽度 */
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
-/* 📦 侧边栏内的元框样式 */
+/* 📦 侧边栏内的元框容器 - 统一圆角玻璃风格（详细覆盖见文件末尾） */
 .shiroki-editor-sidebar #side-sortables {
   display: flex;
   flex-direction: column;
-  gap: var(--admin-space-lg);
-}
-
-.shiroki-editor-sidebar .postbox {
-  margin-bottom: 0;
-}
-
-/* 🧰 工具栏容器样式 */
-.shiroki-editor-toolbar {
-  position: fixed;
-  top: 200px;
-  left: 180px;
-  width: 320px;
-  max-height: calc(100vh - 160px);
+  gap: 0;
   background: var(--admin-current-glass);
   backdrop-filter: var(--admin-glass-blur);
   border: var(--admin-border-glass);
   border-radius: var(--admin-radius-lg);
   box-shadow: var(--admin-shadow-md);
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
+  overflow-x: clip;
+  overflow-y: clip;
+  box-sizing: border-box;
+  isolation: isolate;
+  contain: paint;
+  clip-path: inset(0 round var(--admin-radius-lg));
+  -webkit-clip-path: inset(0 round var(--admin-radius-lg));
+}
+
+.shiroki-editor-sidebar .postbox {
+  margin-bottom: 0;
 }
 
 .shiroki-editor-toolbar .toolbar-inner {
   padding: var(--admin-space-md);
-  overflow-y: auto; /* ◀️ 内容超出时可滚动 */
+  max-height: calc(100vh - 80px);
   overflow-x: hidden;
-  flex: 1;
-  min-height: 0; /* ◀️ 重要：允许 flex 子项收缩 */
+  overflow-y: auto;
 }
 
 /* ◀️ 自定义滚动条样式 */
@@ -779,9 +848,25 @@
   flex: 0 0 auto; /* ◀️ 不伸缩，按内容高度 */
   min-height: 0; /* ◀️ 强制按内容高度 */
   height: auto; /* ◀️ 高度自适应内容 */
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* 📝 编辑器包装器 - 移除顶部内边距 */
+.post-new-php #wp-content-wrap,
+.post-php #wp-content-wrap,
+.post-new-php #wp-content-editor-container,
+.post-php #wp-content-editor-container,
+.post-new-php .wp-editor-container,
+.post-php .wp-editor-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+
 .post-new-php #wp-content-wrap,
 .post-php #wp-content-wrap {
   padding-top: 0 !important; /* ◀️ 移除顶部内边距，避免空白 */
@@ -797,19 +882,24 @@
   overflow: hidden !important;
 }
 
-/* 📝 编辑器文本域 - 移除多余边距和滚动条 */
+/* 📝 编辑器文本域 - 强制铺满中间栏，避免 field-sizing 把空内容压成细条 */
 .post-new-php .wp-editor-area,
-.post-php .wp-editor-area {
-  margin-top: 0 !important; /* ◀️ 移除顶部边距 */
-  overflow-x: hidden !important; /* ◀️ 隐藏水平滚动条，防止内容超出页面 */
-  overflow-y: auto !important; /* ◀️ 允许垂直滚动 */
-  resize: vertical !important; /* ◀️ 允许垂直方向手动调整大小，方便移动端扩展 */
-  min-height: 300px !important; /* ◀️ 设置最小高度，确保编辑区域有足够空间 */
-  field-sizing: content !important; /* ◀️ ☀️ 现代浏览器支持：根据内容自动调整高度 */
-  max-width: 100% !important; /* ◀️ 确保不超出父容器宽度 */
-  box-sizing: border-box !important; /* ◀️ 确保内边距不增加总宽度 */
-  word-wrap: break-word !important; /* ◀️ 长文本自动换行 */
-  white-space: pre-wrap !important; /* ◀️ 保留换行符并自动换行 */
+.post-php .wp-editor-area,
+.post-new-php textarea#content,
+.post-php textarea#content {
+  margin-top: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  resize: vertical !important;
+  min-height: 300px !important;
+  height: auto !important;
+  field-sizing: content !important; /* ◀️ 仅用于高度随内容增长 */
+  width: 100% !important; /* ◀️ 关键：覆盖 field-sizing 的宽度收缩 */
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  word-wrap: break-word !important;
+  white-space: pre-wrap !important;
   background: var(--admin-current-bg) !important;
   color: var(--admin-current-text-primary) !important;
 }
@@ -912,33 +1002,65 @@
   padding: var(--admin-space-lg);
 }
 
-/* 🔘 发布操作区域 */
+/* 🔘 发布操作区域 - 左右布局：左侧保存，右侧发布 */
 .post-new-php #major-publishing-actions,
 .post-php #major-publishing-actions {
   display: flex;
-  flex-direction: column;
-  gap: 0; /* ◀️ 去掉子元素之间的间隙 */
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--admin-space-sm);
 }
 
-/* 📦 发布按钮容器 */
-.post-new-php #publishing-action,
-.post-php #publishing-action {
-  width: 100%;
+.post-new-php #major-publishing-actions > .clear,
+.post-php #major-publishing-actions > .clear {
+  display: none;
+}
+
+/* 📦 左侧：保存草稿 */
+.post-new-php #save-action,
+.post-php #save-action {
+  display: flex;
+  align-items: center;
+  gap: var(--admin-space-xs);
+  order: 1;
+  flex: 0 0 auto;
   float: none;
-  text-align: left;
-  margin: 0; /* ◀️ 去掉所有边距 */
+  margin: 0;
   padding: 0;
 }
 
-/* 🗑️ 删除操作区域 - 玻璃拟态风格 */
+/* 📦 右侧：发布 */
+.post-new-php #publishing-action,
+.post-php #publishing-action {
+  width: auto;
+  float: none;
+  text-align: right;
+  margin: 0;
+  padding: 0;
+  order: 2;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--admin-space-xs);
+  margin-left: auto;
+}
+
+/* 🗑️ 删除操作区域 - 独占一行 */
 .post-new-php #delete-action,
 .post-php #delete-action {
-  margin: var(--admin-space-xs) 0;
+  order: 3;
+  flex: 1 1 100%;
+  width: 100%;
+  margin: var(--admin-space-xs) 0 0;
   padding: var(--admin-space-sm);
   background: rgba(245, 101, 101, 0.1); /* ◀️ 淡红色背景 */
   border: 1px solid rgba(245, 101, 101, 0.2);
   border-radius: var(--admin-radius-md);
   text-align: center;
+  box-sizing: border-box;
 }
 
 /* 🗑️ 删除链接样式 */
@@ -974,9 +1096,9 @@
   font-weight: var(--admin-font-weight-semibold);
   padding: var(--admin-space-md) var(--admin-space-xl);
   transition: all var(--admin-transition-fast);
-  width: 100%; /* ◀️ 自适应父容器宽度 */
-  box-sizing: border-box; /* ◀️ 确保内边距不增加总宽度 */
-  margin-top: 0; /* ◀️ 去掉上边距 */
+  width: auto;
+  box-sizing: border-box;
+  margin-top: 0;
 }
 
 .post-new-php #publish:hover,
@@ -1637,16 +1759,27 @@
    📱 响应式设计 - 三栏布局
    ============================================ */
 
-/* 📱 中等屏幕 - 两栏布局（隐藏工具栏区域） */
+/* 📱 中等屏幕 - 隐藏工具栏，保留编辑区 + 侧栏 */
 @media screen and (max-width: 1400px) {
   .shiroki-editor-layout {
-    grid-template-columns: 1fr 300px;
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
     grid-template-areas: "main sidebar";
   }
 
-  /* ◀️ 隐藏工具栏区域 */
+  .shiroki-editor-toolbar-column,
   .shiroki-editor-toolbar {
     display: none;
+  }
+
+  .shiroki-toolbar-float-btn {
+    display: flex;
+    align-items: center;
+    gap: var(--admin-space-xs);
+  }
+
+  .post-new-php #wpbody-content,
+  .post-php #wpbody-content {
+    padding-top: 60px;
   }
 }
 
@@ -1962,16 +2095,15 @@
   max-height: calc(100vh - 200px);
 }
 
-/* 📱 1400px以下响应式适配 */
+/* 📱 1400px以下：工具栏改浮动按钮（侧栏保留，布局见上方统一规则） */
 @media screen and (max-width: 1400px) {
-  /* ◀️ 显示浮动按钮 */
   .shiroki-toolbar-float-btn {
     display: flex;
     align-items: center;
     gap: var(--admin-space-xs);
   }
 
-  /* ◀️ 隐藏原工具栏 */
+  .shiroki-editor-toolbar-column,
   .shiroki-editor-toolbar {
     display: none !important;
     visibility: hidden !important;
@@ -1982,35 +2114,80 @@
     backdrop-filter: none !important;
   }
 
-  /* ◀️ 隐藏工具栏内部内容 */
   .shiroki-editor-toolbar .toolbar-inner {
     display: none !important;
   }
+}
 
-  /* ◀️ 隐藏侧边栏，释放空间 */
-  .shiroki-editor-sidebar {
-    display: none !important;
-  }
+/* ============================================
+   📦 侧栏 #side-sortables 圆角容器 - 强制覆盖各元框 ID 样式
+   ============================================ */
 
-  /* ◀️ 调整主内容区域 */
-  .post-new-php #wpbody-content,
-  .post-php #wpbody-content {
-    padding-top: 60px;
-  }
+.post-new-php .shiroki-editor-sidebar #side-sortables.meta-box-sortables,
+.post-php .shiroki-editor-sidebar #side-sortables.meta-box-sortables,
+.post-new-php .shiroki-editor-sidebar #side-sortables.ui-sortable,
+.post-php .shiroki-editor-sidebar #side-sortables.ui-sortable {
+  border-radius: var(--admin-radius-lg) !important;
+  overflow: hidden !important;
+  overflow-x: clip !important;
+  overflow-y: clip !important;
+  background: var(--admin-current-glass) !important;
+  backdrop-filter: var(--admin-glass-blur) !important;
+  border: var(--admin-border-glass) !important;
+  box-shadow: var(--admin-shadow-md) !important;
+  isolation: isolate;
+  contain: paint;
+  clip-path: inset(0 round var(--admin-radius-lg)) !important;
+  -webkit-clip-path: inset(0 round var(--admin-radius-lg)) !important;
+}
 
-  /* ◀️ 显示移动端模态框 */
-  .shiroki-toolbar-mobile-modal {
-    display: flex;
-  }
+.post-new-php .shiroki-editor-sidebar #side-sortables > .postbox,
+.post-php .shiroki-editor-sidebar #side-sortables > .postbox {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  margin-bottom: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
 
-  /* ◀️ 编辑器布局改为单栏 */
-  .shiroki-editor-layout {
-    grid-template-columns: 1fr !important;
-    grid-template-areas: "main" !important;
-  }
+.post-new-php .shiroki-editor-sidebar #side-sortables > .postbox + .postbox,
+.post-php .shiroki-editor-sidebar #side-sortables > .postbox + .postbox {
+  border-top: 1px solid var(--admin-current-border) !important;
+}
 
-  .shiroki-editor-main {
-    grid-area: main;
-    max-width: 100%;
-  }
+.post-new-php .shiroki-editor-sidebar #side-sortables .postbox .postbox-header,
+.post-php .shiroki-editor-sidebar #side-sortables .postbox .postbox-header,
+.post-new-php .shiroki-editor-sidebar #side-sortables .postbox > .hndle,
+.post-php .shiroki-editor-sidebar #side-sortables .postbox > .hndle {
+  background: transparent !important;
+  border-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  overflow: hidden !important;
+}
+
+.post-new-php .shiroki-editor-sidebar #side-sortables .postbox .inside,
+.post-php .shiroki-editor-sidebar #side-sortables .postbox .inside {
+  background: transparent !important;
+  border-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+  overflow: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.post-new-php .shiroki-editor-sidebar #side-sortables .postbox .inside > *,
+.post-php .shiroki-editor-sidebar #side-sortables .postbox .inside > * {
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.post-new-php .shiroki-editor-sidebar #side-sortables .postbox .handlediv,
+.post-php .shiroki-editor-sidebar #side-sortables .postbox .handlediv {
+  border-radius: 0 !important;
 }

@@ -27,6 +27,19 @@ $options[] = array(
         );
 
     $options[] = array(
+        'name' => __('鼠标点击特效 UI 风格', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_guangbiao_click_style',
+        'std' => 'none',
+        'type' => 'radio',
+        'options' => array(
+            'none' => __('关闭', 'ui_boxmoe_com'),
+            'five_lines' => __('扇形线条', 'ui_boxmoe_com'),
+            'firework_lines' => __('八彩烟花', 'ui_boxmoe_com'),
+        ),
+        'desc' => __('选择鼠标点击时的特效样式', 'ui_boxmoe_com'),
+        );
+
+    $options[] = array(
         'name' => __('开启自定义鼠标光标', 'ui_boxmoe_com'),
         'id' => 'boxmoe_custom_cursor_switch',
         'type' => "checkbox",
@@ -85,4 +98,39 @@ $options[] = array(
         'type' => "text",
         'std' => '8',
         'desc' => __('设置LOGO呼吸动画的周期「单位：秒，默认8秒」', 'ui_boxmoe_com'),
+        );
+
+    // 💬 气泡提示设定
+    $options[] = array(
+        'group' => 'start',
+        'group_title' => '气泡设定',
+        'name' => __('气泡 UI 风格', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_bubble_style',
+        'std' => 'normal',
+        'type' => 'radio',
+        'options' => array(
+            'normal' => __('普通', 'ui_boxmoe_com'),
+            'border' => __('漫画边框效果', 'ui_boxmoe_com'),
+            'shadow' => __('阴影边框效果', 'ui_boxmoe_com'),
+            'lines' => __('线条边框效果', 'ui_boxmoe_com'),
+            'glass' => __('圆角拟态玻璃效果', 'ui_boxmoe_com'),
+        ),
+        'desc' => __('选择全站气泡提示的 UI 风格，选项与基础设置中的 UI风格布局边框 对应', 'ui_boxmoe_com'),
+        );
+
+    $options[] = array(
+        'name' => __('搜索框提示文本', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_bubble_field_hint_msg',
+        'type' => 'text',
+        'std' => '探索',
+        'desc' => __('鼠标悬停或聚焦顶部搜索框时，气泡提示的文案', 'ui_boxmoe_com'),
+        );
+
+    $options[] = array(
+        'group' => 'end',
+        'name' => __('输入框内容', 'ui_boxmoe_com'),
+        'id' => 'boxmoe_bubble_empty_validation_msg',
+        'type' => 'text',
+        'std' => '请输入内容',
+        'desc' => __('输入框留空提交时，气泡提示的文案', 'ui_boxmoe_com'),
         );

@@ -16,7 +16,7 @@ function init_comment_session() {
     }
     
     if (!session_id()) {
-        session_start();
+        @session_start();
     }
 }
 function boxmoe_comment($comment, $args = array(), $depth = 1) {
@@ -146,8 +146,9 @@ function get_comment_author_info($field) {
             strpos($_SERVER['REQUEST_URI'], '/wp-admin/admin-ajax.php') === false &&
             strpos($_SERVER['REQUEST_URI'], '/wp-json/') === false
         ) {
-            session_start();
-            $session_started = true;
+            if (@session_start()) {
+                $session_started = true;
+            }
         }
     }
     

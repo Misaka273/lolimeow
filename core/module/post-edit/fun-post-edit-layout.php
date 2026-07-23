@@ -58,26 +58,82 @@ class Shiroki_Post_Edit_Layout {
         /* 🎨 三栏布局主容器 */
         echo '.shiroki-editor-layout {';
         echo '  display: grid;';
-        echo '  grid-template-columns: 340px 1fr 380px;';
+        echo '  grid-template-columns: minmax(260px, 320px) minmax(420px, 1fr) minmax(280px, 340px);';
         echo '  grid-template-areas: "toolbar main sidebar";';
         echo '  gap: var(--admin-space-lg);';
-        echo '  max-width: 1600px;';
-        echo '  margin: 0 auto;';
+        echo '  width: 100%;';
+        echo '  max-width: 100%;';
+        echo '  margin: 0;';
+        echo '  box-sizing: border-box;';
+        echo '  position: relative;';
         echo '  min-height: calc(100vh - 100px);';
         echo '}';
-        
-        /* 🧰 工具栏占位 - 让 grid 为 fixed 工具栏留出空间 */
-        echo '.shiroki-editor-toolbar {';
-        echo '  grid-area: toolbar;';
-        echo '  min-height: 1px;';
+
+        echo '.post-new-php #wpbody-content,';
+        echo '.post-php #wpbody-content {';
+        echo '  overflow-x: clip;';
+        echo '  overflow-y: visible;';
+        echo '}';
+
+        echo '.post-new-php #post-body,';
+        echo '.post-php #post-body,';
+        echo '.post-new-php #post-body-content,';
+        echo '.post-php #post-body-content,';
+        echo '.post-new-php #post,';
+        echo '.post-php #post {';
+        echo '  overflow: visible;';
+        echo '}';
+
+        /* 📦 解除 WP 原生 columns-2 对编辑区的挤压 */
+        echo '.post-new-php #post-body.columns-2 #post-body-content,';
+        echo '.post-php #post-body.columns-2 #post-body-content {';
+        echo '  margin-right: 0;';
+        echo '  width: 100%;';
+        echo '  float: none;';
+        echo '}';
+        echo 'body.shiroki-post-edit-layout-ready #postbox-container-1 {';
+        echo '  display: none !important;';
         echo '}';
         
-        /* 📝 右侧编辑区域 */
+        /* 🧰 工具栏列占位 + 工具栏本体 */
+        echo '.shiroki-editor-toolbar-column {';
+        echo '  grid-area: toolbar;';
+        echo '  align-self: start;';
+        echo '  width: 100%;';
+        echo '  max-width: 100%;';
+        echo '  min-width: 0;';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar {';
+        echo '  width: 100%;';
+        echo '  max-width: 100%;';
+        echo '  min-width: 0;';
+        echo '  height: fit-content;';
+        echo '  max-height: calc(100vh - 80px);';
+        echo '  background: var(--admin-current-glass);';
+        echo '  backdrop-filter: var(--admin-glass-blur);';
+        echo '  border: var(--admin-border-glass);';
+        echo '  border-radius: var(--admin-radius-lg);';
+        echo '  box-shadow: var(--admin-shadow-md);';
+        echo '  overflow: visible;';
+        echo '  z-index: 10;';
+        echo '  box-sizing: border-box;';
+        echo '}';
+
+        echo '.shiroki-editor-toolbar.is-sticky-fixed {';
+        echo '  position: fixed;';
+        echo '  z-index: 100;';
+        echo '}';
+        
+        /* 📝 中间编辑区域 */
         echo '.shiroki-editor-main {';
         echo '  grid-area: main;';
         echo '  display: flex;';
         echo '  flex-direction: column;';
         echo '  gap: var(--admin-space-lg);';
+        echo '  min-width: 0;';
+        echo '  width: 100%;';
+        echo '  align-self: start;';
         echo '}';
 
         /* 📦 右侧元框区域 */
@@ -85,41 +141,90 @@ class Shiroki_Post_Edit_Layout {
         echo '  grid-area: sidebar;';
         echo '  position: sticky;';
         echo '  top: 32px;';
+        echo '  align-self: start;';
         echo '  height: calc(100vh - 80px);';
         echo '  overflow-y: auto;';
         echo '  overflow-x: hidden;';
+        echo '  min-width: 0;';
+        echo '  width: 100%;';
         echo '}';
 
-        /* 📦 侧边栏内的元框样式 */
+        /* 📝 编辑区强制铺满，避免 field-sizing 把空内容压窄 */
+        echo '.shiroki-editor-main .editor-inner,';
+        echo '.shiroki-editor-main #postdivrich,';
+        echo '.shiroki-editor-main #wp-content-wrap,';
+        echo '.shiroki-editor-main #wp-content-editor-container {';
+        echo '  width: 100% !important;';
+        echo '  max-width: 100% !important;';
+        echo '  min-width: 0 !important;';
+        echo '  box-sizing: border-box !important;';
+        echo '}';
+        echo '.post-new-php .wp-editor-area,';
+        echo '.post-php .wp-editor-area,';
+        echo '.post-new-php textarea#content,';
+        echo '.post-php textarea#content {';
+        echo '  width: 100% !important;';
+        echo '  max-width: 100% !important;';
+        echo '  min-width: 0 !important;';
+        echo '  box-sizing: border-box !important;';
+        echo '}';
+
+        /* 📦 侧栏 #side-sortables 圆角容器 - 强制覆盖（完整规则见 post-edit.css 末尾） */
         echo '.shiroki-editor-sidebar #side-sortables {';
         echo '  display: flex;';
         echo '  flex-direction: column;';
-        echo '  gap: var(--admin-space-lg);';
-        echo '}';
-
-        echo '.shiroki-editor-sidebar .postbox {';
-        echo '  margin-bottom: 0;';
+        echo '  gap: 0;';
         echo '  background: var(--admin-current-glass);';
         echo '  backdrop-filter: var(--admin-glass-blur);';
         echo '  border: var(--admin-border-glass);';
         echo '  border-radius: var(--admin-radius-lg);';
         echo '  box-shadow: var(--admin-shadow-md);';
         echo '  overflow: hidden;';
+        echo '  overflow-x: clip;';
+        echo '  overflow-y: clip;';
+        echo '  box-sizing: border-box;';
+        echo '  isolation: isolate;';
+        echo '  contain: paint;';
+        echo '  clip-path: inset(0 round var(--admin-radius-lg));';
+        echo '  -webkit-clip-path: inset(0 round var(--admin-radius-lg));';
         echo '}';
 
-        /* 📦 元框标题样式 */
-        echo '.shiroki-editor-sidebar .postbox .hndle {';
-        echo '  background: var(--admin-current-glass);';
+        echo '.post-new-php .shiroki-editor-sidebar #side-sortables > .postbox,';
+        echo '.post-php .shiroki-editor-sidebar #side-sortables > .postbox {';
+        echo '  background: transparent !important;';
+        echo '  border: none !important;';
+        echo '  border-radius: 0 !important;';
+        echo '  box-shadow: none !important;';
+        echo '  overflow: hidden !important;';
+        echo '  margin-bottom: 0 !important;';
+        echo '  max-width: 100% !important;';
+        echo '  box-sizing: border-box !important;';
+        echo '}';
+
+        echo '.post-new-php .shiroki-editor-sidebar #side-sortables .postbox .inside,';
+        echo '.post-php .shiroki-editor-sidebar #side-sortables .postbox .inside {';
+        echo '  background: transparent !important;';
+        echo '  border-radius: 0 !important;';
+        echo '  overflow: hidden !important;';
+        echo '  max-width: 100% !important;';
+        echo '  box-sizing: border-box !important;';
+        echo '  padding: var(--admin-space-lg);';
+        echo '}';
+
+        echo '.post-new-php .shiroki-editor-sidebar #side-sortables .postbox .postbox-header,';
+        echo '.post-php .shiroki-editor-sidebar #side-sortables .postbox .postbox-header,';
+        echo '.post-new-php .shiroki-editor-sidebar #side-sortables .postbox > .hndle,';
+        echo '.post-php .shiroki-editor-sidebar #side-sortables .postbox > .hndle {';
+        echo '  background: transparent !important;';
+        echo '  border-radius: 0 !important;';
         echo '  border-bottom: 1px solid var(--admin-current-border);';
         echo '  color: var(--admin-current-text-primary);';
         echo '  font-weight: var(--admin-font-weight-semibold);';
         echo '  padding: var(--admin-space-md) var(--admin-space-lg);';
         echo '}';
 
-        /* 📦 元框内容样式 */
-        echo '.shiroki-editor-sidebar .postbox .inside {';
-        echo '  background: var(--admin-current-bg);';
-        echo '  padding: var(--admin-space-lg);';
+        echo '.shiroki-editor-sidebar .postbox {';
+        echo '  margin-bottom: 0;';
         echo '}';
 
         /* 📦 侧边栏滚动条美化 */
@@ -131,29 +236,12 @@ class Shiroki_Post_Edit_Layout {
         echo '  border-radius: var(--admin-radius-full);';
         echo '}';
 
-        /* 🧰 工具栏容器样式 */
-        echo '.shiroki-editor-toolbar {';
-        echo '  position: fixed;';
-        echo '  top: 200px;';
-        echo '  left: 180px;';
-        echo '  width: 320px;';
-        echo '  max-height: calc(100vh - 260px)';
-        echo '  background: var(--admin-current-glass);';
-        echo '  backdrop-filter: var(--admin-glass-blur);';
-        echo '  border: var(--admin-border-glass);';
-        echo '  border-radius: var(--admin-radius-lg);';
-        echo '  box-shadow: var(--admin-shadow-md);';
-        echo '  overflow: hidden;';
-        echo '  display: flex;';
-        echo '  flex-direction: column;';
-        echo '  z-index: 100;';
-        echo '}';
-        
+        /* 🧰 工具栏内部样式 */
         echo '.shiroki-editor-toolbar .toolbar-inner {';
         echo '  padding: var(--admin-space-md);';
+        echo '  max-height: calc(100vh - 80px);';
+        echo '  overflow-x: hidden;';
         echo '  overflow-y: auto;';
-        echo '  flex: 1;';
-        echo '  min-height: 0;';
         echo '}';
 
         echo '.shiroki-editor-toolbar .toolbar-section {';
@@ -291,11 +379,12 @@ class Shiroki_Post_Edit_Layout {
         /* 📱 响应式设计 */
         echo '@media screen and (max-width: 1400px) {';
         echo '  .shiroki-editor-layout {';
-        echo '    grid-template-columns: 1fr;';
-        echo '    grid-template-areas: "main";';
+        echo '    grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);';
+        echo '    grid-template-areas: "main sidebar";';
         echo '    gap: var(--admin-space-lg);';
         echo '  }';
-        echo '  .shiroki-editor-sidebar {';
+        echo '  .shiroki-editor-toolbar-column,';
+        echo '  .shiroki-editor-toolbar {';
         echo '    display: none;';
         echo '  }';
         echo '  .shiroki-editor-main {';
@@ -306,12 +395,40 @@ class Shiroki_Post_Edit_Layout {
         echo '@media screen and (max-width: 782px) {';
         echo '  .shiroki-editor-layout {';
         echo '    grid-template-columns: 1fr;';
-        echo '    grid-template-areas: "main";';
+        echo '    grid-template-areas: "main" "sidebar";';
         echo '    gap: var(--admin-space-lg);';
+        echo '  }';
+        echo '  .shiroki-editor-sidebar {';
+        echo '    position: relative;';
+        echo '    top: auto;';
+        echo '    height: auto;';
         echo '  }';
         echo '}';
 
         echo '</style>';
+
+        /* ⚡ 尽早把侧栏元框迁入三栏，减少布局闪烁 */
+        echo '<script>';
+        echo '(function(){';
+        echo '  function moveSide(){';
+        echo '    var sidebar=document.getElementById("shiroki-editor-sidebar");';
+        echo '    var side=document.getElementById("side-sortables");';
+        echo '    if(!sidebar||!side) return false;';
+        echo '    if(!sidebar.contains(side)){ sidebar.appendChild(side); }';
+        echo '    var pb=document.getElementById("post-body");';
+        echo '    if(pb){ pb.classList.remove("columns-2"); pb.classList.add("columns-1"); }';
+        echo '    var c1=document.getElementById("postbox-container-1");';
+        echo '    if(c1){ c1.style.display="none"; }';
+        echo '    var pbc=document.getElementById("post-body-content");';
+        echo '    if(pbc){ pbc.style.marginRight="0"; pbc.style.width="100%"; }';
+        echo '    document.body.classList.add("shiroki-post-edit-layout-ready");';
+        echo '    return true;';
+        echo '  }';
+        echo '  if(!moveSide()){';
+        echo '    document.addEventListener("DOMContentLoaded", moveSide);';
+        echo '  }';
+        echo '})();';
+        echo '</script>';
     }
 
     /**
@@ -322,6 +439,7 @@ class Shiroki_Post_Edit_Layout {
         echo '<div id="shiroki-editor-layout" class="shiroki-editor-layout">';
 
         /* 🧰 工具栏区域 - 独立的第一栏 */
+        echo '  <div class="shiroki-editor-toolbar-column">';
         echo '  <div id="shiroki-editor-toolbar" class="shiroki-editor-toolbar">';
         echo '    <div class="toolbar-inner">';
         echo '      <div class="toolbar-section toolbar-media">';
@@ -342,6 +460,7 @@ class Shiroki_Post_Edit_Layout {
         echo '      </div>';
         echo '    </div>';
         echo '  </div><!-- /#shiroki-editor-toolbar -->';
+        echo '  </div><!-- /.shiroki-editor-toolbar-column -->';
 
         /* 📝 中间编辑区域开始 */
         echo '  <div id="shiroki-editor-main" class="shiroki-editor-main">';

@@ -611,7 +611,7 @@ function boxmoe_admin_clear_format_scripts($hook){
 		wp_enqueue_script('admin-tinymce-fullscreen-fix', get_template_directory_uri() . '/assets/js/admin-tinymce-fullscreen-fix.js', array('jquery'), THEME_VERSION, true);
 
 		// 📝 加载写文章/编辑文章页面玻璃拟态UI样式
-		wp_enqueue_style('shiroki-post-edit', get_template_directory_uri() . '/assets/css/admin/post-edit/post-edit.css', array('admin-variables'), THEME_VERSION);
+		wp_enqueue_style('shiroki-post-edit', get_template_directory_uri() . '/assets/css/admin/post-edit/post-edit.css', array('admin-variables', 'lolimeow-admin-flat-rounded'), THEME_VERSION);
 		// 📝 加载写文章/编辑文章页面交互增强脚本
 		wp_enqueue_script('shiroki-post-edit', get_template_directory_uri() . '/assets/js/admin/post-edit/post-edit.js', array('jquery'), THEME_VERSION, true);
 

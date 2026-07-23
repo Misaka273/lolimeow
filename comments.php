@@ -104,7 +104,7 @@ if(!isset($user_ID)) {
                             发表评论
                             <small><a rel="nofollow" id="cancel-comment-reply-link" href="#respond" style="display:none;">取消回复</a></small>
                         </h3>             
-                        <form action="<?php echo get_option('siteurl'); ?>/wp-comments-post.php" method="post" id="commentform" class="comment-form">
+                        <form action="<?php echo get_option('siteurl'); ?>/wp-comments-post.php" method="post" id="commentform" class="comment-form" novalidate>
                             <?php wp_nonce_field('comment_nonce', 'comment_nonce_field'); ?>
                             <?php comment_id_fields(); ?>
                             <div class="comment-user-info">

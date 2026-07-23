@@ -3,6 +3,19 @@ document.addEventListener('DOMContentLoaded', function() {
     if (commentForm) {
         commentForm.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            const commentField = this.querySelector('#comment');
+            if (commentField && !commentField.value.trim()) {
+                commentField.classList.add('shiroki-field-error');
+                if (window.ShirokiBubbleTooltip) {
+                    var emptyMsg = window.ShirokiBubbleTooltip.getEmptyValidationMessage
+                        ? window.ShirokiBubbleTooltip.getEmptyValidationMessage()
+                        : ((window.shirokiBubbleConfig && window.shirokiBubbleConfig.emptyValidationMsg) || '请输入内容');
+                    window.ShirokiBubbleTooltip.showValidationError(commentField, emptyMsg);
+                }
+                return;
+            }
+
             const formData = new FormData(this);
             const messageArea = document.querySelector('.message-content');
             const submitBtn = this.querySelector('.submit-btn');

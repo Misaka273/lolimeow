@@ -174,6 +174,9 @@ class Shiroki_Media_Library_UI {
             // 完全隐藏原版UI元素
             $('.view-switch, .wp-list-table, .tablenav, .media-toolbar, .attachments-wrapper, .attachments-browser').hide();
 
+            // 移除主页面多余的空 media-frame-toolbar
+            $('.wrap .media-frame-toolbar').remove();
+
             // 隐藏WordPress原生的媒体网格（只在主页面操作）
             $('.wp-media-grid').hide();
             // 注意：不要隐藏 .media-frame-content .attachments，因为这会影响上传弹窗中的媒体库显示

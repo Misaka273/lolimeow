@@ -85,9 +85,14 @@ function boxmoe_article_thumbnail_src() {
             $random_dir = get_template_directory() . '/assets/images/random';
             $random_images = array();
             
-            // 尝试使用 glob
-            $glob_pattern = $random_dir . '/*.{jpg,jpeg,png,gif}';
-            $glob_images = glob($glob_pattern, GLOB_BRACE);
+            // 按扩展名分别 glob（Playground/部分 PHP 无 GLOB_BRACE）
+            $glob_images = array();
+            foreach (array('jpg', 'jpeg', 'png', 'gif') as $ext) {
+                $found = glob($random_dir . '/*.' . $ext);
+                if (!empty($found)) {
+                    $glob_images = array_merge($glob_images, $found);
+                }
+            }
             
             if (!empty($glob_images)) {
                 $random_images = $glob_images;
@@ -187,6 +192,15 @@ function _get_excerpt($limit = 60, $after = '...') {
         return _str_cut(strip_tags($excerpt), 0, $limit, $after);
     }
     return $excerpt;
+}
+
+function _get_full_excerpt() {
+    if ( post_password_required() ) {
+        $fallback = '无法提供摘要。这是一篇受保护的文章。';
+        return get_boxmoe('boxmoe_article_password_excerpt_text', $fallback);
+    }
+
+    return wp_strip_all_tags(get_the_excerpt());
 }
 
 // 表格替换--------------------------boxmoe.com--------------------------
@@ -450,6 +464,86 @@ function p_link( $i, $title = '', $w='' ) {
 }
 endif;
 
+// 文章内容分页链接 URL
+if ( ! function_exists( 'shiroki_get_content_page_url' ) ) :
+function shiroki_get_content_page_url( $pagenum ) {
+    global $wp_rewrite;
+
+    $post = get_post();
+    if ( ! $post ) {
+        return '';
+    }
+
+    $pagenum = max( 1, (int) $pagenum );
+
+    if ( 'draft' === $post->post_status ) {
+        return add_query_arg( 'page', $pagenum, get_preview_post_link( $post ) );
+    }
+
+    if ( 1 === $pagenum ) {
+        return get_permalink( $post );
+    }
+
+    if ( get_option( 'permalink_structure' ) && is_array( $wp_rewrite->wp_rewrite_rules() ) && get_option( 'rewrite_rules' ) ) {
+        return trailingslashit( get_permalink( $post ) ) . user_trailingslashit( $pagenum, 'single_paged' );
+    }
+
+    return add_query_arg( 'page', $pagenum, get_permalink( $post ) );
+}
+endif;
+
+// 文章内容分页导航（上一页 / 下一页 + 页码跳转）
+if ( ! function_exists( 'shiroki_content_page_links' ) ) :
+function shiroki_content_page_links() {
+    global $page, $numpages, $multipage;
+
+    if ( ! $multipage || $numpages <= 1 ) {
+        return;
+    }
+
+    $current = max( 1, (int) $page );
+    $total   = (int) $numpages;
+    $post_id = get_the_ID();
+    $input_id = 'page-links-input-' . $post_id;
+
+    $prev_url = $current > 1 ? shiroki_get_content_page_url( $current - 1 ) : '';
+    $next_url = $current < $total ? shiroki_get_content_page_url( $current + 1 ) : '';
+
+    $page_urls = array();
+    for ( $i = 1; $i <= $total; $i++ ) {
+        $page_urls[ (string) $i ] = shiroki_get_content_page_url( $i );
+    }
+
+    echo '<div class="page-links" data-total="' . esc_attr( $total ) . '" data-current="' . esc_attr( $current ) . '">';
+    echo '<div class="page-links-header">';
+    echo '<span class="page-links-title">' . esc_html__( '分页🎉', 'boxmoe' ) . '</span>';
+    echo '<span class="page-links-status">' . sprintf( esc_html__( '第 %1$d / %2$d 页', 'boxmoe' ), $current, $total ) . '</span>';
+    echo '</div>';
+
+    echo '<div class="page-links-nav">';
+    if ( $prev_url ) {
+        echo '<a class="page-links-btn page-links-prev" href="' . esc_url( $prev_url ) . '"><i class="fa fa-angle-left"></i> ' . esc_html__( '上一页', 'boxmoe' ) . '</a>';
+    } else {
+        echo '<span class="page-links-btn page-links-prev is-disabled" aria-disabled="true"><i class="fa fa-angle-left"></i> ' . esc_html__( '上一页', 'boxmoe' ) . '</span>';
+    }
+    if ( $next_url ) {
+        echo '<a class="page-links-btn page-links-next" href="' . esc_url( $next_url ) . '">' . esc_html__( '下一页', 'boxmoe' ) . ' <i class="fa fa-angle-right"></i></a>';
+    } else {
+        echo '<span class="page-links-btn page-links-next is-disabled" aria-disabled="true">' . esc_html__( '下一页', 'boxmoe' ) . ' <i class="fa fa-angle-right"></i></span>';
+    }
+    echo '</div>';
+
+    echo '<div class="page-links-jump">';
+    echo '<label class="page-links-jump-label" for="' . esc_attr( $input_id ) . '">' . esc_html__( '跳转到', 'boxmoe' ) . '</label>';
+    echo '<input type="number" id="' . esc_attr( $input_id ) . '" class="page-links-input" min="1" max="' . esc_attr( $total ) . '" value="' . esc_attr( $current ) . '" inputmode="numeric" aria-label="' . esc_attr__( '页码', 'boxmoe' ) . '">';
+    echo '<span class="page-links-jump-total">/ ' . esc_html( $total ) . '</span>';
+    echo '<button type="button" class="page-links-jump-btn">' . esc_html__( '查看', 'boxmoe' ) . '</button>';
+    echo '</div>';
+
+    echo '<script type="application/json" class="page-links-data">' . wp_json_encode( $page_urls ) . '</script>';
+    echo '</div>';
+}
+endif;
 
 // 文章点赞数获取
 function getPostLikes($postID) {

@@ -54,14 +54,7 @@ if(!defined('ABSPATH')){echo'Look your sister';exit;}
                       </div>
                       <div class="single-content">                        
                         <?php the_content(); ?>
-                        <?php wp_link_pages(array(
-                            'before' => '<div class="page-links"><span class="page-links-title">' . __('分页🎉', 'boxmoe') . '</span>',
-                            'after' => '</div>',
-                            'link_before' => '',
-                            'link_after' => '',
-                            'pagelink' => '%',
-                            'echo' => 1
-                        )); ?>
+                        <?php shiroki_content_page_links(); ?>
                     </div>
 
                       <div class="single-tags mt-7">

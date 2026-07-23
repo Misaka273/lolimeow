@@ -101,6 +101,16 @@
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     clear: both; /* ⬅️ 清除浮动 */
     min-height: 300px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 📝 默认编辑态：强制铺满，避免 field-sizing 在空内容时把宽度压成细条 */
+#wp-content-editor-container textarea#content {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
 }
 
 /* 🌓 分屏模式布局 */
@@ -109,6 +119,7 @@
     flex-direction: row;
     gap: 15px;
     align-items: flex-start;
+    width: 100%;
 }
 
 #wp-content-editor-container.mode-split textarea#content {

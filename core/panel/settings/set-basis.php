@@ -40,7 +40,7 @@ $options[] = array(
 			'three' => __('一排三个布局', 'ui_boxmoe_com')
 		)); 
     $options[] = array(
-		'name' => __('布局边框', 'ui_boxmoe_com'),
+		'name' => __('UI风格布局边框', 'ui_boxmoe_com'),
 		'id' => 'boxmoe_blog_border',
 		'std' => "default",
 		'type' => "radio",

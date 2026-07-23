@@ -2901,6 +2901,43 @@ function shiroki_enqueue_guangbiao_tx_script() {
 }
 add_action('wp_enqueue_scripts', 'shiroki_enqueue_guangbiao_tx_script', 35);
 
+// ✨ 加载鼠标点击线条特效
+function shiroki_enqueue_guangbiao_click_script() {
+    $style = get_boxmoe('boxmoe_guangbiao_click_style', 'none');
+    if ($style === 'triple_lines_ul') {
+        $style = 'five_lines';
+    }
+    if ($style === 'none' && get_boxmoe('boxmoe_guangbiao_click_switch')) {
+        $style = 'five_lines';
+    }
+
+    if ($style && $style !== 'none') {
+        wp_enqueue_style(
+            'shiroki-guangbiao-click',
+            get_template_directory_uri() . '/assets/css/guangbiaoClick.css',
+            array(),
+            '1.0.0'
+        );
+
+        wp_enqueue_script(
+            'shiroki-guangbiao-click',
+            get_template_directory_uri() . '/assets/js/guangbiaoClick.js',
+            array(),
+            '1.0.0',
+            true
+        );
+
+        wp_localize_script(
+            'shiroki-guangbiao-click',
+            'shirokiGuangbiaoClickConfig',
+            array(
+                'style' => $style,
+            )
+        );
+    }
+}
+add_action('wp_enqueue_scripts', 'shiroki_enqueue_guangbiao_click_script', 35);
+
 // 🖱️ 加载自定义鼠标光标样式
 function shiroki_enqueue_custom_cursor_script() {
     // 🔍 检查是否开启自定义光标
